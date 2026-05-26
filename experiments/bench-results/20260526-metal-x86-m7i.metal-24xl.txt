@@ -1,0 +1,35 @@
+# ===== HOST: ip-172-31-62-214  ARCH: x86_64 =====
+# CPU: Intel(R) Xeon(R) Platinum 8488C
+# Date: 20260526T153854Z
+
+===== random [0,1] =====
+# parsing random numbers
+volume: 100000 floats
+ASCII volume = 2.09808 MB 
+strtod                                  :   310.53 MB/s (+/- 2.2 %)    14.80 Mfloat/s  
+abseil                                  :   863.71 MB/s (+/- 2.1 %)    41.17 Mfloat/s  
+fastfloat                               :  2020.15 MB/s (+/- 5.1 %)    96.29 Mfloat/s  
+ffc                                     :  1727.94 MB/s (+/- 2.4 %)    82.36 Mfloat/s  
+UTF-16 volume = 4.19617 MB 
+fastfloat                               :  3782.90 MB/s (+/- 0.3 %)    90.15 Mfloat/s  
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+
+===== canada.txt =====
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+strtod                                  :   221.05 MB/s (+/- 1.4 %)    12.70 Mfloat/s  
+abseil                                  :   765.46 MB/s (+/- 4.7 %)    43.99 Mfloat/s  
+fastfloat                               :  1452.80 MB/s (+/- 2.9 %)    83.49 Mfloat/s  
+ffc                                     :  1411.67 MB/s (+/- 10.9 %)    81.12 Mfloat/s  
+UTF-16 volume = 3.86749 MB 
+fastfloat                               :  2760.97 MB/s (+/- 0.5 %)    79.33 Mfloat/s  
+
+===== mesh.txt =====
+# read 73019 lines 
+ASCII volume = 0.536009 MB 
+strtod                                  :   195.73 MB/s (+/- 2.2 %)    26.66 Mfloat/s  
+abseil                                  :   449.71 MB/s (+/- 2.8 %)    61.26 Mfloat/s  
+fastfloat                               :  1130.56 MB/s (+/- 4.8 %)   154.01 Mfloat/s  
+ffc                                     :  1073.19 MB/s (+/- 2.8 %)   146.20 Mfloat/s  
+UTF-16 volume = 1.07202 MB 
+fastfloat                               :  2438.25 MB/s (+/- 7.0 %)   166.08 Mfloat/s  
