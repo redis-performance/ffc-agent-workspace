@@ -87,17 +87,25 @@ win — document it and keep going.
 
 ---
 
-## Current Baseline (Linux x86 — Intel Core Ultra 7 155U, 2026-05-26)
+## Current State (post EXP-001, 2026-05-26)
 
-_Note: ffc beats fastfloat on Apple Silicon (+13%) but trails on x86. Closing this gap is the primary goal._
+### x86 — Intel Xeon Platinum 8488C (m7i.metal-24xl)
 
 | Dataset | ffc MB/s | fastfloat MB/s | Δ% |
 |---------|----------|----------------|----|
-| random [0,1] | 1645 | 1871 | **-12%** |
-| canada.txt | 1053 | 1305 | **-19%** |
-| mesh.txt | 930 | 1104 | **-16%** |
+| random [0,1] | 1745 | 2055 | -15% |
+| canada.txt | **1451** | 1442 | **+0.6% (ffc leads)** |
+| mesh.txt | 1081 | 1220 | -11% |
 
-Baseline run: `experiments/bench-results/20260526-141719.txt`
+### ARM — Graviton4 (m8g.metal-24xl)
+
+| Dataset | ffc MB/s | fastfloat MB/s | Δ% |
+|---------|----------|----------------|----|
+| random [0,1] | 1566 | 1095 | **+43%** |
+| canada.txt | 1331 | 918 | **+45%** |
+| mesh.txt | 1002 | 498 | **+101%** |
+
+Baselines: `experiments/EXP-001/bench-results/`
 
 ---
 
@@ -108,7 +116,7 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 
 | Status | Count |
 |--------|-------|
-| Accepted | 0 |
+| Accepted | 1 |
 | Rejected | 0 |
 | Parked | 0 |
 | In Progress | 0 |
@@ -132,10 +140,11 @@ experiments/
   SUMMARY.md                    Status table (keep in sync with README counts above)
   TEMPLATE.md                   Copy-paste template for new entries
   token-ledger.tsv              Machine-readable token cost per agent per phase
-  proposals/                    Per-experiment: 3 proposals + chair decision
-  variants/                     Per-experiment: 3 implementation diffs + bench results
-  bench-results/                Timestamped benchmark output files
-  profile-results/              Timestamped perf.data files
+  EXP-NNN/                      One folder per experiment
+    bench-results/              Timestamped benchmark output files (BASELINE + post)
+    profile-results/            Timestamped perf.data files
+    proposals/                  3 proposals + chair decision
+    variants/                   3 implementation diffs + bench results
 scripts/
   build-bench.sh                Regenerate ffc.h + rebuild benchmark
   run-bench.sh                  Run all benchmark datasets, save output
