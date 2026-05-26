@@ -1,0 +1,36 @@
+# ===== HOST: ip-172-31-55-171  ARCH: aarch64 =====
+# CPU:
+# Date: 20260526T154529Z
+# State: pre-EXP-001 (commit 531a6f2)
+
+===== random [0,1] =====
+# parsing random numbers
+volume: 100000 floats
+ASCII volume = 2.09808 MB
+strtod                                  :   219.47 MB/s (+/- 0.2 %)    10.46 Mfloat/s      49.28 i/B  1084.07 i/f (+/- 0.0 %)     12.15 c/B   267.24 c/f (+/- 0.1 %)      4.06 i/c    206.97 b/f    141.59 bm/f      2.80 GHz
+abseil                                  :   725.10 MB/s (+/- 0.2 %)    34.56 Mfloat/s      26.73 i/B   588.07 i/f (+/- 0.0 %)      3.68 c/B    80.91 c/f (+/- 0.2 %)      7.27 i/c    130.01 b/f      0.86 bm/f      2.80 GHz
+fastfloat                               :  1098.21 MB/s (+/- 0.5 %)    52.34 Mfloat/s      11.50 i/B   253.04 i/f (+/- 0.0 %)      2.43 c/B    53.42 c/f (+/- 0.4 %)      4.74 i/c     44.00 b/f      0.65 bm/f      2.80 GHz
+ffc                                     :  1616.25 MB/s (+/- 0.8 %)    77.03 Mfloat/s      12.00 i/B   264.04 i/f (+/- 0.0 %)      1.65 c/B    36.31 c/f (+/- 0.7 %)      7.27 i/c     50.00 b/f      0.65 bm/f      2.80 GHz
+UTF-16 volume = 4.19617 MB
+fastfloat                               :  2062.71 MB/s (+/- 0.5 %)    49.16 Mfloat/s       6.21 i/B   273.04 i/f (+/- 0.0 %)      1.29 c/B    56.89 c/f (+/- 0.3 %)      4.80 i/c     44.00 b/f      0.65 bm/f      2.80 GHz
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+
+===== canada.txt =====
+# read 111126 lines
+ASCII volume = 1.93374 MB
+strtod                                  :   168.44 MB/s (+/- 0.2 %)     9.68 Mfloat/s      71.32 i/B  1301.30 i/f (+/- 0.0 %)     15.83 c/B   288.88 c/f (+/- 0.1 %)      4.50 i/c    237.50 b/f    118.58 bm/f      2.80 GHz
+abseil                                  :   643.57 MB/s (+/- 0.1 %)    36.98 Mfloat/s      28.55 i/B   520.89 i/f (+/- 0.0 %)      4.14 c/B    75.62 c/f (+/- 0.1 %)      6.89 i/c    112.52 b/f     10.61 bm/f      2.80 GHz
+fastfloat                               :   918.91 MB/s (+/- 0.3 %)    52.81 Mfloat/s      13.96 i/B   254.70 i/f (+/- 0.0 %)      2.90 c/B    52.96 c/f (+/- 0.1 %)      4.81 i/c     44.49 b/f     12.37 bm/f      2.80 GHz
+ffc                                     :  1215.57 MB/s (+/- 0.2 %)    69.85 Mfloat/s      14.54 i/B   265.35 i/f (+/- 0.0 %)      2.19 c/B    40.05 c/f (+/- 0.1 %)      6.63 i/c     50.23 b/f     10.96 bm/f      2.80 GHz
+UTF-16 volume = 3.86749 MB
+fastfloat                               :  1758.47 MB/s (+/- 0.3 %)    50.53 Mfloat/s       7.14 i/B   260.73 i/f (+/- 0.0 %)      1.52 c/B    55.34 c/f (+/- 0.1 %)      4.71 i/c     44.58 b/f     11.80 bm/f      2.80 GHz
+
+===== mesh.txt =====
+# read 73019 lines
+ASCII volume = 0.536009 MB
+strtod                                  :   174.63 MB/s (+/- 0.5 %)    23.79 Mfloat/s      83.13 i/B   639.88 i/f (+/- 0.0 %)     15.27 c/B   117.55 c/f (+/- 0.5 %)      5.44 i/c    124.65 b/f     27.52 bm/f      2.80 GHz
+abseil                                  :   366.65 MB/s (+/- 0.5 %)    49.95 Mfloat/s      52.09 i/B   400.93 i/f (+/- 0.0 %)      7.28 c/B    56.01 c/f (+/- 0.4 %)      7.16 i/c     89.68 b/f      8.50 bm/f      2.80 GHz
+fastfloat                               :   486.30 MB/s (+/- 0.3 %)    66.25 Mfloat/s      18.95 i/B   145.90 i/f (+/- 0.0 %)      5.49 c/B    42.22 c/f (+/- 0.3 %)      3.46 i/c     25.76 b/f      6.77 bm/f      2.80 GHz
+ffc                                     :   956.27 MB/s (+/- 0.7 %)   130.27 Mfloat/s      19.43 i/B   149.56 i/f (+/- 0.0 %)      2.79 c/B    21.50 c/f (+/- 0.5 %)      6.96 i/c     27.64 b/f      6.31 bm/f      2.80 GHz
+UTF-16 volume = 1.07202 MB
+fastfloat                               :   964.26 MB/s (+/- 0.5 %)    65.68 Mfloat/s       9.74 i/B   149.91 i/f (+/- 0.0 %)      2.77 c/B    42.59 c/f (+/- 0.4 %)      3.52 i/c     26.76 b/f      6.23 bm/f      2.80 GHz

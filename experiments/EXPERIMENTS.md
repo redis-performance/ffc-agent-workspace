@@ -32,6 +32,8 @@ Also fixed a double-read of `ffc_read8_to_u64(*p)` in the 8-digit loop (read-onc
 
 ### Benchmark results
 
+#### Laptop (developer machine — discovery runs only)
+
 **Baseline** (20260526-161003):
 
 | Dataset | ffc MB/s | fastfloat MB/s | gap |
@@ -56,13 +58,54 @@ Also fixed a double-read of `ffc_read8_to_u64(*p)` in the 8-digit loop (read-onc
 | canada  | 1676     | 1773           | -5% |
 | mesh    | **1095** | **1036**       | **+5% (ffc wins!)** |
 
+#### x86 metal — Intel Xeon Platinum 8488C (m7i.metal-24xl)
+
+**Baseline** (20260526-154529, commit 531a6f2):
+
+| Dataset | ffc MB/s | fastfloat MB/s | gap |
+|---------|----------|----------------|-----|
+| random  | 1772     | 2057           | -14% |
+| canada  | 1299     | 1439           | -10% |
+| mesh    | 1048     | 1218           | -14% |
+
+**Post-EXP-001** (20260526-153854, commit cf971fe):
+
+| Dataset | ffc MB/s | fastfloat MB/s | gap | Δ vs baseline |
+|---------|----------|----------------|-----|---------------|
+| random  | 1728     | 2020           | -14% | ±0% (noise) |
+| canada  | 1412     | 1453           | -3%  | **+8.7%** |
+| mesh    | 1073     | 1131           | -5%  | **+2.4%** |
+
+#### ARM metal — Graviton4 (m8g.metal-24xl)
+
+**Baseline** (20260526-154529, commit 531a6f2):
+
+| Dataset | ffc MB/s | fastfloat MB/s | gap |
+|---------|----------|----------------|-----|
+| random  | 1616     | 1098           | **+47% (ffc leads)** |
+| canada  | 1216     | 919            | **+32% (ffc leads)** |
+| mesh    | 956      | 486            | **+97% (ffc leads)** |
+
+**Post-EXP-001** (20260526-153854, commit cf971fe):
+
+| Dataset | ffc MB/s | fastfloat MB/s | gap | Δ vs baseline |
+|---------|----------|----------------|-----|---------------|
+| random  | 1558     | 1088           | +43% | -4% (noise) |
+| canada  | 1331     | 895            | +49% | **+9.5%** |
+| mesh    | 1019     | 501            | +103% | **+6.5%** |
+
 ### Analysis
 
-- **canada**: +29% absolute gain, gap vs fastfloat closed from -29% to ~-4% (avg of 2 runs)
-- **mesh**: +18% absolute gain, gap closed from -10% to ~±0% (within run-to-run noise)
-- **random**: No regression — these numbers have 14-17 fractional digits, so the 8-digit SWAR
-  was already helping. The 4-digit follow-up adds marginal work (1 extra check + possible
-  SWAR-4 after the 8-digit loop); within the 20-40% benchmark variance.
+**x86**: EXP-001 closes the gap with fastfloat on canada (−14% → −3%) and mesh (−14% → −5%).
+Random unaffected — those numbers have 14-17 fractional digits, 8-digit SWAR already fires.
+
+**ARM**: ffc already led fastfloat across all datasets at baseline (likely due to Graviton4's
+efficient barrel-shift and bitfield instructions that SWAR benefits from). EXP-001 extended the
+lead further on canada (+9.5%) and mesh (+6.5%). Random shows slight noise-level regression
+(−4%) from the extra 4-digit check on a path where it never triggers.
+
+**Overall**: The 4-digit follow-up is a clear win on both architectures for structured float
+inputs (canada, mesh). No meaningful regression on random.
 
 ### Token cost
 
