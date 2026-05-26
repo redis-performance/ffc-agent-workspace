@@ -23,8 +23,6 @@ Files: [ffc/src/X.h, lines N–M]
 Confidence: [high / medium / low]
 Reasoning: [2–4 sentences: why this technique, why now, what signal from the profile]
 
-TOKENS_IN: [your input token count]
-TOKENS_OUT: [your output token count]
 ```
 
 Rules:

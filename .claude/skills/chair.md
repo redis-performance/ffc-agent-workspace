@@ -27,9 +27,6 @@ Reasoning: [3–5 sentences explaining why this proposal won over the others]
 
 Runner-up: [agent name, technique, one sentence on why it didn't win but is worth keeping]
 Park for later: [any proposal worth trying in the future, or "none"]
-
-TOKENS_IN: [your input token count]
-TOKENS_OUT: [your output token count]
 ```
 
 If all proposals are weak (no profile signal, speculative, already tried):
@@ -37,7 +34,4 @@ If all proposals are weak (no profile signal, speculative, already tried):
 DECISION:
 Winner: none
 Reasoning: [explain what's missing — e.g. "need a fresh profile run first"]
-
-TOKENS_IN: [your input token count]
-TOKENS_OUT: [your output token count]
 ```

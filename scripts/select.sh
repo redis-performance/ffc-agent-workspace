@@ -1,95 +1,101 @@
 #!/usr/bin/env bash
 # Selection phase: 3 proposer agents (different models) independently propose the
 # next experiment, then a chair agent picks the winner.
+# Token counts come from the Anthropic API response (via llm-call.py) — not self-reported.
 #
 # Output: experiments/proposals/TIMESTAMP/ with one file per agent + chair decision
 # Stdout: the winning proposal (for piping into implement.sh)
 set -euo pipefail
 
 WORKSPACE="$(cd "$(dirname "$0")/.." && pwd)"
+LLM="python3 $WORKSPACE/scripts/llm-call.py"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 PROPOSALS_DIR="$WORKSPACE/experiments/proposals/$TIMESTAMP"
 LEDGER="$WORKSPACE/experiments/token-ledger.tsv"
-EXP_ID="${EXP_ID:-$(printf 'EXP-%03d' "$(grep -c '^EXP-' "$WORKSPACE/experiments/EXPERIMENTS.md" 2>/dev/null || echo 0)")}"
+EXP_ID="${EXP_ID:-$(printf 'EXP-%03d' "$(grep -c '^## EXP-' "$WORKSPACE/experiments/EXPERIMENTS.md" 2>/dev/null || echo 0)")}"
 
 mkdir -p "$PROPOSALS_DIR"
 
-# Proposer models (diversity is the point)
+# Proposer models (diversity is the point — different architectures / sizes)
 MODELS=("claude-opus-4-7" "claude-sonnet-4-6" "claude-haiku-4-5-20251001")
 AGENT_NAMES=("opus" "sonnet" "haiku")
 
 # Build context shared by all proposers
-CONTEXT="$(cat <<EOF
+CONTEXT_FILE="$PROPOSALS_DIR/context.md"
+cat > "$CONTEXT_FILE" <<EOF
 ## Profile (most recent)
 $(ls -t "$WORKSPACE/experiments/profile-results"/*.txt 2>/dev/null | head -1 | xargs cat 2>/dev/null || echo "(no profile yet — classify from benchmark gap)")
 
 ## Benchmark baseline (most recent)
 $(ls -t "$WORKSPACE/experiments/bench-results"/*.txt 2>/dev/null | head -1 | xargs cat 2>/dev/null || echo "(no benchmark yet)")
 
-## Experiment history (last 5)
-$(tail -100 "$WORKSPACE/experiments/EXPERIMENTS.md" 2>/dev/null || echo "(none yet)")
+## Experiment history
+$(cat "$WORKSPACE/experiments/EXPERIMENTS.md" 2>/dev/null || echo "(none yet)")
 
 ## Optimization playbook
 $(cat "$WORKSPACE/.claude/program.md")
 EOF
-)"
 
-PROPOSER_PROMPT="$(cat "$WORKSPACE/.claude/skills/select.md")
-
----
-$CONTEXT"
+# Build proposer prompt files (one per agent — same content, separate files for parallelism)
+for i in "${!MODELS[@]}"; do
+  name="${AGENT_NAMES[$i]}"
+  prompt_file="$PROPOSALS_DIR/prompt-$name.md"
+  cat "$WORKSPACE/.claude/skills/select.md" > "$prompt_file"
+  echo "" >> "$prompt_file"
+  echo "---" >> "$prompt_file"
+  cat "$CONTEXT_FILE" >> "$prompt_file"
+done
 
 echo "==> Selection phase — $EXP_ID — $TIMESTAMP" >&2
 echo "==> Launching ${#MODELS[@]} proposer agents in parallel..." >&2
 
-# Launch all proposers in parallel
+# Launch all proposers in parallel (token counts written to ledger by llm-call.py)
 PIDS=()
 for i in "${!MODELS[@]}"; do
   model="${MODELS[$i]}"
   name="${AGENT_NAMES[$i]}"
-  out="$PROPOSALS_DIR/proposal-$name.md"
-  echo "    Agent $((i+1))/${#MODELS[@]}: $model" >&2
-  claude --model "$model" --print "$PROPOSER_PROMPT" > "$out" 2>/dev/null &
+  $LLM \
+    --model "$model" \
+    --prompt-file "$PROPOSALS_DIR/prompt-$name.md" \
+    --exp-id "$EXP_ID" \
+    --phase "select-propose" \
+    --agent-id "$name" \
+    --ledger "$LEDGER" \
+    --description "proposal" \
+    > "$PROPOSALS_DIR/proposal-$name.md" 2>&1 &
   PIDS+=($!)
 done
 
-# Wait for all
 for pid in "${PIDS[@]}"; do wait "$pid" || true; done
 echo "==> All proposers done." >&2
 
-# Log tokens from each proposal
+# Build chair prompt
+CHAIR_MODEL="claude-opus-4-7"
+CHAIR_PROMPT_FILE="$PROPOSALS_DIR/prompt-chair.md"
+cat "$WORKSPACE/.claude/skills/chair.md" > "$CHAIR_PROMPT_FILE"
+echo "" >> "$CHAIR_PROMPT_FILE"
+echo "---" >> "$CHAIR_PROMPT_FILE"
+echo "## Proposals to evaluate" >> "$CHAIR_PROMPT_FILE"
 for i in "${!MODELS[@]}"; do
   name="${AGENT_NAMES[$i]}"
-  out="$PROPOSALS_DIR/proposal-$name.md"
-  tokens_in="$(grep -oP 'TOKENS_IN:\s*\K[0-9]+' "$out" 2>/dev/null | tail -1 || echo 0)"
-  tokens_out="$(grep -oP 'TOKENS_OUT:\s*\K[0-9]+' "$out" 2>/dev/null | tail -1 || echo 0)"
-  echo -e "$EXP_ID\tselect-propose\t$name\t${MODELS[$i]}\t$tokens_in\t$tokens_out\t$TIMESTAMP\tproposal" >> "$LEDGER"
+  echo "" >> "$CHAIR_PROMPT_FILE"
+  echo "### Agent $((i+1)) — ${MODELS[$i]} ($name)" >> "$CHAIR_PROMPT_FILE"
+  cat "$PROPOSALS_DIR/proposal-$name.md" >> "$CHAIR_PROMPT_FILE" 2>/dev/null || echo "(missing)" >> "$CHAIR_PROMPT_FILE"
 done
-
-# Chair agent: reads all proposals and picks the winner
-CHAIR_MODEL="claude-opus-4-7"
-CHAIR_PROMPT="$(cat "$WORKSPACE/.claude/skills/chair.md")
-
----
-## Proposals to evaluate
-
-$(for i in "${!MODELS[@]}"; do
-  name="${AGENT_NAMES[$i]}"
-  echo "### Agent $((i+1)) — ${MODELS[$i]}"
-  cat "$PROPOSALS_DIR/proposal-$name.md" 2>/dev/null || echo "(missing)"
-  echo ""
-done)"
 
 echo "==> Chair agent ($CHAIR_MODEL) selecting winner..." >&2
 CHAIR_OUT="$PROPOSALS_DIR/chair-decision.md"
-claude --model "$CHAIR_MODEL" --print "$CHAIR_PROMPT" > "$CHAIR_OUT" 2>/dev/null
+$LLM \
+  --model "$CHAIR_MODEL" \
+  --prompt-file "$CHAIR_PROMPT_FILE" \
+  --exp-id "$EXP_ID" \
+  --phase "select-chair" \
+  --agent-id "chair" \
+  --ledger "$LEDGER" \
+  --description "chair decision" \
+  > "$CHAIR_OUT" 2>&1
 
-tokens_in="$(grep -oP 'TOKENS_IN:\s*\K[0-9]+' "$CHAIR_OUT" 2>/dev/null | tail -1 || echo 0)"
-tokens_out="$(grep -oP 'TOKENS_OUT:\s*\K[0-9]+' "$CHAIR_OUT" 2>/dev/null | tail -1 || echo 0)"
-echo -e "$EXP_ID\tselect-chair\tchair\t$CHAIR_MODEL\t$tokens_in\t$tokens_out\t$TIMESTAMP\tchair decision" >> "$LEDGER"
+echo "==> Done. Proposals: $PROPOSALS_DIR/" >&2
+echo "==> Chair decision: $CHAIR_OUT" >&2
 
-echo "==> Chair decision saved to $CHAIR_OUT" >&2
-echo "==> Proposals saved to $PROPOSALS_DIR/" >&2
-
-# Print the chair decision to stdout (for piping or reading)
 cat "$CHAIR_OUT"

@@ -42,8 +42,6 @@ DIFF:
  context line
 ]
 
-TOKENS_IN: [your input token count]
-TOKENS_OUT: [your output token count]
 ```
 
 Rules:
