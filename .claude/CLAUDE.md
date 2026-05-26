@@ -62,8 +62,10 @@ Never benchmark broken code. Never skip the profile step. The ffc submodule tip 
 - **Always capture a BASELINE benchmark on every target machine before applying any patch.**
   Before deploying an experiment to a metal VM (or any non-local environment), run the
   benchmark on that machine with the pre-patch ffc binary and save it as
-  `experiments/bench-results/<date>-<machine>-BASELINE.txt`. Post-experiment results are only
-  meaningful when paired with a same-machine, same-conditions baseline.
+  `experiments/<EXP-NNN>/bench-results/<date>-<machine>-BASELINE.txt`. Post-experiment results
+  are only meaningful when paired with a same-machine, same-conditions baseline.
+- Each experiment's results live under `experiments/<EXP-NNN>/bench-results/` — run the
+  benchmark as `EXP=EXP-NNN scripts/run-bench.sh` so files land in the right folder.
 
 ---
 

@@ -5,7 +5,8 @@ WORKSPACE="$(cd "$(dirname "$0")/.." && pwd)"
 BENCH="$WORKSPACE/simple_fastfloat_benchmark/build/benchmarks/benchmark"
 DATA="$WORKSPACE/simple_fastfloat_benchmark/data"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-OUT_DIR="$WORKSPACE/experiments/bench-results"
+EXP="${EXP:-EXP-000}"
+OUT_DIR="$WORKSPACE/experiments/$EXP/bench-results"
 
 mkdir -p "$OUT_DIR"
 
