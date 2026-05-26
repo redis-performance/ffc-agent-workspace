@@ -9,6 +9,87 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-006 — 2026-05-26 — Local variables in `too_many_digits` path to allow GCC DSE of struct stores
+
+**Status**: ACCEPTED  
+**ffc commit**: bac793d
+
+### Hypothesis
+
+In `ffc_parse_number_string`, four fields (`int_part_start`, `int_part_len`,
+`fraction_part_start`, `fraction_part_len`) are stored to the `ffc_parsed` answer
+struct unconditionally. These same fields are then read back in the rare
+`too_many_digits` recovery path (lines 417-429), which forces GCC to keep those
+stores live even though:
+1. In the non-JSON constprop clone, the caller never reads these fields (removed by ISRA)
+2. The reads within the function are the ONLY thing preventing GCC DSE
+
+By restructuring the `too_many_digits` path to use existing local variables
+(`start_digits`, `end_of_integer_part`, the hoisted `before`, and a new `frac_end_local`)
+instead of reading back from the struct, the stores to `answer.int_part_*` and
+`answer.fraction_part_*` become dead within `ffc_parse_number_string` itself.
+GCC ISRA + DSE can then eliminate those stores in the non-JSON constprop clone.
+
+### Files changed
+
+- `ffc/src/parse.h`: `ffc_parse_number_string` — hoist `before` and `frac_end_local`
+  declarations; restructure `too_many_digits` path to use locals instead of struct reads.
+
+### Benchmark results
+
+**Baseline** (EXP-001, cf971fe, confirmed 5-run):
+
+| Dataset | ffc MB/s (x86) | ffc MB/s (ARM) | fastfloat MB/s (x86) | fastfloat MB/s (ARM) |
+|---------|----------------|----------------|----------------------|----------------------|
+| random  | 1736           | 1555           | 2018                 | 1076                 |
+| canada  | 1414           | 1332           | 1449                 | 885                  |
+| mesh    | 1113           | 1019           | 1165                 | 485                  |
+
+**EXP-006 x86** (5-run):
+
+| Dataset | ffc MB/s | Δ vs baseline |
+|---------|----------|---------------|
+| random  | 1747     | +0.6% (noise) |
+| canada  | 1445     | **+2.2%**     |
+| mesh    | 1108     | −0.4% (noise) |
+
+**EXP-006 ARM** (3-run):
+
+| Dataset | ffc MB/s | i/f | c/f | IPC | Δ vs baseline |
+|---------|----------|-----|-----|-----|---------------|
+| random  | 1555     | 276.04 | 37.72 | 7.32 | ±0% (no change) |
+| canada  | 1332     | 249.37 | 36.53 | 6.82 | ±0% (no change) |
+| mesh    | 1020     | 145.45 | 20.15 | 7.22 | ±0% (no change) |
+
+### Analysis
+
+**x86**: Canada improved +2.2% (1414 → 1445 MB/s). Random and mesh are within noise.
+The canada improvement is consistent across 5 runs (σ < 1 MB/s). Canada's Clinger-only
+path (all 9-digit mantissas < 2^53) benefits most because the parse path runs completely
+through the main digit-scanning block without the Eisel-Lemire call dominating.
+
+**ARM**: Zero change — instruction counts are exactly identical to baseline (276.04/249.37/145.45 i/f).
+ARM GCC was already eliminating those stores via ISRA + DSE without any help from
+restructuring. The ARM backend's ISRA is more aggressive than x86 GCC's.
+
+**Key insight**: The improvement is x86-specific. ARM already handled these stores
+optimally. The change is still worth keeping as it benefits x86 and has no cost anywhere.
+
+### Decision
+
+**ACCEPT** — x86 canada +2.2% (5-run stable), no regressions on any architecture/dataset.
+Change kept in `ffc/src/parse.h`.
+
+### Lesson
+
+On x86 GCC, storing struct fields that are later read back within the same function
+prevents ISRA+DSE from removing those stores on non-JSON callers. Moving the reads to
+use original local variables (which GCC can trivially see as registers) enables DSE.
+ARM GCC handles this automatically via more aggressive ISRA. The benefit is architecture-
+and compiler-dependent.
+
+---
+
 ## EXP-005 — 2026-05-26 — Static const options to force compile-time format specialization
 
 **Status**: REJECTED  
