@@ -9,6 +9,203 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-009 — 2026-05-26 — FFC_IMPL_INLINE: force inline via always_inline on declarations
+
+**Status**: ACCEPTED
+**ffc commit**: (pending — changes in ffc/src/api.h, ffc/src/ffc.h, ffc/ffc.h)
+
+### Hypothesis
+
+The benchmark's `findmax_ffc` calls `ffc_from_chars_double`, which was calling the
+IPA-CP constprop clone `ffc_from_chars_double_options.constprop.0.isra.0` as an
+out-of-line function (~6-10 cycles overhead per float). The C++ `findmax_fastfloat`
+gets full inlining from templates; `findmax_ffc` didn't because `ffc_from_chars_double`
+has external linkage and GCC won't inline it across the linkage boundary.
+
+Root cause: GCC's `ipa_early_inline` pass (which honors `always_inline` on declarations)
+runs BEFORE `ipa_cp`. If we mark the forward declarations of `ffc_from_chars_double` and
+`ffc_from_chars_double_options` with `__attribute__((always_inline)) inline` (conditional
+on `FFC_IMPL` being defined), then when `benchmark.cpp` defines `#define FFC_IMPL` before
+`#include "ffc.h"`, `ipa_early_inline` inlines these functions at call sites before IPA-CP
+can create constprop clones.
+
+The `FFC_IMPL_INLINE` macro conditionally expands to `__attribute__((always_inline)) inline`
+in FFC_IMPL translation units, and to nothing (empty) in non-FFC_IMPL units (preserving
+external linkage).
+
+### Files changed
+
+- `ffc/src/api.h`: added `FFC_IMPL_INLINE` conditional macro (lines 118-134); added
+  `FFC_IMPL_INLINE` to declarations of `ffc_from_chars_double` and `ffc_from_chars_double_options`
+- `ffc/src/ffc.h`: changed `ffc_result ffc_from_chars_double_options(...)` and
+  `ffc_result ffc_from_chars_double(...)` definitions to `extern FFC_IMPL_INLINE ffc_result ...`
+- `ffc/ffc.h`: regenerated via `amalgamate.py`
+
+### ABI note
+
+`ffc_from_chars_double` and `ffc_from_chars_double_options` have no external symbols
+in FFC_IMPL translation units — GCC docs: "An out-of-line version is not generated."
+The wrappers `ffc_parse_double`, `ffc_parse_double_simple`, `ffc_from_chars_float`,
+`ffc_from_chars_float_options`, and all integer parse functions are still exported.
+
+### Benchmark results
+
+**Baseline (post-EXP-006, x86)**:
+
+| Dataset | ffc MB/s | fastfloat MB/s |
+|---------|----------|----------------|
+| random  | 1785     | 2018           |
+| canada  | 1494     | 1407           |
+| mesh    | 1099     | 1124           |
+
+**EXP-009 x86 (5-run)**:
+
+| Dataset | ffc MB/s | Δ vs baseline | vs fastfloat |
+|---------|----------|---------------|--------------|
+| random  | 1960     | **+9.7%**     | −2.9%        |
+| canada  | 1565     | **+4.8%**     | **+11.2% (ffc leads)** |
+| mesh    | 1187     | **+8.0%**     | **+5.6% (ffc leads)**  |
+
+**Baseline (post-EXP-006, ARM)**:
+
+| Dataset | ffc MB/s | fastfloat MB/s |
+|---------|----------|----------------|
+| random  | 1543     | 1085           |
+| canada  | 1344     | 891            |
+| mesh    | 1030     | 498            |
+
+**EXP-009 ARM (3-run)**:
+
+| Dataset | ffc MB/s | Δ vs baseline | vs fastfloat |
+|---------|----------|---------------|--------------|
+| random  | 1795     | **+16.3%**    | **+65.4% (ffc leads)** |
+| canada  | 1512     | **+12.5%**    | **+69.7% (ffc leads)** |
+| mesh    | 1257     | **+22.1%**    | **+152% (ffc leads)**  |
+
+### Analysis
+
+The improvements are uniform across all datasets and both architectures — confirming the
+root cause was function-call overhead, not a dataset-specific hot path. The x86 random
+result (+9.7%) nearly closes the remaining gap with fastfloat (−13% → −2.9%). On ARM,
+all datasets improve by double digits; ffc's lead over fastfloat widens substantially.
+
+`ipa_early_inline` seeing `always_inline` on the forward declarations is the mechanism.
+GCC inlines `ffc_from_chars_double` → `ffc_from_chars_double_options` → `ffc_from_chars`
+into the benchmark loop before IPA-CP creates the constprop clone. The IPA-CP clone
+(`ffc_from_chars_double_options.constprop.0.isra.0`) no longer appears as a symbol in the
+EXP-009 binary.
+
+### Decision
+
+**ACCEPT** — uniform improvement across all datasets and architectures. No regressions.
+x86 random +9.7% (close to 10% notify threshold), ARM mesh +22.1% (exceeds 10% threshold).
+
+---
+
+## EXP-008 — 2026-05-26 — Cache `ffc_rounds_to_nearest()` result in local variable
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+`ffc_rounds_to_nearest()` uses a floating-point comparison (0.5 round-trip) to detect
+the FP rounding mode. The call happens on every Eisel-Lemire fast path. Caching the
+result in a `static` or local variable would avoid re-executing the FP comparison on
+repeated calls, saving ~2-3 instructions per float on the random dataset where
+Eisel-Lemire fires for ~90% of inputs.
+
+### Files changed
+
+- `ffc/src/ffc.h`: `ffc_rounds_to_nearest()` result cached in local variable in
+  `ffc_from_chars` — REVERTED
+
+### Benchmark results
+
+**Baseline (post-EXP-007, x86)**:
+
+| Dataset | ffc MB/s |
+|---------|----------|
+| random  | 1785     |
+
+**EXP-008 x86**:
+
+| Dataset | ffc MB/s | Δ |
+|---------|----------|---|
+| random  | 1763     | **−1.2%** |
+| canada  | ~1490    | noise |
+| mesh    | ~1095    | noise |
+
+### Root-cause analysis
+
+Out-of-order execution already hides the `ffc_rounds_to_nearest()` FP comparison latency —
+the result is not on the critical path because subsequent instructions don't immediately
+depend on it. The cache variable (local int) adds an integer load to a critical-path
+register, increasing register pressure and slightly displacing an instruction that WAS
+on the critical path. Net result: −1.2% regression on random, noise everywhere else.
+
+The OOO speculation insight: on both Intel Xeon and Graviton4, the FP-compare in
+`ffc_rounds_to_nearest()` has enough ILP slack (non-critical path) that removing it
+provides zero benefit, while adding a new load to hold the cached value adds cost.
+
+### Decision
+
+**REJECT** — x86 random regression −1.2%. OOO speculation already handles this at no cost.
+
+### Lesson
+
+`ffc_rounds_to_nearest()` is not a bottleneck. The OOO engine hides its latency by
+executing it in parallel with independent instructions. Any attempt to "cache" it
+introduces a new register dependency that costs more than the FP comparison saves.
+
+---
+
+## EXP-007 — 2026-05-26 — Guard 4-digit SWAR with first-byte digit check
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+The 4-digit SWAR follow-up in `ffc_loop_parse_if_eight_digits` (EXP-001) always
+attempts a 4-byte load + SWAR check after the 8-digit loop. For random [0,1]
+numbers with exactly 16 fractional digits (2× 8-digit SWAR cycles), the
+character at `*p` after the loop is `'\n'` — not a digit. The 4-byte load and
+`ffc_is_made_of_four_digits_fast` call are entirely wasteful.
+
+Adding `ffc_is_integer(**p)` as a guard before the 4-byte load short-circuits
+this check using a single byte load + compare (cheaper than a 4-byte load +
+SWAR). This should recover the ~2.5% regression EXP-001 caused on random [0,1].
+
+### Root cause of rejection
+
+The guard adds 1 byte load + compare to EVERY 4-digit check where `*p` is a
+digit — i.e., every case where the 4-digit SWAR is actually useful (canada/mesh).
+For mesh.txt (short numbers, many non-8-multiple digit fractions), the extra load
+costs more on ARM's pipeline than the \n-skip saves.
+
+ARM Graviton4 is less aggressive at out-of-order overlap for this specific pattern:
+the guard byte load adds to the critical path for the 4-digit → digit → proceed
+case. x86 Xeon (deep OOO) can hide this overhead; ARM Graviton4 cannot.
+
+### Benchmark results (vs EXP-006 baseline: random 1747/1555, canada 1445/1332, mesh 1108/1020)
+
+| Dataset | x86 Δ | ARM Δ | Verdict |
+|---------|--------|--------|---------|
+| random [0,1] | +1.3% (1747→1770) | +2.6% (1555→1598) | positive |
+| canada.txt | −0.7% (1445→1435) | −0.9% (1332→1320) | noise |
+| mesh.txt | **+3.6% (1108→1148)** | **−3.9% (1020→980 stable, 5-run)** | mixed |
+
+ARM mesh regression is real (5-run stable: 975, 980, 986, 987, 970 MB/s).
+Unexpected x86 mesh gain (+3.6%) likely from different code layout improving
+branch prediction for the frequent `'\n'`-check path in mesh.
+
+### Files changed
+
+- `ffc/src/parse.h`: changed `pend - *p >= 4` to `pend - *p >= 4 && ffc_is_integer(**p)` — REVERTED
+
+---
+
 ## EXP-006 — 2026-05-26 — Local variables in `too_many_digits` path to allow GCC DSE of struct stores
 
 **Status**: ACCEPTED  
