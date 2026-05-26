@@ -1,19 +1,46 @@
 # EXP-NNN — YYYY-MM-DD — [Short Title]
 
 ## Status: IN PROGRESS
-## Commit: (fill after implement)
 
-## Hypothesis
+---
 
-One falsifiable sentence: "Changing X in `ffc/src/Y.h` should reduce Z because W."
+## Selection Phase
 
-## Files Changed
+### Proposals
 
-- `ffc/src/parse.h` lines N–M: [what]
+| Agent | Model | Tier | Technique | Expected Gain | Confidence |
+|-------|-------|------|-----------|---------------|------------|
+| opus | claude-opus-4-7 | | | | |
+| sonnet | claude-sonnet-4-6 | | | | |
+| haiku | claude-haiku-4-5 | | | | |
 
-## Step 1: Benchmark
+Full proposals: `experiments/proposals/TIMESTAMP/`
 
-Run `scripts/run-bench.sh` before and after. Fill both columns.
+### Chair Decision
+
+**Winner**: [agent name]  
+**Hypothesis**: [one falsifiable sentence]  
+**Runner-up**: [agent, technique — why it didn't win]  
+**Park for later**: [technique, or "none"]
+
+---
+
+## Implementation Phase
+
+### Variants
+
+| Variant | Model | Change summary | Correctness | Random MB/s |
+|---------|-------|---------------|-------------|-------------|
+| opus | claude-opus-4-7 | | pass/fail | |
+| sonnet-a | claude-sonnet-4-6 | | pass/fail | |
+| sonnet-b | claude-sonnet-4-6 | | pass/fail | |
+
+**Winner variant**: [name] — [score] MB/s  
+Full variant diffs: `experiments/variants/EXP-NNN-TIMESTAMP/`
+
+---
+
+## Step 1: Benchmark (winner variant vs baseline)
 
 | Dataset | Before (MB/s) | After (MB/s) | Δ% |
 |---------|--------------|--------------|-----|
@@ -21,38 +48,51 @@ Run `scripts/run-bench.sh` before and after. Fill both columns.
 | canada.txt | | | |
 | mesh.txt | | | |
 
-Float benchmark (benchmark32):
+Benchmark file: `experiments/bench-results/TIMESTAMP.txt`
 
-| Dataset | Before (MB/s) | After (MB/s) | Δ% |
-|---------|--------------|--------------|-----|
-| random [0,1] | | | |
+---
 
-## Step 2: Profile
-
-Run `scripts/run-profile.sh` after the change. Paste top ffc symbols.
+## Step 2: Profile (winner variant)
 
 ```
-# After change:
+# Top ffc symbols after change:
 N.N%  symbol_name  [ffc.h]
-...
 
 perf stat:
   IPC        : N.NN  (before: N.NN)
   branch miss: N.NN% (before: N.NN%)
 ```
 
+**New bottleneck classification**: [Tier N — reason] → feeds next selection round
+
+---
+
 ## Decision
 
-**Status**: accept / reject / park
+**Status**: accept / reject / park  
+**Reason**: [one or two sentences — what the numbers showed]
 
-**Reason**: One or two sentences. If reject: what the numbers showed. If park: what's blocking.
+If rejected: add technique to "Known Non-Starters" in `.claude/program.md`.
+
+---
+
+## Token Cost
+
+| Phase | Agent | Model | Tokens In | Tokens Out |
+|-------|-------|-------|-----------|------------|
+| select-propose | opus | claude-opus-4-7 | | |
+| select-propose | sonnet | claude-sonnet-4-6 | | |
+| select-propose | haiku | claude-haiku-4-5 | | |
+| select-chair | chair | claude-opus-4-7 | | |
+| implement | opus | claude-opus-4-7 | | |
+| implement | sonnet-a | claude-sonnet-4-6 | | |
+| implement | sonnet-b | claude-sonnet-4-6 | | |
+| **Total** | | | **0** | **0** |
+
+Full ledger: `experiments/token-ledger.tsv`
+
+---
 
 ## Lessons
 
-What this experiment revealed that's useful for future attempts.
-
-## Agent Log
-
-| Session | Model | Work Done |
-|---------|-------|-----------|
-| | | |
+What this experiment revealed that applies to future attempts.

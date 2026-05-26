@@ -1,110 +1,142 @@
 # Skill: optimize
 
-Run one full optimization iteration on ffc.h:
-profile → classify → consult playbook → implement → multi-stage verify → benchmark → profile → git-commit or revert → log.
+One full iteration of the population-based optimization loop:
+select → implement (N variants) → multi-stage verify → benchmark → profile → commit/revert → log.
 
-Inspired by AutoKernel (arXiv:2603.21331): the agent loop is immutable benchmark +
-mutable code + git as the experiment ledger.
+Inspired by AutoKernel (arXiv:2603.21331): immutable benchmark + mutable code +
+git as the experiment ledger. Extended with population-based selection AND
+population-based implementation.
+
+---
+
+## Full Loop
+
+```
+Profile
+  ↓
+SELECTION PHASE — 3 agents propose (opus / sonnet / haiku) → chair picks winner
+  ↓
+IMPLEMENTATION PHASE — 3 agents implement in parallel → best variant wins
+  ↓
+Multi-stage correctness (all stages, winner variant)
+  ↓
+Step 1: Benchmark
+  ↓
+Step 2: Profile → classify new bottleneck
+  ↓
+Accept (git commit) or Reject (git checkout)
+  ↓
+Log to EXPERIMENTS.md + token-ledger.tsv
+```
 
 ---
 
 ## Steps
 
-### 1. Read current state
-- Check `experiments/EXPERIMENTS.md` for the last experiment's profile output
-- If no profile exists yet, run `scripts/run-profile.sh` first
+### 1. Run profile (if stale)
+```bash
+scripts/run-profile.sh
+```
+If the last profile in `experiments/` is from the current ffc commit, skip this.
 
-### 2. Classify the bottleneck
-Using the profile output, pick the bottleneck type from `.claude/program.md`
-**Bottleneck Classification** table. State it explicitly before continuing:
-> "Profile shows branch miss rate 4.2% → Tier 3 (Branch Elimination)"
+### 2. Selection phase
+```bash
+EXP_ID=EXP-NNN scripts/select.sh
+```
+This runs 3 proposer agents in parallel (opus / sonnet / haiku), then a chair
+agent (opus) synthesizes the winner. Output goes to `experiments/proposals/`.
 
-### 3. Consult the playbook
-Read the relevant tier in `.claude/program.md`. Pick the specific technique
-with the highest expected gain that hasn't been tried yet (check
-`experiments/EXPERIMENTS.md` and the "Known Non-Starters" table).
+Read `experiments/proposals/TIMESTAMP/chair-decision.md` to see the winning
+hypothesis before proceeding.
 
-State the hypothesis in one falsifiable sentence before touching any code.
+If `scripts/select.sh` is unavailable (interactive session): manually act as
+chair — read the profile + playbook, propose 3 alternatives from different tiers,
+pick the strongest one. State the winning hypothesis explicitly.
 
-### 4. Implement
-Edit `ffc/src/*.h` only. One technique per experiment. Keep the diff minimal —
-AutoKernel's key insight: **one file, clean diff, easy to revert**.
+### 3. Implementation phase
+```bash
+EXP_ID=EXP-NNN scripts/implement.sh experiments/proposals/TIMESTAMP/chair-decision.md
+```
+This runs 3 implementer agents in parallel (opus, sonnet-a, sonnet-b), each
+producing a unified diff. Each diff is applied to a fresh copy of `ffc/src/`,
+built, tested, and benchmarked. The best-performing variant that passes all tests
+wins and is applied to `ffc/src/`.
 
-### 5. Multi-Stage Correctness (all stages must pass before benchmarking)
+If `scripts/implement.sh` is unavailable: implement the hypothesis yourself
+(single implementation, no parallel variants).
 
-**Stage 1 — Unit tests** (< 5s): catch compile errors and basic logic bugs
+### 4. Multi-stage correctness (winner variant — all stages before benchmarking)
+
+**Stage 1** — unit tests:
 ```bash
 make -C ffc ffc.h && make -C ffc test
 ```
 
-**Stage 2 — Exhaustive** (minutes, optional — run when touching the mantissa loop):
-```bash
-make -C ffc exhaustive   # requires make fetch-supplemental-data first
-```
-
-**Stage 3 — Supplemental** (against fastfloat reference corpus):
+**Stage 2** — supplemental corpus:
 ```bash
 make -C ffc supplemental_tests
 ```
 
-If any stage fails: fix the bug or abort. **Never benchmark broken code.**
+**Stage 3** — exhaustive (when touching mantissa loop):
+```bash
+make -C ffc exhaustive
+```
 
-### 6. Step 1 — Benchmark
+If any stage fails: `git -C ffc checkout -- src/` and return to step 2.
+
+### 5. Step 1 — Benchmark
 ```bash
 scripts/build-bench.sh
 scripts/run-bench.sh
 ```
-Compare MB/s for all three datasets vs the last accepted entry in `experiments/EXPERIMENTS.md`.
+Compare MB/s for all three datasets vs last accepted entry.
 
-### 7. Step 2 — Profile
+### 6. Step 2 — Profile
 ```bash
 scripts/run-profile.sh
 ```
-Did the target symbol's CPU % drop? Did IPC improve? Did branch misses decrease?
-Classify the new bottleneck for the next experiment.
+Classify the new bottleneck for the next iteration.
 
-### 8. Git commit or revert (AutoKernel pattern)
+### 7. Commit or revert
 
-**If benchmark + profile both accept:**
+**Accept** (≥ +2% on ≥ 1 dataset, no regression > 1%):
 ```bash
 git -C ffc add src/
-git -C ffc commit -m "EXP-NNN: [one-line description of the change]"
+git -C ffc commit -m "EXP-NNN: [one-line change description]"
 ```
 
-**If rejected (no improvement or regression):**
+**Reject**:
 ```bash
 git -C ffc checkout -- src/
 ```
+
 The ffc submodule tip always reflects the best accepted state.
 
-### 9. Log
-Append to `experiments/EXPERIMENTS.md` using the template in `experiments/TEMPLATE.md`.
-Fill in both benchmark table and profile section — even for rejections.
+### 8. Log
+Append to `experiments/EXPERIMENTS.md` using `experiments/TEMPLATE.md`.
+All seven agent token counts go in the Token Cost table and `experiments/token-ledger.tsv`.
+If rejected: add technique to "Known Non-Starters" in `.claude/program.md`.
 
-If the technique is a permanent dead end, add it to the "Known Non-Starters"
-table in `.claude/program.md`.
-
-### 10. Decide and update tracking
-- **Accept**: update `experiments/SUMMARY.md` and `README.md` counts; run fresh profile to set new baseline
-- **Reject**: note why in log; pick next technique from playbook
-- **Park**: note what prerequisite is needed
+### 9. Update tracking
+- Update `experiments/SUMMARY.md`
+- Update `README.md` counts
+- If accepted: the new profile becomes the starting state for the next iteration
 
 ---
 
-## Move-On Criteria (from AutoKernel)
+## Move-On Criteria
 
-Stop the current tier/technique after any of:
-- **5 consecutive reverted experiments** on the same idea → move to next tier
-- **2 hours wall time** on the same approach
-- **Profile shows < 2% CPU** in the target function → bottleneck shifted, re-classify
-- **≥ +10% accepted** on the target dataset → run fresh profile before continuing
+- **5 consecutive rejects** from the same tier → move to next tier
+- **2 hours wall time** → stop, log current state, pick up next session
+- **< 2% CPU** in the target function after profiling → re-classify, pick new tier
+- **≥ +10% accepted** → re-profile before choosing next experiment
 
 ---
 
 ## Decision Thresholds
 
-| Outcome | Criteria |
-|---------|----------|
+| | Criteria |
+|--|---------|
 | **Accept** | ≥ +2% on ≥ 1 dataset, no regression > 1% on others, profile confirms shift |
-| **Reject** | < 1% delta (within noise), or any regression, or correctness failure |
+| **Reject** | < 1% delta (noise), or any regression, or correctness failure |
 | **Park** | ≥ +1% but < 2%, or needs prerequisite, or architecture-specific only |

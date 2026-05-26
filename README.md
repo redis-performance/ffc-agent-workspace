@@ -11,8 +11,68 @@ valuable as wins.
 
 ## Optimization Pipeline
 
+Population-based selection AND implementation, inspired by AutoKernel (arXiv:2603.21331).
+
 ```
-Hypothesis → Implement (ffc/src/) → Step 1: Benchmark → Step 2: Profile → Accept / Reject / Park
+┌─────────────────────────────────────────────────────────────────────────┐
+│  PROFILE  →  classify bottleneck  →  pick tier from program.md          │
+└───────────────────────────┬─────────────────────────────────────────────┘
+                            │
+                ┌───────────▼───────────┐
+                │   SELECTION PHASE     │
+                │  3 proposer agents    │  ← opus / sonnet / haiku (parallel)
+                │  each proposes next   │
+                │  experiment           │
+                └───────────┬───────────┘
+                            │
+                ┌───────────▼───────────┐
+                │   CHAIR AGENT         │  ← opus reads all 3 proposals
+                │  picks winning        │
+                │  hypothesis           │
+                └───────────┬───────────┘
+                            │
+          ┌─────────────────▼──────────────────┐
+          │       IMPLEMENTATION PHASE          │
+          │  3 implementer agents in parallel   │  ← opus / sonnet-a / sonnet-b
+          │  each produces a unified diff       │
+          │  applied to a fresh ffc/src/ copy   │
+          └──┬──────────────┬──────────────┬───┘
+             │              │              │
+         variant-1      variant-2      variant-3
+        correctness    correctness    correctness
+        + benchmark    + benchmark    + benchmark
+             │              │              │
+          pass/fail      pass/fail      pass/fail
+             └──────────────┴──────────────┘
+                            │
+                    best passing variant
+                            │
+                ┌───────────▼───────────┐
+                │  MULTI-STAGE VERIFY   │
+                │  Stage 1: unit tests  │
+                │  Stage 2: supplemental│
+                │  Stage 3: exhaustive  │
+                └───────────┬───────────┘
+                            │
+                ┌───────────▼───────────┐
+                │  STEP 1: BENCHMARK    │  all 3 datasets vs baseline
+                └───────────┬───────────┘
+                            │
+                ┌───────────▼───────────┐
+                │  STEP 2: PROFILE      │  classify new bottleneck
+                └───────────┬───────────┘
+                            │
+               ┌────────────┴────────────┐
+               │                         │
+           ACCEPT                     REJECT
+      git commit ffc/src/         git checkout ffc/src/
+      log + update SUMMARY        log reason + update
+                                  Known Non-Starters
+               └────────────┬────────────┘
+                            │
+                   log token cost to
+                   token-ledger.tsv
+                   → next iteration
 ```
 
 Two-step validation is mandatory before accepting any change:
@@ -71,15 +131,26 @@ experiments/
   EXPERIMENTS.md                Append-only experiments log
   SUMMARY.md                    Status table (keep in sync with README counts above)
   TEMPLATE.md                   Copy-paste template for new entries
+  token-ledger.tsv              Machine-readable token cost per agent per phase
+  proposals/                    Per-experiment: 3 proposals + chair decision
+  variants/                     Per-experiment: 3 implementation diffs + bench results
+  bench-results/                Timestamped benchmark output files
+  profile-results/              Timestamped perf.data files
 scripts/
   build-bench.sh                Regenerate ffc.h + rebuild benchmark
   run-bench.sh                  Run all benchmark datasets, save output
   run-profile.sh                perf record + report on benchmark binary
+  select.sh                     Selection phase: 3 proposers + chair (parallel)
+  implement.sh                  Implementation phase: 3 variants + best-wins (parallel)
   agent-run.sh                  Agent-agnostic shim (AGENT=claude|codex|aider)
 .claude/
   CLAUDE.md                     Agent instructions (workflow, rules)
+  program.md                    Tiered optimization playbook (Tiers 1–6, bottleneck table)
   skills/
-    optimize.md                 Main optimization loop skill
+    optimize.md                 Full loop orchestration skill
+    select.md                   Proposer agent prompt (one of three)
+    chair.md                    Chair agent prompt (picks winning proposal)
+    implement.md                Implementer agent prompt (one of three variants)
     bench.md                    Benchmark runner skill
     profile.md                  Profiling skill
 .workspace-memory/
