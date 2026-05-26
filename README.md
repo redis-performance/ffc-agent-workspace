@@ -87,7 +87,7 @@ win — document it and keep going.
 
 ---
 
-## Current State (post EXP-009, 2026-05-26)
+## Current State (post EXP-013, 2026-05-26)
 
 ### x86 — Intel Xeon Platinum 8488C (m7i.metal-24xl)
 
@@ -97,13 +97,15 @@ win — document it and keep going.
 | canada.txt | **1565** | 1407 | **+11.2% (ffc leads)** |
 | mesh.txt | **1187** | 1124 | **+5.6% (ffc leads)** |
 
+*x86 numbers from EXP-009; EXP-013 ARM-only benchmarked so far*
+
 ### ARM — Graviton4 (m8g.metal-24xl)
 
 | Dataset | ffc MB/s | fastfloat MB/s | Δ% |
 |---------|----------|----------------|----|
-| random [0,1] | **1795** | 1085 | **+65%** |
-| canada.txt | **1512** | 891 | **+70%** |
-| mesh.txt | **1257** | 498 | **+152%** |
+| random [0,1] | **1809** | 1085 | **+67%** |
+| canada.txt | **1534** | 891 | **+72%** |
+| mesh.txt | **1312** | 498 | **+164%** |
 
 Baselines: `experiments/EXP-001/bench-results/`
 
@@ -116,9 +118,9 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 
 | Status | Count |
 |--------|-------|
-| Accepted | 3 |
-| Rejected | 6 |
-| Parked | 0 |
+| Accepted | 4 |
+| Rejected | 9 |
+| Parked | 1 |
 | In Progress | 0 |
 
 ---

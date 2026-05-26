@@ -182,7 +182,15 @@ Document failed experiments here as they are discovered. Starting empty.
 
 | Technique | Why it didn't work |
 |-----------|--------------------|
-| (none yet) | |
+| 2-digit SWAR in `ffc_loop_parse_if_eight_digits` (EXP-014) | Bloats the inlined function; compiler degrades register allocation for the entire hot path. i/f INCREASED despite saving byte-by-byte iterations. Same root cause as EXP-002. |
+| 2-digit SWAR + integer SWAR (EXP-002) | −18% regression; function bloat / inlining budget exceeded. |
+| __builtin_expect hints on 4 hot branches (EXP-004) | −7.2% ARM canada; hints misled branch predictor. |
+| ffc_cold on infnan/digit_comp (EXP-010) | −13.7% ARM mesh; cold annotation pulled hot-path shared code out of icache. |
+| Remove fraction_part_start from ffc_parsed (EXP-011) | −10.7% ARM mesh; GCC DSE optimization depends on this field's presence. |
+| Cache ffc_rounds_to_nearest() in local var (EXP-008) | −1.2% x86 random; compiler already hoists effectively; local cache adds load. |
+| Guard 4-digit SWAR with first-byte digit check (EXP-007) | −3.9% ARM mesh; extra branch outweighs SWAR entry savings. |
+| Constant-format specialization (EXP-003, EXP-005) | Regressions; specialization prevented cross-call inlining. |
+| AArch64 FPCR direct read in rounds_to_nearest (EXP-013) | Parked: +0.9–1.6%, below 2% threshold. Technique is valid, gain is sub-threshold. |
 
 ---
 

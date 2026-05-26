@@ -9,6 +9,339 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-014 — 2026-05-27 — 2-digit SWAR follow-up in `ffc_loop_parse_if_eight_digits`
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+The fraction byte-by-byte fallback loop at instruction `c6cc` accounts for **9.73%** of
+ffc cycles on canada (the hottest hot-spot outside Eisel-Lemire). After the 8-digit and
+4-digit SWARs handle multiples of 8 and 4 fraction digits, residual 2-3 digit remainders
+fall to a 10-instruction-per-digit loop. Adding a 2-digit SWAR follow-up (analogous to
+the existing 4-digit follow-up in `ffc_loop_parse_if_eight_digits`) should reduce
+byte-by-byte iterations for common digit counts: 7-digit fractions (4-SWAR handles 4,
+2-SWAR handles 2, 1 byte-by-byte), 10-digit fractions (8-SWAR handles 8, 2-SWAR handles 2).
+
+Expected: −10–20 i/f for canada (9-11 fraction digits), modest for mesh (2-3 digit
+fractions), negligible for random (16-17 fraction digits, 2-digit check almost always
+fails immediately).
+
+### Files changed
+
+- `ffc/src/parse.h`: added `ffc_read2_to_u16`, `ffc_is_made_of_two_digits_fast`,
+  `ffc_parse_two_digits`, and a 2-digit follow-up block in `ffc_loop_parse_if_eight_digits`
+
+### Benchmark results
+
+**Baseline (post-EXP-012, ARM Graviton4)**:
+
+| Dataset | ffc MB/s | i/f    | c/f   | IPC  |
+|---------|----------|--------|-------|------|
+| canada  | 1534     | 206.64 | 31.72 | 6.51 |
+| mesh    | 1312     | 107.26 | 15.66 | 6.85 |
+| random  | 1809     | 231.04 | 32.43 | 7.12 |
+
+**EXP-014 ARM**:
+
+| Dataset | ffc MB/s | Δ       | i/f    | Δ i/f | c/f   | IPC  |
+|---------|----------|---------|--------|-------|-------|------|
+| canada  | 1520     | **−0.9%** | 209.85 | **+3.21** | 32.01 | 6.56 |
+| mesh    | 1235     | **−5.9%** | 108.61 | **+1.35** | 16.65 | 6.52 |
+| random  | 1753     | **−3.1%** | 243.04 | **+12.0** | 33.45 | 7.26 |
+
+### Analysis
+
+**Counter-intuitive result: instruction count INCREASED for all three datasets.** The
+2-digit SWAR additions were expected to reduce the byte-by-byte iterations but instead
+bloated the inlined `ffc_loop_parse_if_eight_digits` body. The increased function size
+caused the compiler to generate worse register allocation (higher spill count) and
+suboptimal code layout for the surrounding hot path. This is visible most dramatically
+on random (+12 i/f), where the 2-digit check should only add 1 comparison (immediately
+fails since only 0-1 fraction digits remain after 2×8-SWAR). The large increase suggests
+inlining budget was exhausted, causing previously-inlined code to de-inline.
+
+Root cause: `ffc_loop_parse_if_eight_digits` is already at the edge of profitable inlining.
+Adding ~15 instructions to its body tips it over, defeating the EXP-009 force-inline
+optimizations. This is the same failure mode as EXP-002 (2-digit SWAR, -18% regression).
+
+### Decision
+
+**REJECT** — all three datasets regressed. Added to Known Non-Starters.
+
+---
+
+## EXP-013 — 2026-05-26 — AArch64 FPCR direct read in `ffc_rounds_to_nearest`
+
+**Status**: PARKED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+`ffc_rounds_to_nearest()` uses a volatile float trick (load FLT_MIN from memory, do
+`fmin + 1.0f == 1.0f - fmin`) to detect non-nearest rounding mode without calling
+`fegetround()`. On AArch64, this compiles to 7 instructions:
+`adrp + ldr (L1 load) + fmov + fadd + fsub + fcmp + b.ne`.
+
+The AArch64 Floating-Point Control Register (FPCR) bits [23:22] encode the rounding
+mode directly (0 = round-to-nearest-even). One `mrs` instruction reads it in 1 cycle
+vs ~4 cycles for an L1 cache load, replacing the 7-instruction sequence with 3:
+`mrs fpcr + tst #0xc00000 + b.ne` — saving 4 instructions per float on every
+Clinger-path number.
+
+The call to `ffc_rounds_to_nearest()` is inline in `ffc_clinger_fast_path_impl`, which
+runs for every number with mantissa ≤ 2^53 and exponent ∈ [−22, 22].
+
+### Files changed
+
+- `ffc/src/common.h`: `ffc_rounds_to_nearest()` — added `#if defined(__aarch64__)` fast
+  path with `__asm__ volatile("mrs %0, fpcr")` before the `#else` volatile float path.
+
+### Benchmark results
+
+**Baseline (post-EXP-012, ARM Graviton4)**:
+
+| Dataset | ffc MB/s | i/f   | c/f   | IPC  | b/f |
+|---------|----------|-------|-------|------|-----|
+| canada  | 1534     | 206.64| 31.72 | 6.51 | 41.41 |
+| mesh    | 1312     | 107.26| 15.66 | 6.85 | 23.85 |
+| random  | 1809     | 231.04| 32.43 | 7.12 | 46.00 |
+
+**EXP-013 ARM**:
+
+| Dataset | ffc MB/s | Δ      | i/f    | Δ i/f | c/f   | IPC  | b/f |
+|---------|----------|--------|--------|-------|-------|------|-----|
+| canada  | 1555     | **+1.4%** | 202.64 | −4    | 31.30 | 6.47 | 41.41 |
+| mesh    | 1324     | **+0.9%** | 103.26 | −4    | 15.53 | 6.65 | 23.85 |
+| random  | 1838     | **+1.6%** | 227.04 | −4    | 31.89 | 7.12 | 46.00 |
+
+### Analysis
+
+The instruction savings are exactly as predicted: −4 i/f across all datasets, confirming
+the 7→3 instruction reduction in the inlined `ffc_rounds_to_nearest()`. The FPCR read
+is confirmed in the binary: `mrs x4, fpcr; tst x4, #0xc00000; b.ne <slow>`.
+
+Despite fewer instructions, IPC slightly decreased on canada (6.51→6.47) and mesh
+(6.85→6.65), suggesting the FPCR instruction has worse ILP interaction with surrounding
+code than the original FP sequence (which could overlap with FP pipeline stages). The
+net result is smaller MB/s gains than the instruction count reduction would predict.
+
+All three results are positive and above the ±0.4% noise floor (real signal), but all
+fall below the 2% acceptance threshold (max +1.6% on random).
+
+### Decision
+
+**PARK** — improvement is real and uniformly positive (+0.9–1.6%), but below the 2%
+threshold. The approach is technically sound: `mrs fpcr` is the correct AArch64 idiom
+for reading rounding mode. If future instruction-reduction work pushes overall IPC up,
+this +4 i/f saving could compound to reach threshold. The change does not add code
+complexity (a simple `#ifdef __aarch64__` block).
+
+Not added to Known Non-Starters — the technique is valid; only the current gain size
+is insufficient.
+
+---
+
+## EXP-012 — 2026-05-26 — Combined exponent range check in `ffc_clinger_fast_path_impl`
+
+**Status**: ACCEPTED
+**ffc commit**: (pending — changes in ffc/src/ffc.h, ffc/ffc.h)
+
+### Hypothesis
+
+In `ffc_clinger_fast_path_impl`, the exponent range check `[MIN, MAX]` is implemented as
+two separate signed comparisons (first `exponent >= MIN`, then `exponent <= MAX`). GCC
+compiles this into two separate conditional branches with an intermediate jump through
+the function to the second check block. fast_float uses the unsigned range trick instead:
+`(uint64_t)(exponent - MIN) <= (uint64_t)(MAX - MIN)` — one subtraction, one comparison,
+one branch.
+
+The ffc two-check approach generates 2 branches + 4 instructions with the code scattered
+across non-contiguous basic blocks. The unsigned range trick generates 1 branch + 3
+instructions with compact, sequential code. For numbers hitting the Clinger fast path
+(mantissa ≤ 2^53, exponent in [-22, 22]), this is on the hot code path.
+
+### Files changed
+
+- `ffc/src/ffc.h`: line 231 — changed `ffc_const(..., MIN_EXPONENT_FAST_PATH) <= exponent &&
+  exponent <= ffc_const(..., MAX_EXPONENT_FAST_PATH)` to
+  `(uint64_t)((int64_t)exponent - (int64_t)ffc_const(value_kind, MIN_EXPONENT_FAST_PATH)) <=
+  (uint64_t)((int64_t)ffc_const(value_kind, MAX_EXPONENT_FAST_PATH) - (int64_t)ffc_const(value_kind, MIN_EXPONENT_FAST_PATH))`
+- `ffc/ffc.h`: regenerated via `amalgamate.py`
+
+### Benchmark results
+
+**Baseline (post-EXP-009, ARM, confirmed)**:
+
+| Dataset | ffc MB/s | i/f | c/f | IPC | b/f |
+|---------|----------|-----|-----|-----|-----|
+| canada  | 1519     | 208.55 | 32.03 | 6.51 | 43.32 |
+| mesh    | 1254     | 107.70 | 16.38 | 6.57 | 24.29 |
+| random  | 1783     | 233.04 | 32.88 | 7.09 | 48.00 |
+
+**EXP-012 ARM (5-run canada, 5-run mesh, 3-run random)**:
+
+| Dataset | ffc MB/s | Δ | i/f | Δ i/f | c/f | IPC | b/f | Δ b/f |
+|---------|----------|---|-----|-------|-----|-----|-----|-------|
+| canada  | 1534     | **+1.0%** | 206.64 | −1.91 | 31.72 | 6.51 | 41.41 | −1.91 |
+| mesh    | 1312     | **+4.6%** | 107.26 | −0.44 | 15.66 | **6.85** | 23.85 | −0.44 |
+| random  | 1809     | **+1.5%** | 231.04 | −2.00 | 32.43 | 7.12 | 46.00 | −2.00 |
+
+### Analysis
+
+All three datasets improved with no regressions. The branch count reduction is larger
+than the expected "1 branch saved" — specifically −2 for canada and random. This is
+because combining the two checks into one also eliminates the intermediate unconditional
+jump (`b c7b4` via `b.le ce54`) that the original scattered layout required to chain
+the two check blocks together. The compiler, given a single range expression, can lay out
+the Clinger path without the intermediate jump.
+
+The mesh improvement is disproportionately large (+4.6%) relative to the instruction
+savings (−0.44 i/f). The IPC jump from 6.57→6.85 explains this: more compact code in
+the Clinger hot path (mesh numbers mostly hit Clinger: mantissa ≤ 2^53) allows better
+out-of-order execution. The CPU can extract more ILP from the denser instruction
+sequence.
+
+For canada and random, the savings are more modest because:
+- canada: Eisel-Lemire path (large mantissa > 2^53) — still benefits from faster Clinger
+  gate check before falling through to Eisel-Lemire
+- random: mix of Clinger and Eisel-Lemire — larger branch savings (−2) but smaller IPC
+  lift than mesh
+
+### Decision
+
+**ACCEPT** — uniform improvement across all datasets (+1.0% canada, +4.6% mesh,
++1.5% random). No regressions. mesh +4.6% is the largest single-dataset gain since
+EXP-009. The unsigned range trick is a standard optimization (used by fast_float) with
+no correctness risk.
+
+---
+
+## EXP-011 — 2026-05-26 — Remove `fraction_part_start` field from `ffc_parsed` struct
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+`ffc_parsed` is a 72-byte struct. The `fraction_part_start` field is only used by
+`ffc_digit_comp` (the slow path) and `ffc_parse_json_number`. Removing it would shrink
+the struct to 64 bytes (one cache line), reducing store/load traffic. `ffc_digit_comp`
+could reconstruct the pointer as `int_part_start + int_part_len + 1`.
+
+### Files changed
+
+- `ffc/src/parse.h`: removed `fraction_part_start` field; added `has_decimal_point` bool
+- `ffc/src/digit_comparison.h`: replaced `num.fraction_part_start` reads with computed
+  `int_part_start + int_part_len + 1`
+- `ffc/src/ffc.h`: changed `(pns.fraction_part_start == NULL)` to `(!pns.has_decimal_point)`
+- `ffc/ffc.h`: regenerated — REVERTED
+
+### Benchmark results
+
+**Pre-EXP-011 baseline (ARM, 5-run)**:
+
+| Dataset | ffc MB/s |
+|---------|----------|
+| canada  | 1519     |
+| mesh    | 1254     |
+| random  | 1783     |
+
+**EXP-011 ARM (3-run)**:
+
+| Dataset | ffc MB/s | Δ |
+|---------|----------|---|
+| canada  | 1405     | **−7.5%** |
+| mesh    | 1120     | **−10.7%** |
+| random  | 1776     | −0.4% (noise) |
+
+ARM hardware performance counters (canada):
+- EXP-011: 11.48 i/B, 34.64 c/f, **6.05 IPC** (vs baseline 11.43 i/B, 32.03 c/f, **6.51 IPC**)
+
+### Root-cause analysis
+
+Despite removing one struct field (eliminating one store and one load per float), the
+instruction count INCREASED (+0.4%) and IPC dropped from 6.51 → 6.05. Moving
+`fraction_part_len` from offset 56 → 48 changed GCC's addressing patterns for all
+struct accesses in `ffc_from_chars_advanced` and `ffc_digit_comp`, causing worse
+register allocation and more complex load/store sequences. The compiler generated
+longer, less parallel instruction sequences to compensate for the new layout.
+
+Lesson: struct field reordering consistently triggers GCC code-generation regressions
+even when the struct shrinks. The compiler has already optimized for the 72-byte layout.
+Don't touch struct layout.
+
+### Decision
+
+**REJECT** — uniform regression: −7.5% canada, −10.7% mesh. IPC drop from 6.51→6.05
+confirms worse code generation, not a workload mismatch.
+
+---
+
+## EXP-010 — 2026-05-26 — `ffc_cold` attribute on `ffc_parse_infnan` and `ffc_digit_comp`
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+`ffc_parse_infnan` is called only on invalid numbers (nan/inf) — a rare code path.
+`ffc_digit_comp` is called only when `am.power2 < 0` after Eisel-Lemire — also rare.
+Marking both with `__attribute__((cold, noinline))` would tell GCC to move these
+functions out of the hot code section, improving I-cache utilization for the hot path.
+
+### Files changed
+
+- `ffc/src/common.h`: added `ffc_cold` macro (`__attribute__((cold, noinline))` on GCC/Clang)
+- `ffc/src/parse.h`: changed `ffc_parse_infnan` from `ffc_internal ffc_inline` to `ffc_internal ffc_cold`
+- `ffc/src/digit_comparison.h`: changed `ffc_digit_comp` signature to include `ffc_cold`
+- `ffc/ffc.h`: regenerated — REVERTED
+
+### Benchmark results
+
+**Pre-EXP-010 baseline (ARM, 5-run)**:
+
+| Dataset | ffc MB/s |
+|---------|----------|
+| canada  | 1519     |
+| mesh    | 1254     |
+| random  | 1783     |
+
+**EXP-010 ARM (3-run)**:
+
+| Dataset | ffc MB/s | Δ |
+|---------|----------|---|
+| canada  | 1374     | **−9.5%** |
+| mesh    | 1083     | **−13.7%** |
+| random  | 1768     | −0.8% (noise) |
+
+### Root-cause analysis
+
+The `cold` attribute on `ffc_parse_infnan` and `ffc_digit_comp` (both `always_inline`
+or called from `always_inline` functions) caused GCC to reorganize basic blocks in
+the CALLER functions. GCC's `cold` annotation propagates to caller basic blocks that
+invoke the cold function, causing GCC to lay out those blocks outside the hot code
+region. Since `ffc_parse_infnan` and `ffc_digit_comp` are force-inlined into the
+benchmark loop, this corrupted the hot-path code layout inside `findmax_ffc`.
+
+On x86, a similar regression occurred (−9% to −14% on canada/mesh). The assembled
+`findmax_ffc` function grew from 3284 bytes to over 4000 bytes with scattered hot-path
+blocks.
+
+Lesson: `cold` attribute on called functions disrupts GCC basic-block layout in their
+callers. Never apply `cold` to functions that are inlined (or force-inlined) into
+hot-path code. The assembly-level analysis confirmed I-cache degradation as the
+primary cause.
+
+### Decision
+
+**REJECT** — catastrophic regression: −9.5% canada, −13.7% mesh. Root cause: cold
+attribute reorganizes basic blocks in inlined callers, destroying hot-path I-cache
+locality.
+
+---
+
 ## EXP-009 — 2026-05-26 — FFC_IMPL_INLINE: force inline via always_inline on declarations
 
 **Status**: ACCEPTED

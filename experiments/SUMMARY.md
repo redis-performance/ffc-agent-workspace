@@ -5,6 +5,11 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-014 | 2-digit SWAR follow-up in `ffc_loop_parse_if_eight_digits` | canada | −5.9% mesh (regression, i/f bloat) | **Rejected** | 2026-05-27 |
+| EXP-013 | AArch64 FPCR direct read in `ffc_rounds_to_nearest` | random | +1.6% ARM random (all positive, sub-2%) | **Parked** | 2026-05-26 |
+| EXP-012 | Combined exponent range check in Clinger fast path | mesh | +4.6% ARM mesh, +1.5% ARM random | **Accepted** | 2026-05-26 |
+| EXP-011 | Remove `fraction_part_start` from `ffc_parsed` struct | all | −10.7% ARM mesh (regression) | **Rejected** | 2026-05-26 |
+| EXP-010 | `ffc_cold` attribute on infnan/digit_comp | all | −13.7% ARM mesh (regression) | **Rejected** | 2026-05-26 |
 | EXP-009 | FFC_IMPL_INLINE force inline on declarations | all | +22.1% ARM mesh, +9.7% x86 random | **Accepted** | 2026-05-26 |
 | EXP-008 | Cache `ffc_rounds_to_nearest()` in local var | x86 random | −1.2% x86 random (regression) | **Rejected** | 2026-05-26 |
 | EXP-007 | Guard 4-digit SWAR with first-byte digit check | x86 random | −3.9% ARM mesh (regression) | **Rejected** | 2026-05-26 |
