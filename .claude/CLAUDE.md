@@ -18,22 +18,32 @@ benchmark + profile data.
 | `ffc/ffc.h` | **Generated amalgam — do not edit directly** |
 | `simple_fastfloat_benchmark/benchmarks/benchmark.cpp` | Double benchmark (ffc wired in) |
 | `simple_fastfloat_benchmark/benchmarks/benchmark32.cpp` | Float benchmark (ffc wired in) |
+| `.claude/program.md` | **Tiered optimization playbook** — read before each experiment |
 
 ---
 
 ## Optimization Workflow
 
-1. **Identify** — read current profile output to find the hottest symbol
-2. **Hypothesize** — form a specific, falsifiable hypothesis (e.g. "branch on X is mispredicted; replacing with branchless Y should reduce cycles/float by ~10%")
-3. **Implement** — edit `ffc/src/*.h`
-4. **Regenerate** — `make -C ffc ffc.h`
-5. **Verify correctness** — `make -C ffc test` (must pass before benchmarking)
-6. **Step 1: Benchmark** — `scripts/run-bench.sh` (compare MB/s vs previous)
-7. **Step 2: Profile** — `scripts/run-profile.sh` (confirm bottleneck shifted)
-8. **Log** — append entry to `experiments/EXPERIMENTS.md`
-9. **Decide** — accept / reject / park; update `experiments/SUMMARY.md`
+This loop is directly inspired by AutoKernel (arXiv:2603.21331): immutable
+benchmark harness + mutable code + git as the experiment ledger.
 
-Never skip steps 5–7. A benchmark win without a profile check is incomplete.
+1. **Profile** — run `scripts/run-profile.sh`; identify hottest ffc symbol
+2. **Classify** — use `.claude/program.md` Bottleneck Classification table to pick a tier
+3. **Consult playbook** — pick the highest-expected-gain technique from that tier not yet tried
+4. **Hypothesize** — one falsifiable sentence before touching code
+5. **Implement** — edit `ffc/src/*.h` only; one technique, minimal diff
+6. **Multi-stage correctness** (all must pass before benchmarking):
+   - Stage 1: `make -C ffc ffc.h && make -C ffc test` — unit tests
+   - Stage 2: `make -C ffc supplemental_tests` — fastfloat reference corpus
+   - Stage 3: `make -C ffc exhaustive` — when touching the mantissa loop
+7. **Step 1: Benchmark** — `scripts/build-bench.sh && scripts/run-bench.sh`
+8. **Step 2: Profile** — `scripts/run-profile.sh`; classify new bottleneck
+9. **Commit or revert**:
+   - Accept → `git -C ffc add src/ && git -C ffc commit -m "EXP-NNN: ..."`
+   - Reject → `git -C ffc checkout -- src/`
+10. **Log** — append to `experiments/EXPERIMENTS.md`; update `experiments/SUMMARY.md`
+
+Never benchmark broken code. Never skip the profile step. The ffc submodule tip always reflects the best accepted state.
 
 ---
 
@@ -41,9 +51,12 @@ Never skip steps 5–7. A benchmark win without a profile check is incomplete.
 
 - Edit `ffc/src/*.h` — never `ffc/ffc.h` (it's generated)
 - After edits: `make -C ffc ffc.h` then `scripts/build-bench.sh`
-- `make -C ffc test` must pass before logging any benchmark result
+- All correctness stages must pass before benchmarking — no exceptions
 - Log every experiment, including rejections — the reason a thing didn't work is valuable
 - Keep `experiments/SUMMARY.md` and `README.md` counts in sync
+- The benchmark harness is immutable — never modify it to make ffc look better
+- Git commit on accept, `git checkout -- src/` on reject — the submodule tip = best known state
+- After a permanent dead end: add to "Known Non-Starters" in `.claude/program.md`
 - Never force-push
 - Workspace memory lives in `.workspace-memory/` — commit updates alongside results
 

@@ -112,8 +112,25 @@ make -C ffc ffc.h
 
 ---
 
+## Inspiration
+
+This workspace was directly inspired by **AutoKernel: Autonomous GPU Kernel Optimization via Iterative Agent-Driven Search** (Jaber & Jaber, RightNow AI, arXiv:2603.21331, 2026).
+
+AutoKernel demonstrated that "the workflow of an expert kernel engineer is itself a simple loop: write a candidate, benchmark it, keep improvements, discard regressions, repeat" — and that mechanizing this pattern through autonomous agents transforms weeks of expert work into overnight automated processes. We apply the same loop to CPU float parsing instead of GPU kernels.
+
+Key design choices borrowed from AutoKernel:
+- **Immutable benchmark harness** — the benchmark is never modified by the agent, preventing gaming
+- **Multi-stage correctness before any performance measurement** — broken code is never benchmarked
+- **Git as experiment ledger** — accept = commit advances, reject = `git reset --hard HEAD~1`
+- **Tiered optimization playbook** (`.claude/program.md`) — structured catalogue of techniques by expected gain
+- **Bottleneck classification** — profile output classified into actionable categories to steer next tier
+- **Move-on criteria** — prevents over-investment in diminishing returns
+
+---
+
 ## References
 
+- Jaber & Jaber, [AutoKernel: Autonomous GPU Kernel Optimization via Iterative Agent-Driven Search](https://arxiv.org/abs/2603.21331), arXiv, 2026 ← **direct inspiration for this workspace**
 - Daniel Lemire, [Number Parsing at a Gigabyte per Second](https://arxiv.org/abs/2101.11408), SPE 51(8), 2021
 - Noble Mushtak, Daniel Lemire, [Fast Number Parsing Without Fallback](https://arxiv.org/abs/2212.06644), SPE 53(7), 2023
 - [fast_float C++ reference implementation](https://github.com/fastfloat/fast_float)
