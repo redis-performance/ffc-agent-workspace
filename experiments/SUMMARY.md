@@ -5,6 +5,8 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-005 | Static const options for compile-time format specialization | all | −11% x86 mesh (regression) | **Rejected** | 2026-05-26 |
+| EXP-004 | `__builtin_expect` branch hints on 4 hot branches | all | −7.2% ARM canada (regression) | **Rejected** | 2026-05-26 |
 | EXP-003 | Constant-format specialization via `ffc_from_chars_double` restructure | all | −5.7% mesh (regression) | **Rejected** | 2026-05-26 |
 | EXP-002 | 2-digit SWAR + integer SWAR | all | −18% random (regression) | **Rejected** | 2026-05-26 |
 | EXP-001 | 4-digit SWAR follow-up | canada, mesh | +29% canada, +18% mesh | **Accepted** | 2026-05-26 |

@@ -9,6 +9,165 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-005 — 2026-05-26 — Static const options to force compile-time format specialization
+
+**Status**: REJECTED  
+**ffc commit**: reverted to cf971fe (EXP-001 state)
+
+### Hypothesis
+
+`ffc_from_chars_double` calls `ffc_from_chars_double_options` which passes an
+`ffc_parse_options` struct (format flags + decimal_point) into `ffc_from_chars` (marked
+`ffc_internal ffc_inline`). The hypothesis was that because `ffc_from_chars_double_options`
+has external linkage, GCC cannot constant-propagate its `options` argument into the inlined
+`ffc_from_chars`, leaving 5–6 dead format-flag branches in the hot path.
+
+Proposed fix: introduce `static ffc_result ffc_from_chars_double_general(...)` with
+`static const ffc_parse_options opts = {FFC_PRESET_GENERAL, '.'}`. With a `static const`
+local, GCC would see the format flags as compile-time constants and eliminate dead branches.
+
+### Files changed
+
+- `ffc/src/ffc.h`: added `ffc_from_chars_double_general` static function; changed
+  `ffc_from_chars_double` to call it instead of `ffc_from_chars_double_options`
+
+### Benchmark results
+
+**Baseline** (EXP-001, cf971fe, confirmed 5-run average):
+
+| Dataset | ffc MB/s | fastfloat MB/s |
+|---------|----------|----------------|
+| random  | 1736     | 2018           |
+| canada  | 1414     | 1449           |
+| mesh    | 1113     | 1165           |
+
+**EXP-005 x86**:
+
+| Dataset | ffc MB/s | Δ vs EXP-001 |
+|---------|----------|--------------|
+| random  | 1673     | −3.6%        |
+| canada  | 1338     | −5.4%        |
+| mesh    | 993      | **−11%**     |
+
+**EXP-005 ARM** (stable baseline for reference — ARM not fully measured):
+
+| Dataset | ffc MB/s | fastfloat MB/s |
+|---------|----------|----------------|
+| random  | 1555     | 1076           |
+| canada  | 1332     | 885            |
+| mesh    | 1019     | 485            |
+
+### Root-cause analysis
+
+**Key discovery: GCC IPA-CP already does this optimization.**
+
+`nm` on the EXP-001 benchmark binary shows:
+
+```
+ffc_from_chars_double_options.constprop.0.isra.0  (9888 bytes)
+```
+
+GCC's interprocedural constant propagation (`-fipa-cp`, enabled at `-O3`) automatically creates
+a specialized clone of `ffc_from_chars_double_options` when it is called with a constant
+`ffc_parse_options_default()` value. Assembly inspection shows the clone starts identically to
+the EXP-005 static function — both have format-flag checks already eliminated in their first
+40+ instructions.
+
+`nm` on EXP-005 binary shows:
+
+```
+ffc_from_chars_double_general  (10064 bytes)
+```
+
+The sizes are nearly identical (9888 vs 10064 bytes), confirming that EXP-005 produced no
+structural improvement over what GCC was already doing in EXP-001.
+
+**Why it regressed**: the `static` function has internal linkage, which changed GCC's inlining
+decisions slightly. The differently-named symbol produced a slightly different code layout
+causing I-cache pressure on x86, especially on mesh (shortest inputs, highest call:work ratio).
+
+**The 276 vs 252 i/f gap** (ffc vs fastfloat on ARM random) is NOT from format-flag checks.
+Those are already eliminated. The gap is from structural differences (storing `int_part_*` and
+`fraction_part_*` fields to `ffc_parsed` unconditionally, plus Clinger fast-path differences).
+
+### Decision
+
+**REJECT** — x86 regressed up to −11% on mesh. Root cause: GCC IPA-CP already performs the
+intended optimization in EXP-001; EXP-005 merely produces a slightly different code layout.
+
+### Lesson / Known Non-Starter
+
+**GCC already constant-propagates `ffc_parse_options_default()` via IPA-CP.** Any experiment
+attempting to "help" the compiler see the format flags as constants is redundant — the compiler
+already does this. The constprop clone (`ffc_from_chars_double_options.constprop.0.isra.0`) IS
+the hot path. Do not attempt static-specialization or constant-opts approaches.
+
+The actual source of the 24 i/f gap vs fastfloat (ARM random) is:
+1. Unconditional stores of `int_part_*`/`fraction_part_*` to `ffc_parsed` (needed for
+   `too_many_digits` path — GCC cannot DSE them; confirmed by `cmp $0x13,%r8` in assembly)
+2. Structural differences in the Clinger fast-path implementation
+
+---
+
+## EXP-004 — 2026-05-26 — `__builtin_expect` branch hints on 4 hot branches
+
+**Status**: REJECTED  
+**ffc commit**: reverted to cf971fe (EXP-001 state)
+
+### Hypothesis
+
+Adding `__builtin_expect(..., 0)` to 4 unlikely branches in `ffc.h` (the sign-detection,
+decimal-point, exponent-char, and fallback-path branches) would let GCC lay out hot code
+linearly, reducing branch-not-taken penalties and improving I-cache efficiency.
+
+### Files changed
+
+- `ffc/src/ffc.h`: `__builtin_expect(..., 0)` added to 4 branch conditions in `ffc_from_chars`
+
+### Benchmark results
+
+**Baseline** (EXP-001, cf971fe):
+
+| Dataset | ffc MB/s (ARM) |
+|---------|----------------|
+| random  | 1552           |
+| canada  | 1332           |
+| mesh    | 1019           |
+
+**EXP-004 ARM**:
+
+| Dataset | ffc MB/s | Δ vs EXP-001 |
+|---------|----------|--------------|
+| random  | 1484     | **−4.4%**    |
+| canada  | 1237     | **−7.2%**    |
+| mesh    | ~1010    | ~−1% (noise) |
+
+### Root-cause analysis
+
+`__builtin_expect` moved cold branch targets out-of-line, increasing the total size of the
+inlined function body in the benchmark's hot loop. This created I-cache pressure on the
+benchmark's per-float call site.
+
+The pattern mirrors EXP-003: any change that increases the size of the inlined call sequence
+(even by rearranging code, not adding instructions) degrades performance through I-cache effects.
+The canada dataset showed the strongest regression (−7.2%) because it exercises the most
+code paths per float (2-digit integer + 5-digit fraction = most branches taken).
+
+### Decision
+
+**REJECT** — ARM canada regressed −7.2%, ARM random −4.4%. I-cache pressure from increased
+inlined function body size.
+
+### Lesson / Known Non-Starter
+
+`__builtin_expect` that moves cold blocks out-of-line increases the inlined function body size
+and causes I-cache regressions on these benchmarks. The hot path is already nearly linear in
+EXP-001 due to GCC's own profiling-free heuristics. Adding branch hints counteracts GCC's
+default layout choices and hurts I-cache performance. **Do not apply `__builtin_expect` to
+branches within `ffc_from_chars` or its call tree.**
+
+---
+
 ## EXP-003 — 2026-05-26 — Constant-format specialization via `ffc_from_chars_double` restructure
 
 **Status**: REJECTED  
