@@ -5,7 +5,7 @@ profile → hypothesize → implement → validate (bench + profile) → log →
 
 ## Steps
 
-1. **Read current profile** (from `approaches/EXPERIMENTS.md` last entry or run `scripts/run-profile.sh`)
+1. **Read current profile** (from `experiments/EXPERIMENTS.md` last entry or run `scripts/run-profile.sh`)
    - Identify the hottest symbol in ffc parsing
    - Note its % CPU and the surrounding call chain
 
@@ -32,7 +32,7 @@ profile → hypothesize → implement → validate (bench + profile) → log →
    scripts/build-bench.sh
    scripts/run-bench.sh
    ```
-   Compare MB/s vs the previous entry in `approaches/EXPERIMENTS.md`.
+   Compare MB/s vs the previous entry in `experiments/EXPERIMENTS.md`.
 
 7. **Step 2 — Profile**:
    ```bash
@@ -40,14 +40,14 @@ profile → hypothesize → implement → validate (bench + profile) → log →
    ```
    Compare top symbol percentages. Did the target symbol's % drop?
 
-8. **Log** — append to `approaches/EXPERIMENTS.md` using the template in `approaches/TEMPLATE.md`
+8. **Log** — append to `experiments/EXPERIMENTS.md` using the template in `experiments/TEMPLATE.md`
 
 9. **Decide**:
    - **Accept**: ≥ +2% on ≥ 1 dataset, no regression, profile confirms bottleneck shifted
    - **Reject**: < 1% delta or regression; revert the change in `ffc/src/`
    - **Park**: real improvement but < 2%, or needs a prerequisite
 
-10. **Update** `approaches/SUMMARY.md` and `README.md` counts
+10. **Update** `experiments/SUMMARY.md` and `README.md` counts
 
 ## Move-On Criteria
 

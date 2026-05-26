@@ -37,14 +37,14 @@ _Note: ffc beats fastfloat on Apple Silicon (+13%) but trails on x86. Closing th
 | canada.txt | 1053 | 1305 | **-19%** |
 | mesh.txt | 930 | 1104 | **-16%** |
 
-Baseline run: `approaches/bench-results/20260526-141719.txt`
+Baseline run: `experiments/bench-results/20260526-141719.txt`
 
 ---
 
 ## Experiments
 
-All experiments are logged in [`approaches/EXPERIMENTS.md`](approaches/EXPERIMENTS.md).
-[`approaches/SUMMARY.md`](approaches/SUMMARY.md) is the single source of truth for status.
+All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIMENTS.md).
+[`experiments/SUMMARY.md`](experiments/SUMMARY.md) is the single source of truth for status.
 
 | Status | Count |
 |--------|-------|
@@ -67,7 +67,7 @@ ffc/                            ffc.h source (submodule — redis-performance/ff
 simple_fastfloat_benchmark/     Lemire's benchmark suite (submodule — filipecosta90/fork)
   benchmarks/benchmark.cpp      ffc wired in via ENABLE_FFC
   data/                         canada.txt, mesh.txt, random generators
-approaches/
+experiments/
   EXPERIMENTS.md                Append-only experiments log
   SUMMARY.md                    Status table (keep in sync with README counts above)
   TEMPLATE.md                   Copy-paste template for new entries

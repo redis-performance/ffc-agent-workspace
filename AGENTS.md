@@ -18,7 +18,7 @@ Every code change must pass both steps before being accepted:
 
 1. **Benchmark** — run `scripts/run-bench.sh`, compare MB/s and Mfloat/s
    - Must improve at least one dataset without regressing others
-   - Results go in the experiment log entry in `approaches/EXPERIMENTS.md`
+   - Results go in the experiment log entry in `experiments/EXPERIMENTS.md`
 
 2. **Profile** — run `scripts/run-profile.sh`, compare hot symbols
    - Confirm the expected bottleneck shifted
@@ -60,8 +60,8 @@ in the same commit as the experiment results. Git log is the audit trail.
 - After editing sources: `make -C ffc ffc.h` regenerates the amalgam
 - After regenerating: `scripts/build-bench.sh` rebuilds the benchmark binary
 - **Always run `make -C ffc test` before logging a benchmark result** — correctness first
-- Log every experiment in `approaches/EXPERIMENTS.md` — failures are valuable
-- Keep `approaches/SUMMARY.md` and `README.md` counts in sync after each decision
+- Log every experiment in `experiments/EXPERIMENTS.md` — failures are valuable
+- Keep `experiments/SUMMARY.md` and `README.md` counts in sync after each decision
 - Never force-push to `main`
 
 ---

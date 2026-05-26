@@ -23,7 +23,7 @@ Run the full benchmark suite and report results.
 4. Report the ffc and fastfloat rows for each dataset.
    Compute Δ% = (ffc_MBs - fastfloat_MBs) / fastfloat_MBs * 100.
 
-5. Compare to the last entry in `approaches/EXPERIMENTS.md`.
+5. Compare to the last entry in `experiments/EXPERIMENTS.md`.
    If this is the first run, set it as the baseline in `README.md`.
 
 ## Output Format

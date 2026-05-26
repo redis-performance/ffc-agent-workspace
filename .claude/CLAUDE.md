@@ -30,8 +30,8 @@ benchmark + profile data.
 5. **Verify correctness** — `make -C ffc test` (must pass before benchmarking)
 6. **Step 1: Benchmark** — `scripts/run-bench.sh` (compare MB/s vs previous)
 7. **Step 2: Profile** — `scripts/run-profile.sh` (confirm bottleneck shifted)
-8. **Log** — append entry to `approaches/EXPERIMENTS.md`
-9. **Decide** — accept / reject / park; update `approaches/SUMMARY.md`
+8. **Log** — append entry to `experiments/EXPERIMENTS.md`
+9. **Decide** — accept / reject / park; update `experiments/SUMMARY.md`
 
 Never skip steps 5–7. A benchmark win without a profile check is incomplete.
 
@@ -43,7 +43,7 @@ Never skip steps 5–7. A benchmark win without a profile check is incomplete.
 - After edits: `make -C ffc ffc.h` then `scripts/build-bench.sh`
 - `make -C ffc test` must pass before logging any benchmark result
 - Log every experiment, including rejections — the reason a thing didn't work is valuable
-- Keep `approaches/SUMMARY.md` and `README.md` counts in sync
+- Keep `experiments/SUMMARY.md` and `README.md` counts in sync
 - Never force-push
 - Workspace memory lives in `.workspace-memory/` — commit updates alongside results
 
@@ -104,7 +104,7 @@ If `ffc_digit_comp` is > 5% on random inputs, the fast path is failing too often
 
 ## Experiment Log Format
 
-Append to `approaches/EXPERIMENTS.md`:
+Append to `experiments/EXPERIMENTS.md`:
 
 ```markdown
 ## EXP-NNN — YYYY-MM-DD — [short title]

@@ -4,7 +4,7 @@ set -euo pipefail
 WORKSPACE="$(cd "$(dirname "$0")/.." && pwd)"
 BENCH="$WORKSPACE/simple_fastfloat_benchmark/build/benchmarks/benchmark"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-OUT_DIR="$WORKSPACE/approaches/profile-results"
+OUT_DIR="$WORKSPACE/experiments/profile-results"
 PERF_DATA="$OUT_DIR/$TIMESTAMP-perf.data"
 
 mkdir -p "$OUT_DIR"
