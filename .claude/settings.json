@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make*)",
+      "Bash(cmake*)",
+      "Bash(clang*)",
+      "Bash(gcc*)",
+      "Bash(git*)",
+      "Bash(perf*)",
+      "Bash(sudo perf*)",
+      "Bash(python3*)",
+      "Bash(./scripts/*)",
+      "Bash(ls*)",
+      "Bash(find*)",
+      "Bash(grep*)",
+      "Bash(cat*)",
+      "Bash(echo*)",
+      "Bash(cp*)",
+      "Bash(mkdir*)"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+[submodule "ffc"]
+	path = ffc
+	url = git@github.com:redis-performance/ffc.h.git
+[submodule "simple_fastfloat_benchmark"]
+	path = simple_fastfloat_benchmark
+	url = git@github.com:filipecosta90/simple_fastfloat_benchmark.git

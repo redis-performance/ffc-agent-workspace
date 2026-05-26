@@ -1,0 +1,13 @@
+# Build artifacts
+simple_fastfloat_benchmark/build/
+ffc/out/
+
+# perf data (large binary files)
+approaches/profile-results/*.data
+
+# Local claude settings (credentials, env vars)
+.claude/settings.local.json
+
+# Editor
+.vscode/
+*.swp
