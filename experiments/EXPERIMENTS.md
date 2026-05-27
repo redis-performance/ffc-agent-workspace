@@ -9,6 +9,68 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-032 — 2026-05-27 — Eliminate `sxtw` sign-extension in digit scan via `__builtin_unreachable` / unsigned cast patterns
+
+**Status**: REJECTED (i/f unchanged at 93.86 across all sub-attempts; sxtw persists in inline context)
+
+### Hypothesis
+
+The ARM64 integer scan emits `sxtw x0, w0` (sign-extend word to double-word) after each `sub w0,
+w4, #0x30` digit extraction. This is redundant for digits in [0,9] but GCC cannot prove non-
+negativity from the `ffc_is_integer(*p)` guard. Eliminating 1 `sxtw` per digit across 5 integer
+levels = 5 instructions saved → ~5.3% of 93.86 i/f. Three approaches were tried.
+
+**Sub-attempt A**: introduce a `ffc_digit_val` helper with `if (d < 0) __builtin_unreachable()`.
+
+**Sub-attempt B**: change cast to `(uint64_t)(unsigned int)(c - '0')` (Pattern C) — confirmed in
+a standalone function to produce 2 instructions with zero-extension rather than sign-extension.
+
+**Sub-attempt C**: combination of Pattern C plus explicit `__builtin_unreachable` at the top of the
+inlined body.
+
+### Implementation
+
+All three sub-attempts modified `src/parse.h` integer-scan nested-ifs and fraction tail. Pushed
+`ffc.h` amalgamate to ARM VM and measured.
+
+### Result
+
+| Dataset | Baseline (EXP-030) | All sub-attempts | Δ% |
+|---------|--------------------|---------|----|
+| mesh.txt | 1536 MB/s, 93.86 i/f | 1536 MB/s, 93.86 i/f | **0%** |
+| canada.txt | 1718 MB/s, 189.93 i/f | 1718 MB/s, 189.93 i/f | **0%** |
+| random [0,1] | 1924 MB/s, 221.04 i/f | 1924 MB/s, 221.04 i/f | **0%** |
+
+Assembly inspection confirmed `sxtw x0, w0` remained at c684, c6ac, c6d4 in all variants.
+
+### Analysis
+
+Standalone tests confirmed Pattern C (`(uint64_t)(unsigned int)(c - '0')`) eliminates `sxtw` when
+the function is NOT inlined. The inliner loses the type annotation during RTL lowering: GCC's VRP
+tracks `int` ranges but does not propagate the non-negativity proof through `always_inline` call
+sites the same way a non-inlined function boundary establishes it. The `sub w0, w4, #0x30`
+instruction writes a 32-bit register, and GCC emits `sxtw` to widen it to 64-bit for the
+`smaddl x1, w0, w1, x3` multiply-add regardless of upstream range info.
+
+ARM64 zero-extension (writing to `wN` zeroes `xN`) is only guaranteed for GCC-visible zero-
+extension expressions; `sxtw` is sign-extension, and GCC always emits it for `int → int64_t`
+widening from arithmetic on `char` values unless the narrower operation is a load (where it would
+use `ldrb` instead).
+
+### Learning
+
+- In-function `__builtin_unreachable` / `__builtin_assume` for digit range do NOT influence the
+  `sxtw` emission in inlined ARM64 code — GCC's RTL-level sign-extend is inserted before VRP
+  refinements apply in the inline body.
+- Pattern C eliminates `sxtw` in isolated (non-inlined) context; fails in the always_inline chain.
+- The `smaddl` vs `umaddl` choice also contributes: GCC uses `smaddl` (signed MADD-long) because
+  the C type is `int64_t = int64_t * 10 + int`. Switching to `uint64_t` arithmetic throughout
+  might enable `umulh` paths but risks other regressions.
+- Do not retry `sxtw`-elimination approaches unless using a fundamentally different accumulation
+  structure (e.g., pure `uint64_t` mantissa with `umaddl`).
+
+---
+
 ## EXP-031 — 2026-05-27 — `(uint32_t)` casts to eliminate sign-extension instructions in digit scan
 
 **Status**: REJECTED (−0.3% mesh, below threshold; +0.2% canada, +0.5% random)

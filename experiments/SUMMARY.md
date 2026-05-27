@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-032 | `sxtw` elimination via `__builtin_unreachable`/`ffc_digit_val` and Pattern C unsigned cast | mesh | i/f unchanged at 93.86 (sxtw persists in always_inline context; GCC RTL inserts sign-extend before VRP applies; Pattern C works in isolation but not inlined) | **Rejected** | 2026-05-27 |
 | EXP-031 | `(uint32_t)` casts in digit scan to eliminate `and`/`sxtw` extension instructions | mesh | −0.3% mesh, +0.2% canada, +0.5% random (GCC substitutes `sxtw` for `and x0,x0,#0xff`; same i/f; ARM64 VRP cannot prove non-negativity through `ffc_is_integer` check) | **Rejected** | 2026-05-27 |
 | EXP-030 | `FFC_ROUNDS_TO_NEAREST` compile-time macro eliminates 7-instruction FCMP chain | mesh, canada, random | +2.4% mesh, +1.8% canada, +0.8% random (i/f −7 on all datasets) | **Accepted** | 2026-05-27 |
 | EXP-029 | Early mantissa guard in `ffc_rounds_to_nearest` to skip FCMP for large mantissa | canada | No change — GCC reordered integer check to after FCMP chain; assembly byte-for-byte identical to EXP-028 | **Rejected** | 2026-05-27 |
