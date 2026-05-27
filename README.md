@@ -87,9 +87,9 @@ win — document it and keep going.
 
 ---
 
-## Current State (post EXP-033 + correctness fix, 2026-05-27)
+## Current State (post EXP-034 baseline correction, 2026-05-27)
 
-5-run averages on dedicated bare-metal servers, GCC `-O3`.
+Dedicated bare-metal servers, GCC 13 `-march=native -O3 -DFFC_ROUNDS_TO_NEAREST`.
 
 ### x86 — Intel Xeon Platinum 8488C (m7i.metal-24xl)
 
@@ -103,9 +103,12 @@ win — document it and keep going.
 
 | Dataset | ffc MB/s | fastfloat MB/s | Δ% |
 |---------|----------|----------------|----|
-| random [0,1] | **1820** | 1091 | **+67% (ffc leads)** |
-| canada.txt | **1673** | 886 | **+89% (ffc leads)** |
-| mesh.txt | **1656** | 501 | **+231% (ffc leads)** |
+| random [0,1] | **1927** | 1088 | **+77% (ffc leads)** |
+| canada.txt | **1737** | 889 | **+95% (ffc leads)** |
+| mesh.txt | **1727** | 501 | **+245% (ffc leads)** |
+
+Note: EXP-034 corrected the ARM baseline — previous ARM numbers (1820/1673/1656) were
+measured without `-DFFC_ROUNDS_TO_NEAREST`, missing EXP-030's compile-time macro benefit.
 
 Baselines: `experiments/EXP-001/bench-results/`
 
@@ -119,7 +122,7 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 | Status | Count |
 |--------|-------|
 | Accepted | 9 |
-| Rejected | 23 |
+| Rejected | 24 |
 | Parked | 1 |
 | In Progress | 0 |
 

@@ -9,6 +9,58 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-034 — 2026-05-27 — Compiler sweep: GCC 13 vs Clang 18 vs GCC -mcpu=native on ARM Graviton4
+
+**Status**: REJECTED — GCC 13 + `-march=native` is already optimal; no build config change needed
+
+### Hypothesis
+
+GCC 13 + `-march=native` + `-DFFC_ROUNDS_TO_NEAREST` is the best compiler configuration
+for ffc on ARM Graviton4 (Neoverse V2). Three alternatives were tested:
+
+1. **GCC `-march=native`** (corrected baseline): `-DFFC_ROUNDS_TO_NEAREST` was missing from the
+   ARM VM's build script, so previous ARM benchmarks (EXP-033: 1820/1673/1656 MB/s) understated
+   performance. The true baseline with the macro enabled is ~1927/1737/1727 MB/s.
+2. **Clang 18 `-march=native`**: LLVM's AArch64 backend has a dedicated Neoverse V2 scheduling
+   model; expected to match or beat GCC.
+3. **GCC `-mcpu=native`**: adds µarch scheduler model on top of ISA — expected to give
+   marginal improvement over `-march=native`.
+
+### Results
+
+| Variant | random ffc | canada ffc | mesh ffc | random ffc i/B | mesh ffc IPC |
+|---------|------------|------------|---------|----------------|--------------|
+| GCC 13 `-march=native` | **1927** | **1737** | **1726** | 9.96 | 7.04 |
+| Clang 18 `-march=native` | 1388 | 1334 | 1344 | 11.27 | 6.64 |
+| GCC 13 `-mcpu=native` | 1928 | 1737 | 1743 | 9.96 | 7.12 |
+
+### Decision
+
+**REJECTED.** GCC wins by a large margin. Clang 18 is **−28%/−23%/−22%** worse on
+random/canada/mesh. The perf counters explain why: Clang generates 13.19 i/B vs GCC's
+10.90 i/B for mesh (+21% more instructions) at lower IPC (6.64 vs 7.04). Clang appears
+to miss a fold or inlining optimization that GCC finds in the hot Clinger/EL path.
+Notably, Clang generates *better* code for fastfloat (+17%/+15%/+67% vs GCC fastfloat),
+confirming this is ffc-specific, not a general C quality difference.
+
+`-mcpu=native` vs `-march=native` is indistinguishable (within ±0.5% noise). No change.
+
+**Bonus finding:** The ARM VM's `build-bench.sh` was missing `-DFFC_ROUNDS_TO_NEAREST`.
+All previous ARM benchmarks (EXP-028 through EXP-033) were measured without EXP-030's
+compile-time macro benefit. Corrected ARM baseline: **1927/1737/1727 MB/s**.
+
+Bench results: `experiments/EXP-034/bench-results/`
+Proposals: `experiments/EXP-034/proposals/20260527-110759/`
+
+### Lessons
+
+- ffc's C-style code (struct-heavy, macro-heavy) optimizes significantly better under GCC
+  than Clang on AArch64. Future experiments should continue targeting GCC.
+- The `-DFFC_ROUNDS_TO_NEAREST` flag must be verified present in all benchmark builds.
+  Add a check to `run-bench.sh` or document it in `build-bench.sh`.
+
+---
+
 ## EXP-033 — 2026-05-27 — Early exit for `exponent == 0` in `ffc_from_chars_advanced`
 
 **Status**: ACCEPTED (+12.9% mesh, +1.1% canada, +0.4% random)

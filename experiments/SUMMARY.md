@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-034 | Compiler sweep: GCC 13 vs Clang 18 vs GCC `-mcpu=native` on ARM | all | GCC wins: Clang −28% (21% more instructions, lower IPC); `-mcpu=native` ≈ same as `-march=native`; corrected ARM baseline to 1927/1737/1727 MB/s | **Rejected** | 2026-05-27 |
 | EXP-033 | Early exit for `exponent == 0` in `ffc_from_chars_advanced` | mesh | +12.9% mesh (83.92 i/f from 93.86), +1.1% canada, +0.4% random; EXP-030 FCMP elimination made adding pre-Clinger checks safe | **Accepted** | 2026-05-27 |
 | EXP-032 | `sxtw` elimination via `__builtin_unreachable`/`ffc_digit_val` and Pattern C unsigned cast | mesh | i/f unchanged at 93.86 (sxtw persists in always_inline context; GCC RTL inserts sign-extend before VRP applies; Pattern C works in isolation but not inlined) | **Rejected** | 2026-05-27 |
 | EXP-031 | `(uint32_t)` casts in digit scan to eliminate `and`/`sxtw` extension instructions | mesh | −0.3% mesh, +0.2% canada, +0.5% random (GCC substitutes `sxtw` for `and x0,x0,#0xff`; same i/f; ARM64 VRP cannot prove non-negativity through `ffc_is_integer` check) | **Rejected** | 2026-05-27 |
