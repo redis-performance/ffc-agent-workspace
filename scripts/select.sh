@@ -10,7 +10,7 @@ set -euo pipefail
 WORKSPACE="$(cd "$(dirname "$0")/.." && pwd)"
 LLM="python3 $WORKSPACE/scripts/llm-call.py"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-PROPOSALS_DIR="$WORKSPACE/experiments/proposals/$TIMESTAMP"
+PROPOSALS_DIR="$WORKSPACE/experiments/$EXP_ID/proposals/$TIMESTAMP"
 LEDGER="$WORKSPACE/experiments/token-ledger.tsv"
 EXP_ID="${EXP_ID:-$(printf 'EXP-%03d' "$(grep -c '^## EXP-' "$WORKSPACE/experiments/EXPERIMENTS.md" 2>/dev/null || echo 0)")}"
 
@@ -24,10 +24,10 @@ AGENT_NAMES=("opus" "sonnet" "haiku")
 CONTEXT_FILE="$PROPOSALS_DIR/context.md"
 cat > "$CONTEXT_FILE" <<EOF
 ## Profile (most recent)
-$(ls -t "$WORKSPACE/experiments/profile-results"/*.txt 2>/dev/null | head -1 | xargs cat 2>/dev/null || echo "(no profile yet — classify from benchmark gap)")
+$(ls -t "$WORKSPACE/experiments"/EXP-*/profile-results/*.txt 2>/dev/null | head -1 | xargs cat 2>/dev/null || echo "(no profile yet — classify from benchmark gap)")
 
 ## Benchmark baseline (most recent)
-$(ls -t "$WORKSPACE/experiments/bench-results"/*.txt 2>/dev/null | head -1 | xargs cat 2>/dev/null || echo "(no benchmark yet)")
+$(ls -t "$WORKSPACE/experiments"/EXP-*/bench-results/*.txt 2>/dev/null | head -1 | xargs cat 2>/dev/null || echo "(no benchmark yet)")
 
 ## Experiment history
 $(cat "$WORKSPACE/experiments/EXPERIMENTS.md" 2>/dev/null || echo "(none yet)")

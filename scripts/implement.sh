@@ -15,7 +15,7 @@ TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 LEDGER="$WORKSPACE/experiments/token-ledger.tsv"
 EXP_ID="${EXP_ID:-EXP-000}"
 N_VARIANTS="${N_VARIANTS:-3}"
-VARIANTS_DIR="$WORKSPACE/experiments/variants/$EXP_ID-$TIMESTAMP"
+VARIANTS_DIR="$WORKSPACE/experiments/$EXP_ID/variants/$TIMESTAMP"
 
 # Read hypothesis from file or stdin
 if [[ -n "${1:-}" && -f "$1" ]]; then

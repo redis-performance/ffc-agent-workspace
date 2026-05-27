@@ -14,7 +14,7 @@
 | sonnet | claude-sonnet-4-6 | | | | |
 | haiku | claude-haiku-4-5 | | | | |
 
-Full proposals: `experiments/proposals/TIMESTAMP/`
+Full proposals: `experiments/EXP-NNN/proposals/TIMESTAMP/`
 
 ### Chair Decision
 
@@ -36,7 +36,7 @@ Full proposals: `experiments/proposals/TIMESTAMP/`
 | sonnet-b | claude-sonnet-4-6 | | pass/fail | |
 
 **Winner variant**: [name] — [score] MB/s  
-Full variant diffs: `experiments/variants/EXP-NNN-TIMESTAMP/`
+Full variant diffs: `experiments/EXP-NNN/variants/TIMESTAMP/`
 
 ---
 
@@ -48,7 +48,7 @@ Full variant diffs: `experiments/variants/EXP-NNN-TIMESTAMP/`
 | canada.txt | | | |
 | mesh.txt | | | |
 
-Benchmark file: `experiments/bench-results/TIMESTAMP.txt`
+Benchmark file: `experiments/EXP-NNN/bench-results/TIMESTAMP.txt`
 
 ---
 

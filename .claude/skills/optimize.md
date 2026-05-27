@@ -44,9 +44,9 @@ If the last profile in `experiments/` is from the current ffc commit, skip this.
 EXP_ID=EXP-NNN scripts/select.sh
 ```
 This runs 3 proposer agents in parallel (opus / sonnet / haiku), then a chair
-agent (opus) synthesizes the winner. Output goes to `experiments/proposals/`.
+agent (opus) synthesizes the winner. Output goes to `experiments/EXP-NNN/proposals/TIMESTAMP/`.
 
-Read `experiments/proposals/TIMESTAMP/chair-decision.md` to see the winning
+Read `experiments/EXP-NNN/proposals/TIMESTAMP/chair-decision.md` to see the winning
 hypothesis before proceeding.
 
 If `scripts/select.sh` is unavailable (interactive session): manually act as
@@ -55,7 +55,7 @@ pick the strongest one. State the winning hypothesis explicitly.
 
 ### 3. Implementation phase
 ```bash
-EXP_ID=EXP-NNN scripts/implement.sh experiments/proposals/TIMESTAMP/chair-decision.md
+EXP_ID=EXP-NNN scripts/implement.sh experiments/EXP-NNN/proposals/TIMESTAMP/chair-decision.md
 ```
 This runs 3 implementer agents in parallel (opus, sonnet-a, sonnet-b), each
 producing a unified diff. Each diff is applied to a fresh copy of `ffc/src/`,
