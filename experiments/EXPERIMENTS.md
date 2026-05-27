@@ -9,6 +9,95 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-021 — 2026-05-27 — Mantissa check before `ffc_rounds_to_nearest()` in Clinger fast path
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+In `ffc_clinger_fast_path_impl`, the current ordering calls `ffc_rounds_to_nearest()`
+(a 7-instruction FCMP chain, 16-cycle latency) before checking `mantissa <=
+MAX_MANTISSA_FAST_PATH`. For the majority of inputs where rounding mode is nearest
+(the FCMP branch is predictable), the FCMP chain is on the critical path unnecessarily.
+
+Reordering to check `mantissa <= MAX_MANTISSA_FAST_PATH` first would allow the integer
+comparison to complete in ~3 cycles, letting the compiler hoist the volatile float load
+earlier in the instruction stream. For canada (large mantissas hitting Eisel-Lemire),
+the FCMP is avoided entirely for the non-exponent-range path.
+
+Key structural proof: `FFC_DOUBLE_MAX_MANTISSA[e] <= MAX_MANTISSA_FAST_PATH` for all
+e ≥ 0 — so the non-nearest modified Clinger path can never apply when
+`mantissa > MAX_MANTISSA_FAST_PATH`. The reordering is semantically equivalent.
+
+### Files changed
+
+- `ffc/src/ffc.h`: swapped ordering in `ffc_clinger_fast_path_impl` — mantissa guard
+  moved before `ffc_rounds_to_nearest()` call (then reverted)
+
+### Implementation (tried then reverted)
+
+```c
+// AFTER (reverted):
+if (exponent_in_range) {
+  if (mantissa <= ffc_const(value_kind, MAX_MANTISSA_FAST_PATH)) {
+    if (ffc_rounds_to_nearest()) {
+      // Standard Clinger
+      return true;
+    }
+    // non-nearest path: fall through to return false
+  } else if (ffc_rounds_to_nearest()) {
+    // mantissa > MAX_MANTISSA_FAST_PATH, nearest rounding — neither path applies
+  } else {
+    if (exponent >= 0 && mantissa <= ffc_const(value_kind, MAX_MANTISSA)[exponent]) {
+      // Modified Clinger
+      return true;
+    }
+  }
+}
+```
+
+### Benchmark results
+
+**ARM Graviton4 (EXP-015 baseline → EXP-021):**
+
+| Dataset | Baseline MB/s | EXP-021 MB/s | Δ% | i/f | c/f |
+|---------|---------------|--------------|-----|-----|-----|
+| random [0,1] | 1821 | 1866 | **+2.5%** | 228.04 | 31.17 |
+| canada.txt   | 1561 | 1567 | **+0.4%** | 205.95 | 31.13 |
+| mesh.txt     | 1362 | 1262 | **−7.3%** | 107.21 | 16.28 |
+
+Confirmed in 2 benchmark runs. Baseline mesh c/f = 15.09; EXP-021 mesh c/f = 16.28–16.29.
+
+### Analysis
+
+**Mesh regression root cause**: Mesh numbers are short floats (1–7 chars) that hit the
+Clinger fast path almost exclusively. For these, the volatile float load for
+`ffc_rounds_to_nearest()` must start early enough for the 16-cycle FCMP chain to
+complete before the result is needed in the branch. Moving the mantissa check first
+delays the volatile float load by ~3 instructions (~3 cycles) — which pushes the FCMP
+result past the branch decision point for 15 c/f numbers. The OOO processor cannot
+hide this extra latency because the FCMP result is the branch condition.
+
+**Canada/random analysis**: The c620 stall (13% of cycles) seen in the EXP-015 profile
+is a ROB retirement backup, NOT a critical path stall. The CPU speculatively executes
+past the FCMP branch (predicts nearest=true correctly ~99%+ of the time), so Eisel-Lemire
+code starts executing before the FCMP resolves. Removing the FCMP from the critical path
+only freed ROB bandwidth, yielding only +0.4% canada and +2.5% random — far below the
+expected ~10% if it were a true execution bottleneck.
+
+**Key lesson**: For `ffc_rounds_to_nearest()`, the volatile float load timing is critical.
+It must fire before any mantissa check so the 16-cycle FCMP chain can complete in time
+for Clinger-eligible numbers. The current ordering (FCMP before mantissa) is correct for
+microarchitectural reasons specific to Graviton4, even though it appears logically
+suboptimal. Do not retry this reordering.
+
+### Decision
+
+REJECTED. Mesh -7.3% is a clear regression. Added to Known Non-Starters.
+
+---
+
 ## EXP-020 — 2026-05-27 — AArch64 FPCR direct read in `ffc_rounds_to_nearest` (re-trial post-EXP-015)
 
 **Status**: REJECTED

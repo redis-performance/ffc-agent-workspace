@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-021 | Mantissa check before `ffc_rounds_to_nearest()` in Clinger | mesh | +2.5% random, −7.3% mesh (FCMP timing regression) | **Rejected** | 2026-05-27 |
 | EXP-020 | AArch64 FPCR read in `ffc_rounds_to_nearest` (re-trial) | all | +1.0% random, −1.1% mesh (sub-threshold) | **Rejected** | 2026-05-27 |
 | EXP-019 | Precomputed lookup table for ffc_b10_to_b2 | all | −5.3% mesh (cache aliasing), +0.7% random | **Rejected** | 2026-05-27 |
 | EXP-018 | SWAR + nested-ifs for integer-part digit scanning | all | −13.3% mesh, −7.3% canada, −6.1% random (regression) | **Rejected** | 2026-05-27 |
