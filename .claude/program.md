@@ -192,6 +192,7 @@ Document failed experiments here as they are discovered. Starting empty.
 | Constant-format specialization (EXP-003, EXP-005) | Regressions; specialization prevented cross-call inlining. |
 | AArch64 FPCR direct read in rounds_to_nearest (EXP-013) | Parked: +0.9–1.6%, below 2% threshold. Technique is valid, gain is sub-threshold. |
 | Hoist ffc_rounds_to_nearest() before digit scanning (EXP-016) | −0.5% canada regression; GCC already schedules float ops early, or c620 stall is from mantissa dependency (x1 not ready) not float latency; adding bool param through inline chain hurts register allocation. |
+| noinline extraction of cold branches (EXP-017) | −2.9% mesh regression; ARM64 ABI requires caller-save register setup around any function call even a never-taken branch; adding noinline disrupts GCC register allocation for the inline body (same root cause as EXP-010). Opposite of EXP-009: never add noinline to functions within the always_inline chain. |
 
 ---
 

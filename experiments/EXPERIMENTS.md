@@ -9,6 +9,68 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-017 — 2026-05-27 — Outline non-nearest Clinger else block as noinline cold function
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+The `else` block in `ffc_clinger_fast_path_impl` (handling the non-FE_TONEAREST path)
+contains ~20 instructions. It fires only when `ffc_rounds_to_nearest()` is false, which is
+essentially never in practice (default FPU rounding is nearest). Despite never being taken,
+GCC inlines this code into the hot function body, increasing icache footprint and register
+pressure.
+
+Extracting it as `ffc_noinline ffc_clinger_non_nearest()` was expected to:
+1. Remove ~20 instructions from the hot inline body
+2. Reduce register pressure in the Clinger fast path
+3. Reduce icache footprint
+
+### Implementation
+
+- Added `ffc_noinline` macro to `common.h`
+- Extracted the else block into `ffc_clinger_non_nearest()` marked `ffc_noinline`
+- Replaced the else block with a single call: `return ffc_clinger_non_nearest(...)`
+
+### Results
+
+**ARM Graviton4 (EXP-015 baseline → EXP-017):**
+
+| Dataset | Baseline MB/s | EXP-017 MB/s | Δ% | i/f |
+|---------|--------------|--------------|-----|-----|
+| random [0,1] | 1823 | 1835 | +0.7% (noise) | 228.05 |
+| canada.txt | 1562 | ~1578 | **+1.0%** | 205.22 |
+| mesh.txt | 1366 | ~1326 | **-2.9% (regression)** | 114.22 |
+
+Mesh i/f = 114.22 (baseline was ~107 — +7 instructions added despite theory predicting reduction).
+
+Canada run consistency: 1573, 1578, 1579, 1581 MB/s — consistently +1.0%, below 2% threshold.
+Mesh run consistency: 1323, 1328, 1325, 1329 MB/s — consistently below baseline 1366.
+
+### Analysis
+
+The `ffc_noinline` function call ADDED ~7 instructions to the mesh hot path despite the theory
+that it should REMOVE instructions. Root cause: ARM64 ABI requires caller-save register
+setup around ANY function call, even a never-taken branch. GCC adds register save/restore
+instructions in the calling function's preamble to comply with the ABI, even though the call
+is predicted-not-taken. For mesh (which has numbers that follow a different register usage
+pattern than canada), this ABI overhead added 7 instructions per number.
+
+This is the same underlying failure mode as EXP-010 (cold attribute on infnan/digit_comp):
+changing function call semantics in the inlined hot body disrupts GCC's register allocation.
+
+EXP-009 (adding `always_inline`) was the correct direction for this codebase — forcing MORE
+inlining reduces function call overhead. The inverse (adding `noinline`) adds overhead even
+for predicted-not-taken calls.
+
+### Verdict
+
+**REJECTED** — -2.9% mesh regression, +1.0% canada (below 2% threshold), +7 instructions.
+Adding to Known Non-Starters: noinline extraction of cold branches within `always_inline` chain.
+
+---
+
 ## EXP-016 — 2026-05-27 — Hoist ffc_rounds_to_nearest() before digit scanning
 
 **Status**: REJECTED
