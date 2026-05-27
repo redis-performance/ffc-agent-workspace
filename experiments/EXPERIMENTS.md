@@ -9,6 +9,102 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-035 — 2026-05-27 — `ffc_acc10` inline asm: replace Clang/AArch64 `smaddl` with `add+lsl` for digit accumulation
+
+**Status**: REJECTED — Clang improved +0.5-2.3% but GCC regressed −5.3% canada; hypothesis wrong
+
+### Hypothesis
+
+On AArch64, Clang emits `smaddl` (3-cycle latency on Neoverse V2) for `i * 10 + digit`,
+while GCC strength-reduces to `add + add lsl #2 + add lsl #1` (2 × 1-cycle). This creates a
+2× latency difference in the digit accumulation critical path, explaining the 28% Clang-vs-GCC gap.
+Fix: add `ffc_acc10(i, digit)` with inline asm for `__aarch64__ && __clang__`.
+
+### Changes
+
+**`ffc/src/common.h`**: Added `ffc_acc10()` after `ffc_is_integer()`:
+```c
+ffc_internal ffc_inline uint64_t ffc_acc10(uint64_t i, uint64_t digit) {
+#if defined(__aarch64__) && defined(__clang__)
+  uint64_t t = i;
+  __asm__("add %0, %0, %0, lsl #2\n\t"
+          "add %0, %1, %0, lsl #1"
+          : "+r"(t) : "r"(digit));
+  return t;
+#else
+  return i * 10 + digit;
+#endif
+}
+```
+
+**`ffc/src/parse.h`**: Replaced 8 `i * 10 + digit_expr` sites with `ffc_acc10(i, digit_expr)` —
+4 in integer scan nested-ifs, 1 in while loop, 3 in fraction tail.
+
+### Root Cause Analysis
+
+Investigation before benchmarking confirmed:
+- Clang generates `smaddl x11, w11, w26, x12` (3-cycle latency) for each digit
+- GCC generates `add+lsl` (1-cycle latency)
+- `ffc_acc10` inline asm forces `add+lsl` on Clang/AArch64 (verified in assembly output)
+- After fix: Clang binary shows 16 `add+lsl` + 4 remaining `madd` (was 9 `smaddl`/`madd`)
+
+**Confounding issue discovered**: `benchmark.cpp` includes `"ffc.h"` which resolves to
+`benchmarks/ffc.h` (relative, shadowing the include path). Had to copy updated ffc.h to
+both `benchmarks/ffc/ffc.h` AND `benchmarks/ffc.h`.
+
+### Results — ARM Graviton4 (m8g.metal-24xl, Clang 18.1.3 vs GCC 13.3.0)
+
+| Compiler | Dataset | EXP-034 baseline | EXP-035 | Δ% |
+|----------|---------|-----------------|---------|-----|
+| Clang | random | 1388 | 1395 | **+0.5%** |
+| Clang | canada | 1334 | 1365 | **+2.3%** |
+| Clang | mesh   | 1344 | 1355 | **+0.8%** |
+| GCC   | random | 1927 | 1909 | −0.9% (noise) |
+| GCC   | canada | 1737 | 1644 | **−5.3% REGRESSION** |
+| GCC   | mesh   | 1727 | 1723 | −0.2% (noise) |
+
+Perf stat (total benchmark run, all parsers):
+| Metric | Clang | GCC |
+|--------|-------|-----|
+| IPC | 4.73 | 4.85 |
+| stall_backend | 2.09B | 1.72B (+22% for Clang) |
+| stall_backend_mem | 15M | 13M (similar) |
+| br_mis_pred | 61M | 81M (GCC has MORE mispredictions) |
+| L1I cache refill | 2.0M | 1.6M (+29% for Clang) |
+
+### Why the Fix Didn't Work
+
+1. **Wrong primary bottleneck**: The smaddl latency was ~5% of total cycles. Backend stalls
+   (2.09B vs 1.72B = +22%) suggest multiple long dependency chains across the whole parser,
+   not just digit accumulation.
+
+2. **GCC regression**: Wrapping `i * 10 + digit_expr` in `ffc_acc10(i, digit_expr)` forces the
+   `digit = *p - '0'` subtraction to be pre-computed before the function call. GCC was
+   optimizing `i * 10 + (*p - '0')` as a unit (using `smaddl` for the whole expression then
+   subtracting 48 off the critical path). Post-wrapper, GCC must do `sub; madd` sequentially,
+   adding the sub to the accumulator critical path. Effect: −5.3% on canada where integer parts
+   exercise the nested-ifs heavily.
+
+3. **Clang improvement too small**: +0.5-2.3% vs 37% Clang-GCC gap — digit accumulation isn't
+   the primary driver.
+
+### What IS the bottleneck?
+
+The 22% more backend stalls in Clang (vs GCC) are NOT from memory (mem stalls similar) and NOT
+from branch prediction (GCC has more mispredictions). The stalls are execution-unit dependency
+chains. Clang has 29% more L1I misses, suggesting worse instruction cache utilization.
+
+The real gap is IPC (5.89 Clang vs 7.12 GCC for ffc specifically) — GCC achieves higher
+parallelism even with more branch mispredictions. Next direction: compare the full ffc_parse_double
+disassembly section by section to identify where GCC achieves better ILP.
+
+### Decision
+
+**REJECTED** — GCC regression (−5.3% canada) disqualifies. The smaddl hypothesis was wrong.
+Reverted `ffc/src/common.h` and `ffc/src/parse.h` to HEAD.
+
+---
+
 ## EXP-034 — 2026-05-27 — Compiler sweep: GCC 13 vs Clang 18 vs GCC -mcpu=native on ARM Graviton4
 
 **Status**: REJECTED — GCC 13 + `-march=native` is already optimal; no build config change needed

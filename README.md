@@ -122,7 +122,7 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 | Status | Count |
 |--------|-------|
 | Accepted | 9 |
-| Rejected | 24 |
+| Rejected | 25 |
 | Parked | 1 |
 | In Progress | 0 |
 

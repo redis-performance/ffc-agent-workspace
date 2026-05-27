@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-035 | `ffc_acc10` inline asm: Clang/AArch64 smaddl→add+lsl | clang-arm | +2.3% Clang canada; −5.3% GCC canada; smaddl not primary bottleneck; wrapping forces sub onto accumulator critical path for GCC | **Rejected** | 2026-05-27 |
 | EXP-034 | Compiler sweep: GCC 13 vs Clang 18 vs GCC `-mcpu=native` on ARM | all | GCC wins: Clang −28% (21% more instructions, lower IPC); `-mcpu=native` ≈ same as `-march=native`; corrected ARM baseline to 1927/1737/1727 MB/s | **Rejected** | 2026-05-27 |
 | EXP-033 | Early exit for `exponent == 0` in `ffc_from_chars_advanced` | mesh | +12.9% mesh (83.92 i/f from 93.86), +1.1% canada, +0.4% random; EXP-030 FCMP elimination made adding pre-Clinger checks safe | **Accepted** | 2026-05-27 |
 | EXP-032 | `sxtw` elimination via `__builtin_unreachable`/`ffc_digit_val` and Pattern C unsigned cast | mesh | i/f unchanged at 93.86 (sxtw persists in always_inline context; GCC RTL inserts sign-extend before VRP applies; Pattern C works in isolation but not inlined) | **Rejected** | 2026-05-27 |
