@@ -9,6 +9,140 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-028 — 2026-05-27 — Extend integer nested-ifs to 5 levels (mesh 5-digit integer parts)
+
+**Status**: ACCEPTED
+
+### Hypothesis
+
+Profile of EXP-026 binary (ARM Graviton4) showed `c4a0: add x1, x1, x1, lsl #2` at 2.54%
+hotness for mesh.txt — this is the while-loop multiply-by-10 body. The 4-level nested-ifs from
+EXP-026 handle 1–4 digit integer parts. Mesh.txt contains 3D vertex coordinates like "12345.678"
+(5-digit integer parts). Adding a 5th `if` level would eliminate the while-loop back-branch for
+these numbers.
+
+### Files changed
+
+- `ffc/src/parse.h`: extended integer nested-ifs from 4 to 5 levels
+- `ffc/ffc.h`: regenerated
+
+### Implementation
+
+```c
+// Extended from 4 to 5 levels:
+// 1–5 digit integer case (random "0", mesh 1–3 digits, canada 2–3 digits).
+// Falls back to while loop for 6+ digits.
+if ((p != pend) && ffc_is_integer(*p)) {
+  i = (uint64_t)(*p++ - '0');
+  if ((p != pend) && ffc_is_integer(*p)) {
+    i = i * 10 + (uint64_t)(*p++ - '0');
+    if ((p != pend) && ffc_is_integer(*p)) {
+      i = i * 10 + (uint64_t)(*p++ - '0');
+      if ((p != pend) && ffc_is_integer(*p)) {
+        i = i * 10 + (uint64_t)(*p++ - '0');
+        if ((p != pend) && ffc_is_integer(*p)) {       // ← new 5th level
+          i = i * 10 + (uint64_t)(*p++ - '0');
+          while ((p != pend) && ffc_is_integer(*p)) {
+            i = (10 * i) + (uint64_t)(*p - '0');
+            ++p;
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Results (ARM Graviton4, m8g.metal-24xl, 2.80 GHz)
+
+| Dataset | Baseline MB/s (EXP-026) | EXP-028 Run 1 | EXP-028 Run 2 | Avg Δ% |
+|---------|------------------------|---------------|---------------|--------|
+| random [0,1] | 1900, 227 i/f, 30.87 c/f | 1906, 227.04, 30.78 | 1908, 227.04, 30.75 | **+0.4%** |
+| canada.txt | 1677, 196 i/f, 29.02 c/f | 1688, 196.02, 28.84 | 1688, 196.02, 28.83 | **+0.7%** |
+| mesh.txt | 1394, 101 i/f, 14.75 c/f | 1505, 100.86, 13.65 | 1505, 100.86, 13.66 | **+7.9%** |
+
+All three datasets positive. No regressions. mesh +7.9% far exceeds the ≥2% acceptance threshold.
+
+### Decision: ACCEPTED
+
++7.9% mesh with zero regressions. The while-loop back-branch for 5-digit integers was a real
+bottleneck in mesh.txt. The `c4a0` stall (2.54% of cycles in EXP-026 profile) is eliminated for
+the common 5-digit case. Correctness tests (test.c + test_int.c) pass.
+
+### Learning
+
+Extending straight-line unrolling one level at a time is very cheap to try. Each level costs
+~3 instructions (cmp, cinc, mul+add) but eliminates a while-loop iteration for numbers exactly
+at that digit count. Profiling hotness on the while-loop body is a reliable signal for whether
+adding another level will pay off.
+
+---
+
+## EXP-027 — 2026-05-27 — Bit-shift mantissa check: `!(mantissa >> 53)` vs `mantissa <= 2^53`
+
+**Status**: REJECTED
+
+### Hypothesis
+
+Replace `if (mantissa <= ffc_const(value_kind, MAX_MANTISSA_FAST_PATH))` with
+`if (!(mantissa >> (ffc_const(value_kind, MANTISSA_EXPLICIT_BITS) + 1)))`.
+
+For double, `MANTISSA_EXPLICIT_BITS = 52`, so shift amount = 53. `mantissa >> 53 == 0` iff
+`mantissa < 2^53`. GCC emits `cmp xzr, x1, lsr #53; b.ne <eisel>` (2 instructions) instead of
+`movz x6, #2^53; cmp x1, x6; b.hi <eisel>` (3 instructions). Expected saving: 1 i/f (the `movz`
+constant load is eliminated).
+
+### Files changed
+
+- `ffc/src/ffc.h`: `mantissa <= MAX_MANTISSA_FAST_PATH` → `!(mantissa >> (MANTISSA_EXPLICIT_BITS + 1))`
+- `ffc/ffc.h`: regenerated
+
+### Implementation
+
+```c
+// FROM:
+if (mantissa <= ffc_const(value_kind, MAX_MANTISSA_FAST_PATH)) {
+// TO:
+if (!(mantissa >> (ffc_const(value_kind, MANTISSA_EXPLICIT_BITS) + 1))) {
+```
+
+GCC emits `cmp xzr, x1, lsr #53; b.ne <eisel>` (ARM64 inline-shift compare form).
+The `movz x6, #0x20000000000000` constant load is eliminated. `mov w18, #0` (Eisel retry flag)
+remains on the Clinger path in both versions.
+
+### Results (ARM Graviton4)
+
+| Dataset | Baseline MB/s (EXP-026) | EXP-027 Run 1 | EXP-027 Run 2 | Avg Δ% |
+|---------|------------------------|---------------|---------------|--------|
+| random [0,1] | 1900, 227 i/f, 30.87 c/f | 1905, 226, 30.79 | 1904, 226, 30.82 | **+0.3%** |
+| canada.txt | 1677, 196 i/f, 29.02 c/f | 1665, 195, 29.22 | 1660, 195, 29.31 | **−0.8%** |
+| mesh.txt | 1394, 101 i/f, 14.75 c/f | 1442, 100, 14.26 | 1424, 100, 14.43 | **+2.8%** |
+
+i/f consistently −1 for all datasets (226/195/100 vs 227/196/101) — the `movz` was eliminated.
+
+### Decision: REJECTED
+
+Mesh +2.8% (above threshold), but **canada −0.8%** is consistent across both runs (4× the ±0.2%
+noise level). IPC drops from 6.75→6.67 for canada.
+
+Root cause: `cmp xzr, x1, lsr #53` (ARM64 inline-shifted register compare) has a true data
+dependency on x1 (the mantissa) with no ability to pre-execute the comparison operand. In the
+baseline, `movz x6, #2^53` executes in parallel with mantissa digit scanning (no data dependency
+at all), so the subsequent `cmp x1, x6` is effectively latency-free. The inline-shifted form
+delays the comparison start until x1 is available, creating a slightly worse scheduling scenario
+for longer-mantissa numbers (canada). The `mov w18, #0` (Eisel retry flag) was NOT moved to the
+Eisel-only path by GCC — it remains on the Clinger path in both versions.
+
+### Learning
+
+`movz <reg>, #constant` with no data dependencies is "free" via OOO pre-execution for datasets
+with longer mantissa computation chains (canada). The inline-shift form `cmp xzr, x1, lsr #53`
+saves 1 i/f but removes this scheduling freedom. Do NOT replace `movz + cmp` with inline-shifted
+compare when the constant has no data dependency and the other operand (mantissa) has a long
+dependency chain.
+
+---
+
 ## EXP-026 — 2026-05-27 — Straight-line integer scan: nested-ifs replace while loop for 1–4 digits
 
 **Status**: ACCEPTED

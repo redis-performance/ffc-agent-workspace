@@ -87,7 +87,7 @@ win — document it and keep going.
 
 ---
 
-## Current State (post EXP-026 accepted, 2026-05-27)
+## Current State (post EXP-028 accepted, 2026-05-27)
 
 ### x86 — Intel Xeon Platinum 8488C (m7i.metal-24xl)
 
@@ -103,9 +103,9 @@ win — document it and keep going.
 
 | Dataset | ffc MB/s | fastfloat MB/s | Δ% |
 |---------|----------|----------------|----|
-| random [0,1] | **1900** | 1075 | **+77%** |
-| canada.txt | **1677** | 894 | **+88%** |
-| mesh.txt | **1394** | 484 | **+188%** |
+| random [0,1] | **1908** | 1075 | **+77%** |
+| canada.txt | **1688** | 894 | **+89%** |
+| mesh.txt | **1505** | 484 | **+211%** |
 
 Baselines: `experiments/EXP-001/bench-results/`
 
@@ -118,8 +118,8 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 
 | Status | Count |
 |--------|-------|
-| Accepted | 6 |
-| Rejected | 19 |
+| Accepted | 7 |
+| Rejected | 20 |
 | Parked | 1 |
 | In Progress | 0 |
 

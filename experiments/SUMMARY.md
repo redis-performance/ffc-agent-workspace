@@ -5,6 +5,8 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-028 | Extend integer nested-ifs to 5 levels (mesh 5-digit integer parts) | mesh | +7.9% mesh, +0.7% canada, +0.4% random (eliminates while-loop back-branch for 5-digit integer parts common in mesh 3D coordinates) | **Accepted** | 2026-05-27 |
+| EXP-027 | Bit-shift mantissa check `!(mantissa >> 53)` vs `movz+cmp` | mesh | +2.8% mesh, −0.8% canada (cmp xzr, x1, lsr #53 removes movz pre-execution freedom; canada IPC 6.75→6.67) | **Rejected** | 2026-05-27 |
 | EXP-026 | Straight-line integer scan: 4-level nested-ifs replace while loop for 1–4 digits | random, canada, mesh | +4.2% random, +7.4% canada, +2.0% mesh (all positive; no SWAR call overhead unlike EXP-018) | **Accepted** | 2026-05-27 |
 | EXP-025 | Outer `pns.mantissa <= MAX_MANTISSA_FAST_PATH` guard before Clinger call in `ffc_from_chars_advanced` | random | +2.3% random, +0.9% canada, **−17.4% mesh** (3 new instructions before volatile load delay 16-cycle FCMP chain by ~3 cycles → +3.18 c/f; same root cause as EXP-021) | **Rejected** | 2026-05-27 |
 | EXP-024 | Branchless sign detection `int neg = (*p == '-'); p += neg` | canada | −9.9% random, −8.9% canada, −14.2% mesh (cinc creates data dep on first digit ptr, kills speculative load) | **Rejected** | 2026-05-27 |
