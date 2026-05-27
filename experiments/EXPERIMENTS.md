@@ -9,6 +9,64 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-019 — 2026-05-27 — Precomputed lookup table for `ffc_b10_to_b2`
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+The `ffc_b10_to_b2(q)` multiply at c698 shares the integer multiply unit with the two
+128-bit mantissa multiplies (c650 UMULH + c654 MUL) in `ffc_compute_float`. On
+Graviton4 with 2 integer multiply units, the three multiplies serialize at ~C+10
+before the power2 chain can resolve. Replacing the b10_to_b2 MUL with a precomputed
+`int16_t` table lookup (651 entries, 1.3KB) would put the lookup on the load unit,
+running in parallel with the UMULH/MUL pair and saving ~3 cycles per Eisel-Lemire call.
+
+The same q+342 index computed at c634 for the power table is reused for the b10_to_b2
+table, so no extra index-computation instructions are needed.
+
+### Files changed
+
+- `ffc/src/ffc.h`: added `ffc_b10_to_b2_lut[651]` static const int16_t array;
+  changed `ffc_b10_to_b2(q)` to `return (int32_t)ffc_b10_to_b2_lut[(uint32_t)(q+342)]`
+
+### Benchmark results
+
+**ARM Graviton4 (EXP-015 baseline → EXP-019):**
+
+| Dataset | Baseline MB/s | EXP-019 MB/s | Δ% | i/f | c/f | IPC |
+|---------|---------------|--------------|-----|-----|-----|-----|
+| random [0,1] | 1822 | 1835 | **+0.7%** | 228.04 (−1) | 31.96 | 7.14 |
+| canada.txt   | 1565 | 1564 | ≈0%        | 205.95 (−1) | 31.13 | 6.62 |
+| mesh.txt     | 1366 | 1294 | **−5.3%** | 107.21 (=)  | 15.89 | 6.75 |
+
+### Analysis
+
+The instruction count changes are minimal (−1 i/f for random/canada, unchanged for
+mesh), confirming the table lookup generates essentially the same code. The expected
+multiply-unit parallelism benefit materializes only for random (+0.7%).
+
+**Mesh regression root cause**: Mesh numbers (short floats, 1-3 significant digits)
+all hit the Clinger fast path and never reach Eisel-Lemire, so the b10_to_b2 table
+is never accessed. However, the 1.3KB table occupies space in the .rodata section and
+causes L1 cache aliasing with `FFC_DOUBLE_POWERS_OF_TEN` (used by every Clinger call).
+Mesh IPC drops from 7.08 → 6.75 (−4.6%) without any instruction count change — a
+pure cache-pressure regression. The 5.3% MB/s regression was confirmed stable across
+3 consecutive runs.
+
+**Why the b10_to_b2 table fails**: The Eisel-Lemire path benefits slightly from
+parallelism (+0.7% random), but the cost is paid by the Clinger path (which dominates
+for canada/mesh). Even 1.3KB of new read-only data can cause cache line aliasing
+when the existing working set is tightly packed.
+
+### Verdict
+
+REJECTED — random barely improves (+0.7%) while mesh regresses (-5.3%). The cache
+aliasing cost of adding 1.3KB to .rodata outweighs the ILP gain for the load path.
+
+---
+
 ## EXP-018 — 2026-05-27 — SWAR + nested-ifs for integer-part digit scanning
 
 **Status**: REJECTED

@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-019 | Precomputed lookup table for ffc_b10_to_b2 | all | −5.3% mesh (cache aliasing), +0.7% random | **Rejected** | 2026-05-27 |
 | EXP-018 | SWAR + nested-ifs for integer-part digit scanning | all | −13.3% mesh, −7.3% canada, −6.1% random (regression) | **Rejected** | 2026-05-27 |
 | EXP-017 | Outline non-nearest Clinger else block as noinline | mesh | −2.9% mesh (regression, ARM64 ABI overhead) | **Rejected** | 2026-05-27 |
 | EXP-016 | Hoist `ffc_rounds_to_nearest()` before digit scanning | canada | −0.5% canada (regression) | **Rejected** | 2026-05-27 |
