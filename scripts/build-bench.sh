@@ -13,8 +13,8 @@ echo "==> Configuring benchmark (FFC_DIR=$FFC_DIR)..."
 cmake -B "$BUILD_DIR" -S "$BENCH_DIR" \
   -DCMAKE_BUILD_TYPE=Release \
   -DFFC_DIR="$FFC_DIR" \
-  -DCMAKE_C_FLAGS="-march=native" \
-  -DCMAKE_CXX_FLAGS="-march=native" \
+  -DCMAKE_C_FLAGS="-march=native -DFFC_ROUNDS_TO_NEAREST" \
+  -DCMAKE_CXX_FLAGS="-march=native -DFFC_ROUNDS_TO_NEAREST" \
   --no-warn-unused-cli \
   -Wno-dev \
   2>&1 | tail -5

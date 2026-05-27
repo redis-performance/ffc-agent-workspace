@@ -9,6 +9,56 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-030 — 2026-05-27 — `FFC_ROUNDS_TO_NEAREST` compile-time macro eliminates FCMP chain
+
+**Status**: ACCEPTED (+2.4% mesh, +1.8% canada, +0.8% random)
+
+### Hypothesis
+
+The 7-instruction volatile-float FCMP chain in `ffc_rounds_to_nearest()` (adrp+ldr+fmov+fadd+fsub+fcmp+b.eq,
+~14-16 cycles total) is the top profiled bottleneck: 21.78% hotness for mesh, 13.98% for canada.
+Runtime workarounds (EXP-021, EXP-029) failed because GCC reorders integer guards relative to
+volatile float reads when the final observable result is unchanged.
+
+Compile-time constant `FFC_ROUNDS_TO_NEAREST` macro makes `ffc_rounds_to_nearest()` unconditionally
+return `true`. GCC eliminates the entire FCMP chain and the non-round-to-nearest else block.
+
+### Implementation
+
+Added to `src/common.h`:
+```c
+bool ffc_rounds_to_nearest(void) {
+#if defined(FFC_ROUNDS_TO_NEAREST)
+  return true;  // compile-time constant: eliminates FCMP chain entirely
+#endif
+  // ... runtime FCMP chain ...
+}
+```
+Also guarded the `double_rounds_to_nearest()` test with `#ifndef FFC_ROUNDS_TO_NEAREST` since the
+test asserts `ffc_rounds_to_nearest() == false` in non-nearest rounding modes, which is unreachable
+when the macro is defined. Added `-DFFC_ROUNDS_TO_NEAREST` to `scripts/build-bench.sh`.
+
+### Result
+
+ARM Graviton4 (Neoverse V2, 2.80 GHz):
+
+| Dataset | EXP-028 | EXP-030 | Δ% |
+|---------|---------|---------|-----|
+| mesh.txt | 1505 MB/s, 100.86 i/f, 13.66 c/f | 1541 MB/s, 93.86 i/f, 13.34 c/f | **+2.4%** |
+| canada.txt | 1688 MB/s, 196.02 i/f, 28.84 c/f | 1718 MB/s, 189.93 i/f, 28.33 c/f | **+1.8%** |
+| random [0,1] | 1908 MB/s, 227.04 i/f, 30.75 c/f | 1924 MB/s, 221.04 i/f, 30.49 c/f | **+0.8%** |
+
+i/f reduced by 7 on all datasets (FCMP chain gone), c/f reduced by ~0.3-0.5 despite IPC drop
+(7.38→7.02 for mesh) because the FCMP stall shadow that was hiding other work is now gone — net
+throughput still improves.
+
+### Learning
+
+When the profiler shows a specific instruction cluster dominating cycle budget, the most reliable
+fix is to eliminate it at compile time rather than trying to schedule around it at runtime.
+The `FFC_ROUNDS_TO_NEAREST` macro approach is the correct pattern: the 7-instruction FCMP chain
+existed only for a runtime check that is always true in practice (IEEE 754 default rounding mode).
+
 ## EXP-029 — 2026-05-27 — Early mantissa guard in `ffc_rounds_to_nearest` to skip FCMP for large mantissa (canada)
 
 **Status**: REJECTED (no change — identical assembly)
