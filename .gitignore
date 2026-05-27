@@ -11,3 +11,4 @@ approaches/profile-results/*.data
 # Editor
 .vscode/
 *.swp
+*.data
