@@ -5,6 +5,8 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-023 | Branchless sign detection in `ffc_from_chars_advanced_impl` | canada | −13.2% random, −11.9% canada, −15.7% mesh (bitwise-OR forces full eval for unsigned floats) | **Rejected** | 2026-05-27 |
+| EXP-022 | Hoist `ffc_b10_to_b2` before UMULH in `ffc_compute_float` | all | +0.9% random, −0.1% mesh (OOO already hides latency; i/f unchanged) | **Rejected** | 2026-05-27 |
 | EXP-021 | Mantissa check before `ffc_rounds_to_nearest()` in Clinger | mesh | +2.5% random, −7.3% mesh (FCMP timing regression) | **Rejected** | 2026-05-27 |
 | EXP-020 | AArch64 FPCR read in `ffc_rounds_to_nearest` (re-trial) | all | +1.0% random, −1.1% mesh (sub-threshold) | **Rejected** | 2026-05-27 |
 | EXP-019 | Precomputed lookup table for ffc_b10_to_b2 | all | −5.3% mesh (cache aliasing), +0.7% random | **Rejected** | 2026-05-27 |

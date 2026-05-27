@@ -7,7 +7,144 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 ---
 
-<!-- Append new experiments below in reverse-chronological order (newest first) -->
+<!-- Append new experiments below in reverse-chronetical order (newest first) -->
+
+## EXP-023 — 2026-05-27 — Branchless sign detection in `ffc_from_chars_advanced_impl`
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+The sign detection branch `if ((*p == '-') || ...)` in `ffc_from_chars_advanced_impl`
+at c2c4 shows ~50% miss rate on canada.txt (mixed positive/negative coordinates). A
+branchless formulation using `has_sign = (*p == '-') | (int)(allow_leading_plus && ...)` +
+`p += has_sign` would eliminate the misprediction penalty (~15 cycles on Graviton4)
+for half of canada inputs, while keeping the error-check block cold via `__builtin_expect`.
+
+### Files changed
+
+- `ffc/src/parse.h`: replaced branch-based sign detection with branchless version using bitwise `|`
+
+### Implementation (tried then reverted)
+
+```c
+// AFTER (reverted — regression):
+bool allow_leading_plus = fmt & FFC_FORMAT_FLAG_ALLOW_LEADING_PLUS;
+int has_sign = (*p == '-') | (int)(allow_leading_plus && !basic_json_fmt && (*p == '+'));
+answer.negative = (*p == '-');
+p += has_sign;
+if (__builtin_expect(has_sign & ((p == pend) | (int)(basic_json_fmt ?
+    !ffc_is_integer(*p) : (!ffc_is_integer(*p) && (*p != decimal_point)))), 0)) {
+  // error returns ...
+}
+```
+
+### Benchmark results
+
+**ARM Graviton4 (EXP-015 baseline → EXP-023):**
+
+| Dataset | Baseline MB/s | EXP-023 MB/s | Δ% | i/f |
+|---------|---------------|--------------|-----|-----|
+| random [0,1] | 1823 | 1582 | **−13.2%** | 229.04 → 241.04 (+12) |
+| canada.txt   | 1566 | 1380 | **−11.9%** | 206.86 → 213.03 (+6) |
+| mesh.txt     | 1361 | 1148 | **−15.7%** | 107.21 → 119.21 (+12) |
+
+### Analysis
+
+Root cause: the bitwise `|` operator in `has_sign & ((p == pend) | (int)(basic_json_fmt ? ...))` 
+forces **full evaluation** of the right side for ALL floats — including unsigned ones.
+The expression `(int)(basic_json_fmt ? !ffc_is_integer(*p) : (!ffc_is_integer(*p) && (*p != decimal_point)))` 
+is computed on every float call regardless of whether a sign was seen.
+
+For random [0,1]: ALL numbers are unsigned, so the sign branch was never taken in the baseline.
+The branchless version adds ~12 extra instructions (allow_leading_plus eval + multiple comparisons)
+on every float. IPC dropped from 7.12 to 6.51 (shorter dependency chains from new expressions).
+
+For canada: ~50% are negative (sign branch IS taken in baseline, which was a misprediction).
+But the branchless overhead (+6 i/f) outweighs the ~15-cycle branch misprediction savings.
+
+**Key lesson**: Branchless sign detection requires careful use of short-circuit `&&`, not
+bitwise `|`, to avoid evaluating the `+` check on every float. A correct branchless version
+would be: `int neg = (*p == '-'); answer.negative = neg; p += neg;` with NO error-check inline
+(relying on the downstream `digit_count == 0` check to catch invalid sign inputs).
+
+### Decision
+
+REJECTED. All datasets regressed −12% to −16%. The branchless approach is structurally
+sound but the specific implementation forced unnecessary computation for unsigned floats.
+See Known Non-Starters for correct next approach to sign optimization.
+
+---
+
+## EXP-022 — 2026-05-27 — Hoist `ffc_b10_to_b2` before UMULH to overlap multiplies
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+In `ffc_compute_float`, `ffc_b10_to_b2(q)` is called at line 123 AFTER
+`ffc_compute_product_approximation` (which contains the UMULH/MUL pair). Since
+`ffc_b10_to_b2(q)` only needs `q` (available from function entry), computing it
+before the UMULH would allow GCC to schedule the integer multiply (3-cycle latency)
+concurrently with the table-load → UMULH pipeline, potentially saving 3-5 cycles on
+the critical path.
+
+Pre-experiment profile (EXP-015 baseline) showed 13% stall at c684 (first instruction
+of b10_to_b2 after the b.ne branch that depends on UMULH result).
+
+### Files changed
+
+- `ffc/src/ffc.h`: added `int32_t b2 = ffc_b10_to_b2((int32_t)(q));` before
+  `ffc_compute_product_approximation` call; used `b2` in the power2 computation (then reverted)
+
+### Implementation (tried then reverted)
+
+```c
+// AFTER (reverted):
+int32_t lz = (int32_t)ffc_count_leading_zeroes(w);
+int32_t b2 = ffc_b10_to_b2((int32_t)(q)); // hoist before UMULH
+w <<= lz;
+ffc_u128 product = ffc_compute_product_approximation(q, w, vk);
+// ...
+answer.power2 = (int32_t)(b2 + upperbit - lz - ffc_const(vk, MINIMUM_EXPONENT));
+```
+
+### Benchmark results
+
+**ARM Graviton4 (EXP-015 baseline → EXP-022):**
+
+| Dataset | Baseline MB/s | EXP-022 MB/s | Δ% | i/f |
+|---------|---------------|--------------|-----|-----|
+| random [0,1] | 1823 | 1837–1840 | **+0.8–0.9%** | 229.04 (same) |
+| canada.txt   | 1566 | 1569–1571 | **+0.2–0.3%** | 206.86 (same) |
+| mesh.txt     | 1361 | 1359–1361 | **−0.1–0%** | 107.21 (same) |
+
+### Analysis
+
+GCC DID hoist the b10_to_b2 multiply before UMULH (confirmed by objdump: `c64c: mov w10,
+#0x526a` before `c65c: umulh x7, x4, x15`). However, the gain is negligible because the
+OOO processor was ALREADY speculatively executing the b10_to_b2 computation in the
+baseline — the CPU predicts the b.ne at c668 as "taken" (correct ~99%+ of the time) and
+speculatively starts c684 (b10_to_b2) immediately while waiting for the UMULH to resolve.
+
+The profile confirmed this: the stall moved from c684 (13.79% baseline) to c698 (14.91%
+in EXP-022 binary), showing the stall shifted to the FIRST instruction that uses the UMULH
+result after the b.ne. The fundamental UMULH latency bottleneck is unavoidable.
+
+i/f unchanged (229.04, 206.86, 107.21) confirms instruction count is the bottleneck,
+not critical-path latency. IPC = 7.1 is close to Graviton4's practical throughput ceiling.
+
+**Key insight**: To improve performance, we must REDUCE i/f (fewer instructions per float),
+not reduce critical-path latency (the OOO processor already hides that).
+
+### Decision
+
+REJECTED. All datasets within noise (< 1%); i/f unchanged; OOO already hides latency.
+Do not retry b10_to_b2 hoisting — it has no effect on throughput-bound code.
+
+---
 
 ## EXP-021 — 2026-05-27 — Mantissa check before `ffc_rounds_to_nearest()` in Clinger fast path
 
