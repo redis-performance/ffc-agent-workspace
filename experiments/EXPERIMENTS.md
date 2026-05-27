@@ -70,6 +70,14 @@ i/f for canada increased by +0.77 (the 2-instruction overhead) but IPC improved 
 - For datasets with near-100% non-zero exponent (canada, random), the always-not-taken branch
   has essentially zero overhead — OOO + branch predictor hides it completely.
 
+### Correctness fix (2026-05-27)
+
+The initial EXP-033 commit missed the existing `#if defined(__clang__) || defined(FFC_32BIT)`
+guard for `mantissa == 0`. Clang may convert `(double)(uint64_t)0` to `-0.0` when
+`fegetround() == FE_DOWNWARD`, producing wrong sign for parsing "0" and "0e0". The fix mirrors
+the identical guard already present in the non-nearest Clinger branch. Caught by supplemental
+test suite. Commit `43e22b3`.
+
 ---
 
 ## EXP-032 — 2026-05-27 — Eliminate `sxtw` sign-extension in digit scan via `__builtin_unreachable` / unsigned cast patterns
