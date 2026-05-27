@@ -9,6 +9,98 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-029 — 2026-05-27 — Early mantissa guard in `ffc_rounds_to_nearest` to skip FCMP for large mantissa (canada)
+
+**Status**: REJECTED (no change — identical assembly)
+
+### Hypothesis
+
+For canada.txt, 97% of numbers have mantissa > 2^53 (≥16 significant digits). The current
+`ffc_clinger_fast_path_impl` calls `ffc_rounds_to_nearest()` which runs a 16-cycle volatile-load
+→ fadd → fsub → fcmp chain, then branches to Eisel-Lemire anyway (mantissa > 2^53 → b.hi → ca28).
+The 16-cycle FCMP chain is entirely wasted for these numbers.
+
+By adding a variant `ffc_rounds_to_nearest_fast(uint64_t mantissa, uint64_t max_mantissa)` that
+starts the volatile load (L1 latency ~4 cycles) and simultaneously checks `mantissa > max_mantissa`
+on the integer unit (~3 cycles), we should be able to skip the FCMP chain and return `false`
+immediately for large-mantissa numbers — saving ~13 cycles for 97% of canada numbers.
+
+The integer-unit movz+cmp for the constant `2^53` has no data dependency, so it pre-executes in
+parallel with the L1 load. This should save the FCMP chain without penalizing the mesh/random
+paths that actually use the Clinger fast path.
+
+### Files changed (reverted — no benefit)
+
+- `ffc/src/common.h`: added `ffc_rounds_to_nearest_fast` after `ffc_rounds_to_nearest`
+- `ffc/src/ffc.h`: `ffc_clinger_fast_path_impl` changed to call `ffc_rounds_to_nearest_fast` with
+  `MAX_MANTISSA_FAST_PATH` argument
+
+### Implementation
+
+```c
+// In common.h — new function:
+ffc_internal ffc_inline
+bool ffc_rounds_to_nearest_fast(uint64_t mantissa, uint64_t max_mantissa) {
+  static float volatile fmin = FLT_MIN;
+  float fmini = fmin;                     // volatile load starts immediately (~4 cycle L1 latency)
+  if (mantissa > max_mantissa) return false;  // integer check (intended to run in parallel on OOO)
+  return (fmini + 1.0f == 1.0f - fmini);
+}
+
+// In ffc.h — ffc_clinger_fast_path_impl:
+// FROM: if (ffc_rounds_to_nearest()) { if (mantissa <= MAX_MANTISSA_FAST_PATH) { ... } }
+// TO:   if (ffc_rounds_to_nearest_fast(mantissa, MAX_MANTISSA_FAST_PATH)) { ... }
+```
+
+### Results
+
+**Assembly was byte-for-byte identical to EXP-028.** No benchmark needed — binary sizes:
+- EXP-028 baseline: 141328 bytes
+- EXP-029 attempt: 142918 bytes (larger due to unused `ffc_rounds_to_nearest_fast` function in binary)
+
+The core `ffc_clinger_fast_path_impl` region (c9bc–cb98) produced identical disassembly. GCC placed
+the mantissa check (`cb8c: movz x6; cb90: cmp x1,x6; cb94: b.hi`) AFTER the full FCMP chain
+(`c9ec: ldr s1; c9f8: fadd; ca00: fsub; ca04: fcmp`), same as before.
+
+### Decision: REJECTED
+
+No performance change — assembly is identical to EXP-028. Revert immediately.
+
+### Root Cause: GCC Reordering of Non-Volatile vs Volatile
+
+GCC can legally reorder non-volatile integer operations relative to volatile float reads when the
+final observable return value is unchanged. The C source order `float fmini = fmin; if (mantissa >
+max_mantissa) return false;` appears to start the load first, but GCC inlines the function and
+re-schedules: it emits the FCMP chain first (to maximize float pipeline utilization), then the
+integer mantissa check afterward.
+
+The key constraint: GCC sees that the return value of the function is determined by (a) the FCMP
+result OR (b) the mantissa check — either order produces the same final boolean. It chooses float
+first because the float pipeline has higher latency and GCC prefers to start long-latency chains
+early. The integer movz+cmp (3 cycles) is fast enough that GCC defers it.
+
+This is a fundamental compiler optimization — no C-level trick that uses a volatile read + integer
+check will produce a different schedule for GCC -O2.
+
+### Learning
+
+GCC cannot be forced via C source ordering to interleave integer and float operations when both
+appear in the same inlined function body and the final result is the same either way. To actually
+skip the FCMP chain for large-mantissa numbers, the only options are:
+
+1. **Architecture-level**: Avoid calling `ffc_rounds_to_nearest()` for the large-mantissa code
+   path entirely — restructure the call site so the mantissa check happens BEFORE the function is
+   called (at the `ffc_clinger_fast_path_impl` call site, not inside it).
+2. **Compile-time constant**: Mark rounding mode as always-round-to-nearest via compile flag
+   (`-fno-trapping-math`, build-time `FFC_ROUNDS_TO_NEAREST` macro) and eliminate the volatile
+   check entirely.
+3. **`asm volatile` fence**: Force ordering with an empty `asm volatile ("" ::: "memory")` between
+   the volatile load assignment and the integer check. This prevents GCC from moving the integer
+   check across the asm barrier. NOT tried — adds a compiler fence that may hurt instruction
+   scheduling on other paths.
+
+---
+
 ## EXP-028 — 2026-05-27 — Extend integer nested-ifs to 5 levels (mesh 5-digit integer parts)
 
 **Status**: ACCEPTED

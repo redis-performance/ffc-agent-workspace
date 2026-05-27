@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-029 | Early mantissa guard in `ffc_rounds_to_nearest` to skip FCMP for large mantissa | canada | No change — GCC reordered integer check to after FCMP chain; assembly byte-for-byte identical to EXP-028 | **Rejected** | 2026-05-27 |
 | EXP-028 | Extend integer nested-ifs to 5 levels (mesh 5-digit integer parts) | mesh | +7.9% mesh, +0.7% canada, +0.4% random (eliminates while-loop back-branch for 5-digit integer parts common in mesh 3D coordinates) | **Accepted** | 2026-05-27 |
 | EXP-027 | Bit-shift mantissa check `!(mantissa >> 53)` vs `movz+cmp` | mesh | +2.8% mesh, −0.8% canada (cmp xzr, x1, lsr #53 removes movz pre-execution freedom; canada IPC 6.75→6.67) | **Rejected** | 2026-05-27 |
 | EXP-026 | Straight-line integer scan: 4-level nested-ifs replace while loop for 1–4 digits | random, canada, mesh | +4.2% random, +7.4% canada, +2.0% mesh (all positive; no SWAR call overhead unlike EXP-018) | **Accepted** | 2026-05-27 |
