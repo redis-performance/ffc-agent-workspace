@@ -1,0 +1,33 @@
+# ffc-agent-workspace benchmark run — 20260527-024943
+# Host: ip-172-31-55-171  CPU: 
+
+
+===== random [0,1] =====
+# parsing random numbers
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB 
+strtod                                  :   219.61 MB/s (+/- 0.2 %)    10.47 Mfloat/s      49.28 i/B  1084.12 i/f (+/- 0.0 %)     12.14 c/B   267.14 c/f (+/- 0.2 %)      4.06 i/c    206.98 b/f    140.63 bm/f      2.80 GHz 
+abseil                                  :   730.85 MB/s (+/- 2.1 %)    34.83 Mfloat/s      26.73 i/B   588.06 i/f (+/- 0.0 %)      3.65 c/B    80.29 c/f (+/- 2.0 %)      7.32 i/c    130.01 b/f      0.85 bm/f      2.80 GHz 
+fastfloat                               :  1079.48 MB/s (+/- 0.2 %)    51.45 Mfloat/s      11.46 i/B   252.04 i/f (+/- 0.0 %)      2.47 c/B    54.37 c/f (+/- 0.1 %)      4.64 i/c     44.00 b/f      0.62 bm/f      2.80 GHz 
+ffc                                     :  1584.32 MB/s (+/- 0.4 %)    75.51 Mfloat/s      10.96 i/B   241.04 i/f (+/- 0.0 %)      1.68 c/B    37.04 c/f (+/- 0.3 %)      6.51 i/c     47.00 b/f      0.62 bm/f      2.80 GHz 
+fastfloat                               :  2043.07 MB/s (+/- 0.2 %)    48.69 Mfloat/s       6.18 i/B   272.04 i/f (+/- 0.0 %)      1.31 c/B    57.43 c/f (+/- 0.2 %)      4.74 i/c     44.00 b/f      0.62 bm/f      2.80 GHz 
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+
+===== canada.txt =====
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+strtod                                  :   168.41 MB/s (+/- 0.2 %)     9.68 Mfloat/s      71.32 i/B  1301.30 i/f (+/- 0.0 %)     15.84 c/B   288.98 c/f (+/- 0.1 %)      4.50 i/c    237.50 b/f    118.41 bm/f      2.80 GHz 
+abseil                                  :   646.01 MB/s (+/- 0.1 %)    37.12 Mfloat/s      28.55 i/B   520.89 i/f (+/- 0.0 %)      4.13 c/B    75.32 c/f (+/- 0.1 %)      6.92 i/c    112.52 b/f     10.53 bm/f      2.80 GHz 
+fastfloat                               :   881.74 MB/s (+/- 0.1 %)    50.67 Mfloat/s      13.90 i/B   253.70 i/f (+/- 0.0 %)      3.02 c/B    55.18 c/f (+/- 0.1 %)      4.60 i/c     44.49 b/f     12.63 bm/f      2.80 GHz 
+ffc                                     :  1379.98 MB/s (+/- 0.5 %)    79.30 Mfloat/s      11.68 i/B   213.03 i/f (+/- 0.0 %)      1.93 c/B    35.27 c/f (+/- 0.4 %)      6.04 i/c     41.41 b/f     14.47 bm/f      2.80 GHz 
+fastfloat                               :  1688.54 MB/s (+/- 0.2 %)    48.52 Mfloat/s       7.12 i/B   259.73 i/f (+/- 0.0 %)      1.58 c/B    57.65 c/f (+/- 0.1 %)      4.51 i/c     44.58 b/f     12.49 bm/f      2.80 GHz 
+
+===== mesh.txt =====
+# read 73019 lines 
+ASCII volume = 0.536009 MB 
+strtod                                  :   174.37 MB/s (+/- 0.5 %)    23.75 Mfloat/s      83.13 i/B   639.88 i/f (+/- 0.0 %)     15.29 c/B   117.72 c/f (+/- 0.5 %)      5.44 i/c    124.65 b/f     27.62 bm/f      2.80 GHz 
+abseil                                  :   368.82 MB/s (+/- 0.6 %)    50.24 Mfloat/s      52.05 i/B   400.64 i/f (+/- 0.0 %)      7.23 c/B    55.64 c/f (+/- 0.6 %)      7.20 i/c     89.68 b/f      8.67 bm/f      2.80 GHz 
+fastfloat                               :   498.03 MB/s (+/- 0.3 %)    67.84 Mfloat/s      18.82 i/B   144.90 i/f (+/- 0.0 %)      5.35 c/B    41.22 c/f (+/- 0.2 %)      3.52 i/c     25.76 b/f      6.95 bm/f      2.80 GHz 
+ffc                                     :  1148.18 MB/s (+/- 1.2 %)   156.41 Mfloat/s      15.49 i/B   119.21 i/f (+/- 0.0 %)      2.33 c/B    17.90 c/f (+/- 1.0 %)      6.66 i/c     24.64 b/f      6.02 bm/f      2.80 GHz 
+fastfloat                               :   987.73 MB/s (+/- 0.3 %)    67.28 Mfloat/s       9.67 i/B   148.91 i/f (+/- 0.0 %)      2.70 c/B    41.57 c/f (+/- 0.3 %)      3.58 i/c     26.76 b/f      8.49 bm/f      2.80 GHz 
