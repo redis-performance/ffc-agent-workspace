@@ -191,6 +191,7 @@ Document failed experiments here as they are discovered. Starting empty.
 | Guard 4-digit SWAR with first-byte digit check (EXP-007) | −3.9% ARM mesh; extra branch outweighs SWAR entry savings. |
 | Constant-format specialization (EXP-003, EXP-005) | Regressions; specialization prevented cross-call inlining. |
 | AArch64 FPCR direct read in rounds_to_nearest (EXP-013) | Parked: +0.9–1.6%, below 2% threshold. Technique is valid, gain is sub-threshold. |
+| Hoist ffc_rounds_to_nearest() before digit scanning (EXP-016) | −0.5% canada regression; GCC already schedules float ops early, or c620 stall is from mantissa dependency (x1 not ready) not float latency; adding bool param through inline chain hurts register allocation. |
 
 ---
 

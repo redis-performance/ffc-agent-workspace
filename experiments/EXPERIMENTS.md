@@ -9,6 +9,70 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-016 — 2026-05-27 — Hoist ffc_rounds_to_nearest() before digit scanning
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+After EXP-015, the perf profile showed c620 (`mov x4, MAX_MANTISSA_FAST_PATH`) at 13.45% of
+`findmax_ffc` cycles. This instruction immediately follows the `fcmp` in
+`ffc_rounds_to_nearest()` (c618). The `fcmp` has 5-cycle latency; the CPU stalls at c620
+while waiting for the branch condition to resolve.
+
+The rounds_to_nearest code is at c610-c618 in the binary, approximately 700 bytes after
+digit scanning start (c2ec). That exceeds the Graviton4 OOO window (~128 instructions ≈
+512 bytes). So the OOO engine cannot overlap the float ops with digit scanning.
+
+Hypothesis: move the `ffc_rounds_to_nearest()` call to BEFORE `ffc_parse_number_string`
+(digit scanning) in `ffc_from_chars`. This would place the fadd/fsub/fcmp instructions
+early in the binary, allowing them to execute concurrently with digit scanning and hiding
+the 5-cycle float latency behind the ~50-100 instruction digit scanning body.
+
+Expected gain: 5-15% on canada.txt (where c620 is 13.45% hot).
+
+### Implementation
+
+In `ffc/src/ffc.h`:
+1. Added `bool rtn = ffc_rounds_to_nearest()` at the TOP of `ffc_from_chars`, before
+   the whitespace skip and `ffc_parse_number_string` call.
+2. Added `bool rtn` parameter to `ffc_from_chars_advanced`.
+3. Added `bool rtn` parameter to `ffc_clinger_fast_path_impl`, removing the internal
+   call to `ffc_rounds_to_nearest()`.
+4. Passed `rtn` through the call chain.
+
+### Results
+
+**ARM Graviton4 (EXP-015 baseline → EXP-016):**
+
+| Dataset | Baseline MB/s | EXP-016 MB/s | Δ% |
+|---------|--------------|--------------|-----|
+| random [0,1] | 1823 | 1834 | +0.6% (noise) |
+| canada.txt | 1562 | ~1554 | **-0.5% (regression)** |
+| mesh.txt | 1366 | ~1379 | +1.0% (within noise) |
+
+Three runs of canada.txt: 1553, 1553, 1557 MB/s — consistently below baseline 1562.
+IPC on canada dropped from 6.64-6.65 to 6.60-6.62.
+
+### Analysis
+
+The hoisting produced NO measurable improvement despite the theory. Two possible explanations:
+1. GCC with -O3 was already scheduling the float instructions early via its own
+   instruction scheduler (the volatile load doesn't prevent early scheduling).
+2. The c620 stall is NOT from float latency — it may be from the mantissa value (x1)
+   not yet being ready at c628 (dependency on digit scanning result).
+
+The slight canada regression (-0.5%) is likely from adding a bool parameter through
+3 force-inlined functions, slightly changing register allocation.
+
+### Verdict
+
+**REJECTED** — regression on canada, sub-threshold on mesh, no net improvement.
+Adding to Known Non-Starters.
+
+---
+
 ## EXP-015 — 2026-05-27 — Unroll fraction byte-by-byte tail (3 nested ifs)
 
 **Status**: ACCEPTED
