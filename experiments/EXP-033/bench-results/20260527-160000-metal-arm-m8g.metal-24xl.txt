@@ -1,0 +1,44 @@
+# ffc-agent-workspace benchmark run — 20260527-160000
+# Host: ip-172-31-55-171  CPU: ARM Graviton4 (m8g.metal-24xl)
+# Commit: 43e22b3 (fix: guard zero mantissa under FE_DOWNWARD in exponent==0 fast path)
+
+===== random [0,1] =====
+# parsing random numbers
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB
+netlib                                  :   379.26 MB/s (+/- 0.8 %)    18.08 Mfloat/s      29.96 i/B   659.06 i/f (+/- 0.0 %)      7.03 c/B   154.64 c/f (+/- 0.8 %)      4.26 i/c    157.38 b/f    356.94 bm/f      2.80 GHz
+doubleconversion                        :   285.81 MB/s (+/- 0.2 %)    13.62 Mfloat/s      45.68 i/B  1005.01 i/f (+/- 0.0 %)      9.33 c/B   205.24 c/f (+/- 0.2 %)      4.90 i/c    179.53 b/f    167.74 bm/f      2.80 GHz
+strtod                                  :   219.63 MB/s (+/- 0.1 %)    10.47 Mfloat/s      49.28 i/B  1084.21 i/f (+/- 0.0 %)     12.14 c/B   267.07 c/f (+/- 0.1 %)      4.06 i/c    207.00 b/f    140.40 bm/f      2.80 GHz
+abseil                                  :   712.17 MB/s (+/- 1.4 %)    33.94 Mfloat/s      26.73 i/B   588.06 i/f (+/- 0.0 %)      3.74 c/B    82.32 c/f (+/- 1.5 %)      7.14 i/c    130.01 b/f      0.85 bm/f      2.79 GHz
+fastfloat                               :  1090.84 MB/s (+/- 0.3 %)    51.99 Mfloat/s      11.46 i/B   252.04 i/f (+/- 0.0 %)      2.45 c/B    53.79 c/f (+/- 0.2 %)      4.69 i/c     44.00 b/f      0.64 bm/f      2.80 GHz
+ffc                                     :  1819.82 MB/s (+/- 0.3 %)    86.74 Mfloat/s      10.41 i/B   229.04 i/f (+/- 0.0 %)      1.47 c/B    32.25 c/f (+/- 0.0 %)      7.10 i/c     47.00 b/f      0.64 bm/f      2.80 GHz
+UTF-16 volume = 4.19617 MB
+doubleconversion                        :   599.98 MB/s (+/- 0.2 %)    14.30 Mfloat/s      22.84 i/B  1005.01 i/f (+/- 0.0 %)      4.44 c/B   195.55 c/f (+/- 0.1 %)      5.14 i/c    179.53 b/f    167.69 bm/f      2.80 GHz
+fastfloat                               :  2050.39 MB/s (+/- 0.2 %)    48.86 Mfloat/s       6.18 i/B   272.04 i/f (+/- 0.0 %)      1.30 c/B    57.22 c/f (+/- 0.2 %)      4.75 i/c     44.00 b/f      0.64 bm/f      2.80 GHz
+
+===== canada.txt =====
+# read 111126 lines
+ASCII volume = 1.93374 MB
+netlib                                  :   395.11 MB/s (+/- 0.9 %)    22.71 Mfloat/s      31.34 i/B   571.90 i/f (+/- 0.0 %)      6.75 c/B   123.14 c/f (+/- 0.9 %)      4.64 i/c    130.54 b/f    217.79 bm/f      2.80 GHz
+doubleconversion                        :   281.87 MB/s (+/- 0.4 %)    16.20 Mfloat/s      51.22 i/B   934.58 i/f (+/- 0.0 %)      9.46 c/B   172.61 c/f (+/- 0.4 %)      5.41 i/c    163.36 b/f     61.17 bm/f      2.80 GHz
+strtod                                  :   168.34 MB/s (+/- 0.1 %)     9.67 Mfloat/s      71.32 i/B  1301.30 i/f (+/- 0.0 %)     15.84 c/B   289.08 c/f (+/- 0.1 %)      4.50 i/c    237.50 b/f    119.22 bm/f      2.80 GHz
+abseil                                  :   646.10 MB/s (+/- 0.2 %)    37.13 Mfloat/s      28.55 i/B   520.89 i/f (+/- 0.0 %)      4.13 c/B    75.30 c/f (+/- 0.2 %)      6.92 i/c    112.52 b/f     10.55 bm/f      2.80 GHz
+fastfloat                               :   886.48 MB/s (+/- 0.3 %)    50.94 Mfloat/s      13.90 i/B   253.70 i/f (+/- 0.0 %)      3.01 c/B    54.90 c/f (+/- 0.1 %)      4.62 i/c     44.49 b/f     12.58 bm/f      2.80 GHz
+ffc                                     :  1672.74 MB/s (+/- 0.2 %)    96.13 Mfloat/s      10.98 i/B   200.43 i/f (+/- 0.0 %)      1.59 c/B    29.10 c/f (+/- 0.1 %)      6.89 i/c     41.17 b/f     13.66 bm/f      2.80 GHz
+UTF-16 volume = 3.86749 MB
+doubleconversion                        :   590.18 MB/s (+/- 0.3 %)    16.96 Mfloat/s      25.60 i/B   934.08 i/f (+/- 0.0 %)      4.52 c/B   164.89 c/f (+/- 0.3 %)      5.66 i/c    163.36 b/f     61.53 bm/f      2.80 GHz
+fastfloat                               :  1691.61 MB/s (+/- 0.2 %)    48.61 Mfloat/s       7.12 i/B   259.73 i/f (+/- 0.0 %)      1.58 c/B    57.54 c/f (+/- 0.1 %)      4.51 i/c     44.58 b/f     12.44 bm/f      2.80 GHz
+
+===== mesh.txt =====
+# read 73019 lines
+ASCII volume = 0.536009 MB
+netlib                                  :   462.96 MB/s (+/- 0.5 %)    63.07 Mfloat/s      33.14 i/B   255.08 i/f (+/- 0.0 %)      5.76 c/B    44.31 c/f (+/- 0.6 %)      5.76 i/c     54.41 b/f     46.36 bm/f      2.79 GHz
+doubleconversion                        :   354.09 MB/s (+/- 0.8 %)    48.24 Mfloat/s      53.34 i/B   410.57 i/f (+/- 0.0 %)      7.53 c/B    58.00 c/f (+/- 0.8 %)      7.08 i/c     83.33 b/f     10.10 bm/f      2.80 GHz
+strtod                                  :   173.96 MB/s (+/- 1.0 %)    23.70 Mfloat/s      83.13 i/B   639.88 i/f (+/- 0.0 %)     15.33 c/B   118.00 c/f (+/- 1.0 %)      5.42 i/c    124.65 b/f     27.83 bm/f      2.80 GHz
+abseil                                  :   367.66 MB/s (+/- 1.0 %)    50.09 Mfloat/s      52.05 i/B   400.64 i/f (+/- 0.0 %)      7.25 c/B    55.81 c/f (+/- 1.1 %)      7.18 i/c     89.68 b/f      8.72 bm/f      2.80 GHz
+fastfloat                               :   500.74 MB/s (+/- 0.3 %)    68.21 Mfloat/s      18.82 i/B   144.90 i/f (+/- 0.0 %)      5.33 c/B    40.99 c/f (+/- 0.3 %)      3.53 i/c     25.76 b/f      7.28 bm/f      2.80 GHz
+ffc                                     :  1655.94 MB/s (+/- 0.7 %)   225.58 Mfloat/s      11.23 i/B    86.47 i/f (+/- 0.0 %)      1.61 c/B    12.41 c/f (+/- 0.5 %)      6.97 i/c     19.12 b/f      5.38 bm/f      2.80 GHz
+UTF-16 volume = 1.07202 MB
+doubleconversion                        :   718.07 MB/s (+/- 0.6 %)    48.91 Mfloat/s      26.67 i/B   410.54 i/f (+/- 0.0 %)      3.71 c/B    57.18 c/f (+/- 0.5 %)      7.18 i/c     83.23 b/f     10.38 bm/f      2.80 GHz
+fastfloat                               :   996.59 MB/s (+/- 0.4 %)    67.88 Mfloat/s       9.67 i/B   148.91 i/f (+/- 0.0 %)      2.68 c/B    41.20 c/f (+/- 0.3 %)      3.61 i/c     26.76 b/f      6.33 bm/f      2.80 GHz

@@ -1,0 +1,44 @@
+# ffc-agent-workspace benchmark run — 20260527-160000
+# Host: ip-172-31-62-214  CPU: Intel(R) Xeon(R) Platinum 8488C (m7i.metal-24xl)
+# Commit: 43e22b3 (fix: guard zero mantissa under FE_DOWNWARD in exponent==0 fast path)
+
+===== random [0,1] =====
+# parsing random numbers
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB
+netlib                                  :   307.43 MB/s (+/- 2.0 %)    14.65 Mfloat/s
+doubleconversion                        :   304.21 MB/s (+/- 2.9 %)    14.50 Mfloat/s
+strtod                                  :   310.84 MB/s (+/- 2.1 %)    14.82 Mfloat/s
+abseil                                  :   866.21 MB/s (+/- 0.7 %)    41.29 Mfloat/s
+fastfloat                               :  2018.12 MB/s (+/- 2.4 %)    96.19 Mfloat/s
+ffc                                     :  2018.11 MB/s (+/- 3.2 %)    96.19 Mfloat/s
+UTF-16 volume = 4.19617 MB
+doubleconversion                        :   614.64 MB/s (+/- 1.4 %)    14.65 Mfloat/s
+fastfloat                               :  3737.19 MB/s (+/- 0.3 %)    89.06 Mfloat/s
+
+===== canada.txt =====
+# read 111126 lines
+ASCII volume = 1.93374 MB
+netlib                                  :   328.92 MB/s (+/- 2.1 %)    18.90 Mfloat/s
+doubleconversion                        :   330.49 MB/s (+/- 4.2 %)    18.99 Mfloat/s
+strtod                                  :   222.16 MB/s (+/- 1.8 %)    12.77 Mfloat/s
+abseil                                  :   775.66 MB/s (+/- 1.1 %)    44.57 Mfloat/s
+fastfloat                               :  1416.49 MB/s (+/- 3.5 %)    81.40 Mfloat/s
+ffc                                     :  1675.93 MB/s (+/- 1.4 %)    96.31 Mfloat/s
+UTF-16 volume = 3.86749 MB
+doubleconversion                        :   661.59 MB/s (+/- 1.6 %)    19.01 Mfloat/s
+fastfloat                               :  2728.29 MB/s (+/- 0.5 %)    78.39 Mfloat/s
+
+===== mesh.txt =====
+# read 73019 lines
+ASCII volume = 0.536009 MB
+netlib                                  :   437.23 MB/s (+/- 3.1 %)    59.56 Mfloat/s
+doubleconversion                        :   370.33 MB/s (+/- 1.9 %)    50.45 Mfloat/s
+strtod                                  :   197.08 MB/s (+/- 3.2 %)    26.85 Mfloat/s
+abseil                                  :   473.15 MB/s (+/- 3.6 %)    64.46 Mfloat/s
+fastfloat                               :  1133.60 MB/s (+/- 5.1 %)   154.43 Mfloat/s
+ffc                                     :  1740.91 MB/s (+/- 2.1 %)   237.16 Mfloat/s
+UTF-16 volume = 1.07202 MB
+doubleconversion                        :   763.98 MB/s (+/- 2.3 %)    52.04 Mfloat/s
+fastfloat                               :  2270.62 MB/s (+/- 4.8 %)   154.66 Mfloat/s

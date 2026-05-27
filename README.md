@@ -87,25 +87,25 @@ win — document it and keep going.
 
 ---
 
-## Current State (post EXP-033 accepted, 2026-05-27)
+## Current State (post EXP-033 + correctness fix, 2026-05-27)
+
+5-run averages on dedicated bare-metal servers, GCC `-O3`.
 
 ### x86 — Intel Xeon Platinum 8488C (m7i.metal-24xl)
 
 | Dataset | ffc MB/s | fastfloat MB/s | Δ% |
 |---------|----------|----------------|----|
-| random [0,1] | **1960** | 2018 | -2.9% |
-| canada.txt | **1565** | 1407 | **+11.2% (ffc leads)** |
-| mesh.txt | **1187** | 1124 | **+5.6% (ffc leads)** |
-
-*x86 numbers from EXP-009; EXP-015 x86 inconclusive (high variance)*
+| random [0,1] | **2018** | 2018 | ≈0% |
+| canada.txt | **1676** | 1416 | **+18% (ffc leads)** |
+| mesh.txt | **1741** | 1134 | **+54% (ffc leads)** |
 
 ### ARM — Graviton4 (m8g.metal-24xl)
 
 | Dataset | ffc MB/s | fastfloat MB/s | Δ% |
 |---------|----------|----------------|----|
-| random [0,1] | **1931** | 1075 | **+80%** |
-| canada.txt | **1737** | 894 | **+94%** |
-| mesh.txt | **1735** | 484 | **+258%** |
+| random [0,1] | **1820** | 1091 | **+67% (ffc leads)** |
+| canada.txt | **1673** | 886 | **+89% (ffc leads)** |
+| mesh.txt | **1656** | 501 | **+231% (ffc leads)** |
 
 Baselines: `experiments/EXP-001/bench-results/`
 
