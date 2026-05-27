@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-024 | Branchless sign detection `int neg = (*p == '-'); p += neg` | canada | −9.9% random, −8.9% canada, −14.2% mesh (cinc creates data dep on first digit ptr, kills speculative load) | **Rejected** | 2026-05-27 |
 | EXP-023 | Branchless sign detection in `ffc_from_chars_advanced_impl` | canada | −13.2% random, −11.9% canada, −15.7% mesh (bitwise-OR forces full eval for unsigned floats) | **Rejected** | 2026-05-27 |
 | EXP-022 | Hoist `ffc_b10_to_b2` before UMULH in `ffc_compute_float` | all | +0.9% random, −0.1% mesh (OOO already hides latency; i/f unchanged) | **Rejected** | 2026-05-27 |
 | EXP-021 | Mantissa check before `ffc_rounds_to_nearest()` in Clinger | mesh | +2.5% random, −7.3% mesh (FCMP timing regression) | **Rejected** | 2026-05-27 |

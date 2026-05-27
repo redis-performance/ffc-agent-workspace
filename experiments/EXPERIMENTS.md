@@ -7,7 +7,87 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 ---
 
-<!-- Append new experiments below in reverse-chronetical order (newest first) -->
+<!-- Append new experiments below in reverse-chronological order (newest first) -->
+
+## EXP-024 — 2026-05-27 — Branchless sign detection with `int neg = (*p == '-'); p += neg`
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+EXP-023 failed because the bitwise `|` forced evaluation of the `+` check for all floats.
+A correct branchless form — `int neg = (*p == '-'); p += neg;` plus a cold `+` branch —
+should eliminate the 50%-unpredictable sign branch on canada.txt without adding overhead
+for unsigned floats.
+
+### Files changed
+
+- `ffc/src/parse.h`: replaced sign branch with branchless form; cold `!neg && allow_leading_plus && *p == '+'` branch
+
+### Implementation (tried then reverted)
+
+```c
+int neg = (*p == '-');
+answer.negative = (bool)neg;
+p += neg;
+bool allow_leading_plus = fmt & FFC_FORMAT_FLAG_ALLOW_LEADING_PLUS;
+if (__builtin_expect(!neg && allow_leading_plus && !basic_json_fmt && (*p == '+'), 0)) {
+  ++p;
+}
+```
+
+### Benchmark results
+
+**ARM Graviton4 (EXP-015 baseline → EXP-024):**
+
+| Dataset | Baseline MB/s | EXP-024 MB/s | Δ% | i/f baseline→024 |
+|---------|---------------|--------------|-----|-------------------|
+| random [0,1] | 1823 | 1642 | **−9.9%** | 229.04 → 231.04 (+2) |
+| canada.txt   | 1566 | 1427 | **−8.9%** | 206.86 → 203.03 (−4) |
+| mesh.txt     | 1361 | 1168 | **−14.2%** | 107.21 → 109.21 (+2) |
+
+IPC: 7.12 → 6.47 (random), 6.66 → 5.95 (canada), 7.10 → 6.21 (mesh).
+
+### Analysis
+
+GCC compiled the branchless '-' to `cinc x2, x1, eq` (conditional increment):
+```asm
+ldrb w7, [x1]         ; load *p
+cmp  w7, #0x2d        ; *p == '-'?
+cset x22, eq          ; neg = (*p == '-')
+cinc x2, x1, eq       ; p = x1 + neg (branchless advance)
+cmp  x20, x2          ; pend == p_new?
+b.eq  error           ; cold
+mov  x8, x2           ; x8 = updated p  ← DEPENDENCY
+```
+
+The `cinc x2, x1, eq` creates a TRUE DATA DEPENDENCY: x8 (the pointer for the first digit
+load) depends on the comparison result. The CPU CANNOT speculate the first digit address until
+the comparison resolves.
+
+In the baseline branch version, `b.ne skip_sign` is always correctly predicted for
+random (never-negative). The CPU uses branch prediction to speculatively load the first digit
+from the unchanged `p` BEFORE the branch resolves. This zero-cost speculation is eliminated
+by the branchless approach.
+
+For canada, eliminating 50% branch mispredictions (3.75 cycles savings/float average) cannot
+compensate for the 3-cycle dep-chain overhead on ALL floats. IPC dropped from 6.66 to 5.95.
+
+**Key lesson (same root cause as EXP-022):** On Graviton4 with IPC near ceiling, branch
+prediction IS the speculative execution path. The sign branch is NEARLY FREE for well-predicted
+inputs (random). Replacing it with a data-dependent operation stalls the pipeline by forcing
+the CPU to wait for the comparison before loading the first digit.
+
+Do not retry sign-detection branchlessness on this code path unless a technique can be found
+that does NOT add a data dependency to the first digit pointer.
+
+### Decision
+
+REJECTED. All datasets regressed −9% to −14%. Branchless sign detection is incompatible
+with Graviton4's speculative execution model for this code path.
+
+---
 
 ## EXP-023 — 2026-05-27 — Branchless sign detection in `ffc_from_chars_advanced_impl`
 

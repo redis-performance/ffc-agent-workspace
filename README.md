@@ -87,7 +87,7 @@ win — document it and keep going.
 
 ---
 
-## Current State (post EXP-015 / EXP-023 rejected, 2026-05-27)
+## Current State (post EXP-015 / EXP-024 rejected, 2026-05-27)
 
 ### x86 — Intel Xeon Platinum 8488C (m7i.metal-24xl)
 
@@ -119,7 +119,7 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 | Status | Count |
 |--------|-------|
 | Accepted | 5 |
-| Rejected | 17 |
+| Rejected | 18 |
 | Parked | 1 |
 | In Progress | 0 |
 
