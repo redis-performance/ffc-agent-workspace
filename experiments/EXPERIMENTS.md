@@ -9,6 +9,59 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-020 — 2026-05-27 — AArch64 FPCR direct read in `ffc_rounds_to_nearest` (re-trial post-EXP-015)
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+`ffc_rounds_to_nearest()` uses a volatile `float volatile fmin = FLT_MIN` trick that
+generates 7 instructions (adrp + ldr + fmov + fadd + fsub + fcmp + b.ne) with a
+5-cycle FCMP latency stall showing as 13% of cycles at c620 in the post-EXP-015
+profile. Replacing with a single `mrs x, fpcr` + `tst` + `b.ne` (3 instructions,
+eliminates the float pipeline stall) should free ~4 instructions and ~2 stall cycles
+per call.
+
+EXP-013 tried this and was parked at +0.9–1.6% (below 2% threshold) before EXP-015.
+After EXP-015's fraction-tail unrolling made the Clinger path proportionally heavier,
+the FCMP bottleneck shows at 13% — we expect the gain to be larger now.
+
+### Files changed
+
+- `ffc/src/common.h`: added `#if defined(__aarch64__)` block with `mrs fpcr` path
+  before existing volatile float code (then reverted)
+
+### Results (ARM Graviton4)
+
+| Dataset | Before | After | Δ |
+|---------|--------|-------|---|
+| random [0,1] | 1823 MB/s | 1838–1841 MB/s | **+0.8–1.0%** |
+| canada.txt | 1562 MB/s | 1572 MB/s | **+0.6%** |
+| mesh.txt | 1366 MB/s | 1351–1352 MB/s | **−1.0–1.1%** |
+
+Instruction counts (i/f) unchanged from baseline (225.04, 202.86, 103.21).
+MRS presence in binary confirmed via objdump (at c5e4 in findmax_ffc).
+
+### Analysis
+
+The MRS approach IS active in the binary. The sub-2% improvements indicate that:
+1. MRS FPCR on Graviton4 has similar latency (~3-5 cycles) to the FCMP sequence,
+   so net savings per call is ~0–2 cycles rather than 4.
+2. For mesh (Clinger-only, short floats), the slight regression suggests MRS may
+   disrupt out-of-order scheduling of surrounding instructions.
+3. This is consistent with EXP-013 result (+0.9–1.6%) measured before EXP-015 —
+   the additional Clinger fraction work from EXP-015 did not amplify the gain.
+
+Root cause: MRS FPCR serializes the register file on many ARM implementations.
+The eliminated L1 volatile float load is replaced by a comparably-latent MRS,
+yielding negligible net benefit.
+
+### Decision
+
+REJECTED. All datasets below 2% threshold; mesh shows slight regression.
+Added to Known Non-Starters.
+
 ## EXP-019 — 2026-05-27 — Precomputed lookup table for `ffc_b10_to_b2`
 
 **Status**: REJECTED
