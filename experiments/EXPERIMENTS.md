@@ -9,6 +9,140 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-026 — 2026-05-27 — Straight-line integer scan: nested-ifs replace while loop for 1–4 digits
+
+**Status**: ACCEPTED
+**ffc commit**: 6e2c993
+
+### Hypothesis
+
+The integer while loop (`while ((p != pend) && ffc_is_integer(*p))`) has back-branches for
+every digit consumed. For common inputs — random "0" (1 digit), mesh 1–2 digits, canada
+2–3 digits — the loop runs 1–4 iterations and pays for 1–4 back-edge branches plus exit checks.
+
+Direct analogy to EXP-015 (fraction tail nested-ifs, accepted): replace the while loop with
+straight-line nested-ifs for the first 4 digits, falling back to the while loop for 5+.
+No SWAR involved (distinguishing this from EXP-018, which regressed due to SWAR call overhead).
+
+### Files changed
+
+- `ffc/src/parse.h`: replaced integer while loop with 4-level nested-ifs + while fallback
+- `ffc/ffc.h`: regenerated via `python3 amalgamate.py`
+
+### Implementation
+
+```c
+// 4-level nested-ifs for 1–4 digit integers, while loop for 5+
+if ((p != pend) && ffc_is_integer(*p)) {
+  i = (uint64_t)(*p++ - '0');
+  if ((p != pend) && ffc_is_integer(*p)) {
+    i = i * 10 + (uint64_t)(*p++ - '0');
+    if ((p != pend) && ffc_is_integer(*p)) {
+      i = i * 10 + (uint64_t)(*p++ - '0');
+      if ((p != pend) && ffc_is_integer(*p)) {
+        i = i * 10 + (uint64_t)(*p++ - '0');
+        while ((p != pend) && ffc_is_integer(*p)) {
+          i = (10 * i) + (uint64_t)(*p - '0');
+          ++p;
+        }
+      }
+    }
+  }
+}
+```
+
+### Results (ARM Graviton4)
+
+| Dataset | Baseline MB/s | EXP-026 MB/s | i/f | c/f | Δ% |
+|---------|--------------|--------------|-----|-----|-----|
+| random [0,1] | 1823 | **1900** | 227 | 30.87 | **+4.2%** |
+| canada.txt | 1562 | **1677** | 196 | 29.02 | **+7.4%** |
+| mesh.txt | 1366 | **1394** | 101 | 14.75 | **+2.0%** |
+
+### Profile (ARM Graviton4 post-EXP-026)
+
+- IPC: 4.78 (unchanged from baseline)
+- Branch miss rate: 0.82% (unchanged)
+- Cache miss rate: 0.03% (unchanged)
+- `findmax_ffc` at 2.89% (down from 3.03%)
+- No new bottleneck identified
+
+### Analysis
+
+The nested-ifs eliminate the back-branch overhead for 1–4 digit integers. The key distinction
+from EXP-018 (SWAR + nested-ifs, rejected): this approach has zero function-call overhead.
+
+canada improvement (+7.4%) is largest — integers like "123" (3 digits) save 3 back-branches.
+mesh improvement (+2.0%) — integers like "1" or "2" (1–2 digits) save 1–2 back-branches.
+random improvement (+4.2%) — integer is always "0" (1 digit), saves the back-edge exit check.
+
+Correctness: same as the original while loop — the nested structure produces identical results
+for any input sequence of digits. The fallback while handles 5+ digit integers correctly.
+
+---
+
+## EXP-025 — 2026-05-27 — Outer `pns.mantissa <= MAX_MANTISSA_FAST_PATH` guard before Clinger call
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+For random [0,1] inputs with 17+ significant digits, `mantissa > 2^53 = MAX_MANTISSA_FAST_PATH`.
+The Clinger path is always entered, pays for the 16-cycle FCMP chain (via `ffc_rounds_to_nearest()`),
+then immediately fails the inner mantissa check. An outer pre-check in `ffc_from_chars_advanced`
+before calling `ffc_clinger_fast_path_impl` should short-circuit and save ~8-9 i/f for these inputs.
+
+Correctness: `MAX_MANTISSA[exponent] <= MAX_MANTISSA_FAST_PATH` for all exponents (no integer > 2^53
+is exactly representable as double), so the Jelínek non-nearest path is also safe to skip.
+
+### Files changed
+
+- `ffc/src/ffc.h`: added `pns.mantissa <= ffc_const(vk, MAX_MANTISSA_FAST_PATH) &&` before
+  `ffc_clinger_fast_path_impl` call in `ffc_from_chars_advanced`
+
+### Implementation (tried then reverted)
+
+```c
+// EXP-025: outer guard before Clinger
+if (!pns.too_many_digits &&
+    pns.mantissa <= ffc_const(vk, MAX_MANTISSA_FAST_PATH) &&
+    ffc_clinger_fast_path_impl(pns.mantissa, pns.exponent, pns.negative, value, vk)) {
+  return answer;
+}
+```
+
+### Results (ARM Graviton4)
+
+| Dataset | Baseline MB/s | EXP-025 MB/s | Δ% |
+|---------|--------------|--------------|-----|
+| random [0,1] | 1823 | ~1865 | **+2.3%** |
+| canada.txt | 1562 | ~1576 | **+0.9%** |
+| mesh.txt | 1366 | ~1128 | **−17.4%** |
+
+### Analysis
+
+Severe mesh regression (-17.4%) from the same FCMP-delay root cause as EXP-021.
+
+The 3 new instructions (mov constant + cmp + branch) placed before the Clinger call
+delayed the `ffc_rounds_to_nearest()` volatile load by ~3 instructions in the
+instruction stream. On Graviton4, the 16-cycle FCMP chain (load→fadd→fsub→fcmp) is
+exactly on the critical path for mesh (c/f ≈ 15). Delaying the volatile load by ~3
+cycles adds ~3 c/f directly to the mesh critical path.
+
+Measured: c/f 15.10 → 18.28 (+3.18 c/f), IPC 7.10 → 5.97. Matches prediction.
+
+The random/canada gains (+2.3%, +0.9%) are real instruction-count reductions but cannot
+be captured without mesh regression. Reverted.
+
+### Root cause
+
+Any instruction placed before `ffc_rounds_to_nearest()` on the hot path delays the
+16-cycle FCMP chain start for mesh. This is the same root cause as EXP-021. No
+guard/check can be placed before the Clinger call without harming mesh.
+
+---
+
 ## EXP-024 — 2026-05-27 — Branchless sign detection with `int neg = (*p == '-'); p += neg`
 
 **Status**: REJECTED

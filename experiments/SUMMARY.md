@@ -5,6 +5,8 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-026 | Straight-line integer scan: 4-level nested-ifs replace while loop for 1–4 digits | random, canada, mesh | +4.2% random, +7.4% canada, +2.0% mesh (all positive; no SWAR call overhead unlike EXP-018) | **Accepted** | 2026-05-27 |
+| EXP-025 | Outer `pns.mantissa <= MAX_MANTISSA_FAST_PATH` guard before Clinger call in `ffc_from_chars_advanced` | random | +2.3% random, +0.9% canada, **−17.4% mesh** (3 new instructions before volatile load delay 16-cycle FCMP chain by ~3 cycles → +3.18 c/f; same root cause as EXP-021) | **Rejected** | 2026-05-27 |
 | EXP-024 | Branchless sign detection `int neg = (*p == '-'); p += neg` | canada | −9.9% random, −8.9% canada, −14.2% mesh (cinc creates data dep on first digit ptr, kills speculative load) | **Rejected** | 2026-05-27 |
 | EXP-023 | Branchless sign detection in `ffc_from_chars_advanced_impl` | canada | −13.2% random, −11.9% canada, −15.7% mesh (bitwise-OR forces full eval for unsigned floats) | **Rejected** | 2026-05-27 |
 | EXP-022 | Hoist `ffc_b10_to_b2` before UMULH in `ffc_compute_float` | all | +0.9% random, −0.1% mesh (OOO already hides latency; i/f unchanged) | **Rejected** | 2026-05-27 |
