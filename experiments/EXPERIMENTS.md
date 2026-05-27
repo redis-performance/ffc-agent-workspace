@@ -9,6 +9,69 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-033 — 2026-05-27 — Early exit for `exponent == 0` in `ffc_from_chars_advanced`
+
+**Status**: ACCEPTED (+12.9% mesh, +1.1% canada, +0.4% random)
+
+### Hypothesis
+
+For pure integers (no decimal point, no exponent), `pns.exponent == 0` and the Clinger path
+performs: exponent range check (3 instr) + mantissa check (4 instr) + scvtf (latency) + adrp +
+add + add (3 instr) + ldr pow10[0]=1.0 + fmul with 1.0 (latency) + fneg + cmp + fcsel = ~16
+instructions. The `fmul with 1.0` is mathematically a no-op. ~55% of mesh.txt (40619 of 73019
+numbers) are pure integers. An early exit before the Clinger call can skip all 16 instructions
+for these numbers.
+
+**Key enabler:** EXP-030 eliminated the volatile FCMP chain via `FFC_ROUNDS_TO_NEAREST`. Before
+EXP-030, EXP-025 showed that adding 3 instructions before Clinger delayed the 16-cycle FCMP
+chain and caused -17.4% mesh regression. With EXP-030, there is no FCMP chain; the cost of
+adding instructions before Clinger is bounded by branch prediction (predictable once the
+benchmark warms up).
+
+### Implementation
+
+Added in `ffc_from_chars_advanced` before the Clinger call:
+```c
+if (!pns.too_many_digits && pns.exponent == 0 &&
+    pns.mantissa <= ffc_const(vk, MAX_MANTISSA_FAST_PATH)) {
+    ffc_set_value(value, vk, pns.mantissa);
+    if (pns.negative) { ffc_set_value(value, vk, -ffc_read_value(value, vk)); }
+    return answer;
+}
+```
+
+### Result
+
+| Dataset | Baseline (EXP-030) | EXP-033 | Δ% |
+|---------|--------------------|---------|----|
+| mesh.txt | 1536 MB/s, 93.86 i/f, 13.4 c/f | 1735 MB/s, 83.92 i/f, 11.84 c/f | **+12.9%** |
+| canada.txt | 1718 MB/s, 189.93 i/f | 1737 MB/s, 190.70 i/f | **+1.1%** |
+| random [0,1] | 1924 MB/s, 221.04 i/f | 1931 MB/s, 219.04 i/f | **+0.4%** |
+
+All unit tests (test_runner) and supplemental tests (~5.4M vectors) pass.
+
+### Analysis
+
+For mesh: i/f dropped from 93.86 to 83.92 (−10.6%, saves ~10 instructions per pure-integer
+call). c/f dropped from ~13.4 to 11.84 (−11.6%). IPC slightly improved to 7.09 from 7.01.
+
+For canada/random: the early-exit check adds ~2 instructions that always fail (branch
+always-not-taken), but OOO execution hides these because: (1) the branch is 100% predictable
+as "not taken" for canada/random, (2) no data dependency is added to the Clinger computation.
+i/f for canada increased by +0.77 (the 2-instruction overhead) but IPC improved to 6.81 from
+~6.68. Net MB/s is slightly positive.
+
+### Learning
+
+- After EXP-030 eliminates the FCMP chain, adding a predictable branch before Clinger is SAFE.
+  The EXP-025 regression was caused by FCMP timing, not by branch prediction.
+- Early-exit for `exponent == 0` effectively gives mesh.txt a dedicated fast path for integer
+  parsing, saving ~10 instructions per call × 55% hit rate = 5.5 i/f reduction.
+- For datasets with near-100% non-zero exponent (canada, random), the always-not-taken branch
+  has essentially zero overhead — OOO + branch predictor hides it completely.
+
+---
+
 ## EXP-032 — 2026-05-27 — Eliminate `sxtw` sign-extension in digit scan via `__builtin_unreachable` / unsigned cast patterns
 
 **Status**: REJECTED (i/f unchanged at 93.86 across all sub-attempts; sxtw persists in inline context)
