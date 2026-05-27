@@ -1,0 +1,9 @@
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+netlib                                  :   367.95 MB/s (+/- 0.4 %)    21.14 Mfloat/s      31.34 i/B   571.90 i/f (+/- 0.0 %)      7.25 c/B   132.21 c/f (+/- 0.3 %)      4.33 i/c    130.54 b/f    220.78 bm/f      2.80 GHz 
+doubleconversion                        :   286.08 MB/s (+/- 0.3 %)    16.44 Mfloat/s      51.22 i/B   934.58 i/f (+/- 0.0 %)      9.32 c/B   170.06 c/f (+/- 0.2 %)      5.50 i/c    163.36 b/f     61.39 bm/f      2.80 GHz 
+strtod                                  :   168.39 MB/s (+/- 0.2 %)     9.68 Mfloat/s      71.32 i/B  1301.30 i/f (+/- 0.0 %)     15.84 c/B   288.95 c/f (+/- 0.1 %)      4.50 i/c    237.50 b/f    118.66 bm/f      2.80 GHz 
+abseil                                  :   646.68 MB/s (+/- 0.1 %)    37.16 Mfloat/s      28.55 i/B   520.89 i/f (+/- 0.0 %)      4.12 c/B    75.24 c/f (+/- 0.1 %)      6.92 i/c    112.52 b/f     10.52 bm/f      2.80 GHz 
+fastfloat                               :   889.46 MB/s (+/- 0.3 %)    51.11 Mfloat/s      13.90 i/B   253.70 i/f (+/- 0.0 %)      3.00 c/B    54.71 c/f (+/- 0.1 %)      4.64 i/c     44.49 b/f     12.83 bm/f      2.80 GHz 
+ffc                                     :  1676.74 MB/s (+/- 0.2 %)    96.36 Mfloat/s      10.74 i/B   196.02 i/f (+/- 0.0 %)      1.59 c/B    29.02 c/f (+/- 0.2 %)      6.75 i/c     38.35 b/f     13.87 bm/f      2.80 GHz 
+UTF-16 volume = 3.86749 MB 

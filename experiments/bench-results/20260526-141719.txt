@@ -1,0 +1,33 @@
+# ffc-agent-workspace benchmark run — 20260526-141719
+# Host: fco-tp  CPU: Intel(R) Core(TM) Ultra 7 155U
+
+
+===== random [0,1] =====
+# parsing random numbers
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB 
+strtod                                  :   293.47 MB/s (+/- 7.3 %)    13.99 Mfloat/s  
+abseil                                  :  1013.25 MB/s (+/- 28.7 %)    48.29 Mfloat/s  
+fastfloat                               :  1871.15 MB/s (+/- 18.3 %)    89.18 Mfloat/s  
+ffc                                     :  1645.13 MB/s (+/- 12.9 %)    78.41 Mfloat/s  
+fastfloat                               :  3319.34 MB/s (+/- 14.9 %)    79.10 Mfloat/s  
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+
+===== canada.txt =====
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+strtod                                  :   237.66 MB/s (+/- 20.2 %)    13.66 Mfloat/s  
+abseil                                  :   754.02 MB/s (+/- 11.3 %)    43.33 Mfloat/s  
+fastfloat                               :  1305.47 MB/s (+/- 9.4 %)    75.02 Mfloat/s  
+ffc                                     :  1053.20 MB/s (+/- 9.6 %)    60.52 Mfloat/s  
+fastfloat                               :  2668.54 MB/s (+/- 4.4 %)    76.68 Mfloat/s  
+
+===== mesh.txt =====
+# read 73019 lines 
+ASCII volume = 0.536009 MB 
+strtod                                  :   192.37 MB/s (+/- 12.6 %)    26.21 Mfloat/s  
+abseil                                  :   433.99 MB/s (+/- 8.9 %)    59.12 Mfloat/s  
+fastfloat                               :  1103.50 MB/s (+/- 11.6 %)   150.33 Mfloat/s  
+ffc                                     :   929.51 MB/s (+/- 10.8 %)   126.62 Mfloat/s  
+fastfloat                               :  2126.26 MB/s (+/- 14.8 %)   144.83 Mfloat/s  
