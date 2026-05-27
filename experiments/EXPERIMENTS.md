@@ -9,6 +9,54 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-031 — 2026-05-27 — `(uint32_t)` casts to eliminate sign-extension instructions in digit scan
+
+**Status**: REJECTED (−0.3% mesh, below threshold; +0.2% canada, +0.5% random)
+
+### Hypothesis
+
+In the ARM64 integer scan and fraction tail of `parse.h`, digit extraction uses `(uint64_t)` and
+`(uint8_t)` casts. The `(uint8_t)` cast compiles to `and x0, x0, #0xff` (1 instruction). GCC cannot
+prove that `*p - '0'` is non-negative after the `ffc_is_integer` range check because VRP does not
+track across the helper function boundary. Changing to `(uint32_t)` should trigger the ARM64 zero-
+extension rule (writing a `w` register zeroes the upper 32 bits) and emit no extra instruction.
+
+### Implementation
+
+Changed all digit extraction casts in `src/parse.h` integer scan (lines ~275–293) and fraction tail
+(lines ~331–338) from `(uint64_t)` and `(uint8_t)` to `(uint32_t)`.
+
+### Result
+
+| Dataset | Baseline (EXP-030) | EXP-031 | Δ% |
+|---------|--------------------|---------|----|
+| mesh.txt | 1541 MB/s, 93.86 i/f | 1537 MB/s, 93.86 i/f | **−0.3%** |
+| canada.txt | 1718 MB/s, 189.93 i/f | 1721 MB/s, 189.02 i/f | **+0.2%** |
+| random [0,1] | 1924 MB/s, 221.04 i/f | 1933 MB/s, 220.04 i/f | **+0.5%** |
+
+### Analysis
+
+Assembly inspection at the digit scan hot path showed GCC changed `and x0, x0, #0xff` →
+`sxtw x0, w0` — a different 1-instruction extension, not elimination. The `sub w0, w4, #0x30`
+instruction that computes the digit value writes a 32-bit `w` register; GCC could in theory omit
+the follow-on extension, but it still emits `sxtw` because it cannot prove the subtraction result
+is non-negative without knowing `*p >= '0'` (which comes from the `ffc_is_integer` guard that GCC
+treats as an opaque inline function for VRP purposes).
+
+The `sub + sxtw` dual-purpose pattern (sub computes value AND enables the `cmp #9; b.hi` check)
+means both instructions are load-bearing; we cannot remove either without restructuring the check.
+
+### Learning
+
+- ARM64 zero-extension rule only fires when GCC *knows* the 32-bit result fits in 32 bits AND
+  no sign-extension is needed for the wider type. For `char` arithmetic, GCC conservatively emits
+  `sxtw` regardless of range guards outside the subexpression.
+- Changing `(uint8_t)` → `(uint32_t)` just swaps `and x0,x0,#0xff` for `sxtw x0,w0`; same count.
+- To actually eliminate the extension: would need `__builtin_assume(digit >= 0)` or restructuring
+  the check so GCC's VRP can prove non-negativity within the same expression.
+
+---
+
 ## EXP-030 — 2026-05-27 — `FFC_ROUNDS_TO_NEAREST` compile-time macro eliminates FCMP chain
 
 **Status**: ACCEPTED (+2.4% mesh, +1.8% canada, +0.8% random)
