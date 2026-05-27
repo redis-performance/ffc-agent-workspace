@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-018 | SWAR + nested-ifs for integer-part digit scanning | all | −13.3% mesh, −7.3% canada, −6.1% random (regression) | **Rejected** | 2026-05-27 |
 | EXP-017 | Outline non-nearest Clinger else block as noinline | mesh | −2.9% mesh (regression, ARM64 ABI overhead) | **Rejected** | 2026-05-27 |
 | EXP-016 | Hoist `ffc_rounds_to_nearest()` before digit scanning | canada | −0.5% canada (regression) | **Rejected** | 2026-05-27 |
 | EXP-015 | Unroll fraction byte-by-byte tail (3 nested ifs) | canada, mesh | +3.9% ARM mesh, +2.1% ARM canada | **Accepted** | 2026-05-27 |

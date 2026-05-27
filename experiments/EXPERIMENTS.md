@@ -9,6 +9,78 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-018 — 2026-05-27 — SWAR + nested-ifs for integer-part digit scanning
+
+**Status**: REJECTED
+**ffc commit**: (reverted, no commit)
+
+### Hypothesis
+
+The integer-part digit scanner (lines ~272–280 in `parse.h`) uses a byte-by-byte while loop
+identical to the pre-EXP-001 fraction loop. EXP-015 showed that applying SWAR +
+nested-ifs to the fraction tail gained +3.9% ARM mesh / +2.1% ARM canada. The same
+technique applied to the integer part should yield similar gains since `ffc_loop_parse_if_eight_digits`
+also handles the integer-part loop.
+
+### Files changed
+
+- `ffc/src/parse.h`: replaced integer-part while loop with `ffc_loop_parse_if_eight_digits` call + 3 nested ifs
+
+### Implementation
+
+```c
+// BEFORE:
+while ((p != pend) && ffc_is_integer(*p)) {
+  uint64_t digit_value = (uint64_t)(*p - '0');
+  i = (10 * i) + digit_value;
+  ++p;
+}
+
+// AFTER:
+ffc_loop_parse_if_eight_digits(&p, pend, &i);
+if (p != pend && ffc_is_integer(*p)) {
+  i = i * 10 + (uint8_t)(*p++ - (char)('0'));
+  if (p != pend && ffc_is_integer(*p)) {
+    i = i * 10 + (uint8_t)(*p++ - (char)('0'));
+    if (p != pend && ffc_is_integer(*p)) {
+      i = i * 10 + (uint8_t)(*p++ - (char)('0'));
+    }
+  }
+}
+```
+
+### Benchmark results
+
+**ARM Graviton4 (EXP-015 baseline → EXP-018):**
+
+| Dataset | Baseline MB/s | EXP-018 MB/s | Δ% | i/f |
+|---------|---------------|--------------|-----|-----|
+| random [0,1] | 1823 | 1712 | **−6.1%** | 257.04 |
+| canada.txt   | 1562 | 1448 | **−7.3%** | 232.49 |
+| mesh.txt     | 1366 | 1184 | **−13.3%** | 113.36 |
+
+### Analysis
+
+Clear regression across all three datasets. The root cause: canada and mesh have integer
+parts of 1–3 digits on average. For such short integers, the SWAR function call itself
+adds overhead (8-byte alignment check, branch on 8-byte availability) without ever firing
+the SWAR path — all inputs fall through to the 3 nested ifs anyway, paying more overhead
+than the original simple while loop back-branch.
+
+The key difference from EXP-015 (fraction tail — accepted) is that the fraction loop was
+entered after already consuming 8+ fraction digits via SWAR, leaving at most 3 tail bytes.
+Here the integer part is the primary call, not a tail cleanup — most numbers in canada/mesh
+have 1–3 integer digits total, so the entire integer scan is just tail. Calling
+`ffc_loop_parse_if_eight_digits` for a 1–3 digit integer is strictly worse than a
+tight while loop.
+
+### Verdict
+
+REJECTED — all datasets regressed. SWAR is counterproductive for integer parts
+of typical float inputs.
+
+---
+
 ## EXP-017 — 2026-05-27 — Outline non-nearest Clinger else block as noinline cold function
 
 **Status**: REJECTED

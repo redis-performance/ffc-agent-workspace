@@ -193,6 +193,7 @@ Document failed experiments here as they are discovered. Starting empty.
 | AArch64 FPCR direct read in rounds_to_nearest (EXP-013) | Parked: +0.9–1.6%, below 2% threshold. Technique is valid, gain is sub-threshold. |
 | Hoist ffc_rounds_to_nearest() before digit scanning (EXP-016) | −0.5% canada regression; GCC already schedules float ops early, or c620 stall is from mantissa dependency (x1 not ready) not float latency; adding bool param through inline chain hurts register allocation. |
 | noinline extraction of cold branches (EXP-017) | −2.9% mesh regression; ARM64 ABI requires caller-save register setup around any function call even a never-taken branch; adding noinline disrupts GCC register allocation for the inline body (same root cause as EXP-010). Opposite of EXP-009: never add noinline to functions within the always_inline chain. |
+| SWAR + nested-ifs for integer-part digit scanning (EXP-018) | −13.3% mesh, −7.3% canada, −6.1% random; canada/mesh integer parts are 1–3 digits on average so SWAR never fires — the call overhead outweighs the simple while-loop back-branch. Contrast EXP-015 (fraction tail, accepted): there SWAR was called after already consuming 8+ digits, and the nested-ifs handled a genuine tail. Here the entire integer scan is a 1–3 digit "tail". |
 
 ---
 
