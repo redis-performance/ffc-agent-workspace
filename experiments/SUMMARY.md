@@ -5,6 +5,7 @@ Keep README.md counts in sync whenever this table changes.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-015 | Unroll fraction byte-by-byte tail (3 nested ifs) | canada, mesh | +3.9% ARM mesh, +2.1% ARM canada | **Accepted** | 2026-05-27 |
 | EXP-014 | 2-digit SWAR follow-up in `ffc_loop_parse_if_eight_digits` | canada | −5.9% mesh (regression, i/f bloat) | **Rejected** | 2026-05-27 |
 | EXP-013 | AArch64 FPCR direct read in `ffc_rounds_to_nearest` | random | +1.6% ARM random (all positive, sub-2%) | **Parked** | 2026-05-26 |
 | EXP-012 | Combined exponent range check in Clinger fast path | mesh | +4.6% ARM mesh, +1.5% ARM random | **Accepted** | 2026-05-26 |

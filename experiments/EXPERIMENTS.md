@@ -9,6 +9,84 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-015 — 2026-05-27 — Unroll fraction byte-by-byte tail (3 nested ifs)
+
+**Status**: ACCEPTED
+**ffc commit**: (see workspace commit)
+
+### Hypothesis
+
+After `ffc_loop_parse_if_eight_digits` returns, at most 3 consecutive digit bytes can
+remain (the function drains 8+4 digits; the 4-digit follow-up only fires if all 4 bytes
+are digits, so at most 3 consecutive digits remain when it fails). The existing while loop
+at `c6cc` (9.73% of ffc cycles on canada.txt) runs 0-3 iterations for fraction tails but
+carries a branch-back on every iteration.
+
+Replacing the while loop with 3 nested ifs eliminates the back-branch overhead, lets the
+out-of-order engine see further ahead per number, and reduces cycle-count without changing
+instruction count (IPC gain, not instruction reduction).
+
+Target: fraction byte-by-byte tail in `ffc_parse_number_string` (parse.h lines 316-320).
+Explicitly excludes the integer byte-by-byte loop (before the decimal point) which has no
+preceding SWAR and may have arbitrarily many digits.
+
+### Implementation
+
+In `ffc/src/parse.h` — replaced the while loop after `ffc_loop_parse_if_eight_digits`:
+
+```c
+// BEFORE
+while ((p != pend) && ffc_is_integer(*p)) {
+  uint8_t digit = (uint8_t)(*p - (char)('0'));
+  ++p;
+  i = i * 10 + digit; // in rare cases, this will overflow, but that's ok
+}
+
+// AFTER
+// ffc_loop_parse_if_eight_digits handles 8+4 digits, so at most 3 remain.
+// Straight-line tail eliminates the back-branch for the common 1-3 digit case.
+if (p != pend && ffc_is_integer(*p)) {
+  i = i * 10 + (uint8_t)(*p++ - (char)('0')); // in rare cases overflows, ok
+  if (p != pend && ffc_is_integer(*p)) {
+    i = i * 10 + (uint8_t)(*p++ - (char)('0'));
+    if (p != pend && ffc_is_integer(*p)) {
+      i = i * 10 + (uint8_t)(*p++ - (char)('0'));
+    }
+  }
+}
+```
+
+### Results
+
+**ARM Graviton4 (m8g.metal-24xl):**
+
+| Dataset | Baseline MB/s | EXP-015 MB/s | Δ% |
+|---------|--------------|--------------|-----|
+| random [0,1] | 1812 | 1823 | +0.6% (noise) |
+| canada.txt | 1530 | 1562 | **+2.1%** |
+| mesh.txt | 1315 | 1366 | **+3.9%** |
+
+IPC (instructions per cycle) improved, not instruction count:
+- canada: 6.50 → 6.64 IPC (+2.2%), same 206 i/f
+- mesh: 6.86 → 7.12 IPC (+3.8%), same 107 i/f
+
+The improvement comes from better out-of-order scheduling: straight-line code lets the
+CPU see further ahead, reducing stalls from loop-back branch resolution.
+
+**x86 Xeon Platinum 8488C (m7i.metal-24xl):**
+High variance (±3-4.5% noise); inconclusive single-run comparison. No clear regression.
+Baseline and EXP-015 both within noise of each other on all three datasets.
+
+**Correctness:** Unit tests pass (ARM + local).
+
+### Verdict
+
+**ACCEPTED** — +2.1% canada and +3.9% mesh on ARM, both above the 2% threshold.
+random [0,1] is unaffected (SWAR handles all 16 fraction digits exactly, no tail).
+x86 shows no regression. Change kept in `ffc/src/`.
+
+---
+
 ## EXP-014 — 2026-05-27 — 2-digit SWAR follow-up in `ffc_loop_parse_if_eight_digits`
 
 **Status**: REJECTED
