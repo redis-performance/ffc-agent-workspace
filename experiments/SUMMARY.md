@@ -10,6 +10,7 @@ target. The `Target` column below denotes the dataset/arch/compiler focus, not t
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-050 | `[fast_float]` straight-line nested-if integer-part scan (port of ffc EXP-026/028) | fast_float, ARM | GCC mesh +34.3% (495.8 from 369.0), canada +4.0%; Clang random +4.9%, mesh +5.1%, canada +2.8%; GCC random flat | **Accepted** | 2026-06-01 |
 | EXP-049 | Race setup: fast_float as mutable `redis-performance` fork submodule (live-tracks upstream main), build redirect via `FETCHCONTENT_SOURCE_DIR_FAST_FLOAT`, `test-fast_float.sh` gate, `RACE.md` 12-cell leaderboard, provenance-stamped results | infra (both) | n/a — no algorithm change; establishes the race + dual baselines | **Accepted** | 2026-05-31 |
 | EXP-048 | `__attribute__((uninitialized))` on `before`/`frac_end_local` + `has_decimal_point` guard in too_many_digits to eliminate zero-inits at integer-scan merge point | clang-arm | Clang random −1.6% (+5 i/f), canada −2.0% (0 i/f), mesh −2.0% (+1.5 i/f); GCC unchanged — annotation prevents optimization rather than enabling it | **Rejected** | 2026-05-28 |
 | EXP-047 | Remove redundant Clang-only `mantissa == 0` guard in exponent=0 fast path | clang-arm | Clang mesh +3.5% (−0.55 i/f); Clang canada −2.2% (binary layout shift moves hot path off cache-line boundary, c/f +2.3% at identical i/f); GCC unchanged | **Rejected** | 2026-05-28 |

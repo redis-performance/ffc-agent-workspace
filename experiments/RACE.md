@@ -38,16 +38,22 @@ Numbers are canonical MB/s. Leader = higher MB/s. Gap = (leader−loser)/loser.
 **TODO**: capture on `m8g.metal-24xl` (3.92.205.222) and `m7i.metal-24xl`, both
 GCC + Clang, with the redirected build. Until then cells are empty.
 
-### ARM — m8g.metal-24xl (Graviton4 / Neoverse V2)
+### ARM — m8g.metal-24xl (Graviton4 / Neoverse V2) — CURRENT standings (`ip-172-31-55-171`)
 
-| Compiler | Dataset | ffc | fast_float | Leader | Gap |
-|----------|---------|----:|-----------:|--------|----:|
-| GCC   | random |  —  |  —  | — | — |
-| GCC   | canada |  —  |  —  | — | — |
-| GCC   | mesh   |  —  |  —  | — | — |
-| Clang | random |  —  |  —  | — | — |
-| Clang | canada |  —  |  —  | — | — |
-| Clang | mesh   |  —  |  —  | — | — |
+Canonical MB/s, stable (±0.1–1.8%). ffc `6ccc765`. fast_float advancing on
+`redis-perf/optim`. ffc leads every cell; fast_float is the primary attack target.
+
+| Compiler | Dataset | ffc | fast_float | Leader | Gap | fast_float set by |
+|----------|---------|----:|-----------:|--------|----:|----|
+| GCC   | random | 1920.7 | 1088.5 | **ffc** | +76.5%  | EXP-050 |
+| GCC   | canada | 1737.2 |  924.0 | **ffc** | +88.0%  | EXP-050 |
+| GCC   | mesh   | 1736.9 |  495.8 | **ffc** | +250.3% | EXP-050 |
+| Clang | random | 1510.7 | 1328.8 | **ffc** | +13.7%  | EXP-050 |
+| Clang | canada | 1387.3 | 1051.6 | **ffc** | +31.9%  | EXP-050 |
+| Clang | mesh   | 1423.3 |  884.7 | **ffc** | +60.9%  | EXP-050 |
+
+Start-line baseline (EXP-049, fast_float `7790aa6` v8): GCC 1088/889/369,
+Clang 1267/1023/842. Files: `experiments/EXP-049/bench-results/`.
 
 ### x86 — m7i.metal-24xl (Intel Sapphire Rapids)
 

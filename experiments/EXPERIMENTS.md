@@ -9,6 +9,32 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-050 — 2026-06-01 — [fast_float] straight-line nested-if integer-part scan
+
+**Target**: fast_float — `ascii_number.h` `parse_number_string` integer scan
+**Hypothesis**: fast_float scans the integer part byte-by-byte in a `while` loop
+(unlike the fraction, which uses 8-digit SWAR). Peeling the first 5 iterations into
+nested ifs (ffc EXP-026/028) eliminates the back-edge for the common 1-5 digit case.
+**Files changed**: `fast_float/include/fast_float/ascii_number.h` (integer loop)
+
+### Step 1: Benchmark — ARM Graviton4 (canonical fast_float MB/s vs EXP-049 baseline)
+| Dataset | Before | After (GCC) | Δ% | After (Clang) | Δ% |
+| random  | 1088.0 / 1267.0 | 1088.5 | +0.05% | 1328.8 | +4.9% |
+| canada  |  888.7 / 1023.2 |  924.0 | +4.0%  | 1051.6 | +2.8% |
+| mesh    |  369.0 /  841.6 |  495.8 | +34.3% |  884.7 | +5.1% |
+
+### Step 2: Profile
+GCC mesh i/f 144.90→136.63, c/f 55.65→41.40, i/c 2.60→3.30. canada i/f 253.7→248.7.
+The back-edge elimination cut cycles-per-float sharply on multi-digit integer parts.
+
+**Decision**: accept (fast_float `8db9edb`)
+**Reason**: +2% on 5/6 cells, biggest on GCC mesh (+34%); no regression (GCC random
+flat — `[0,1]` has a 1-digit integer part). 14/14 correctness pass.
+**Race Δ**: closes the ffc↔fast_float gap in all cells but ffc still leads every cell
+(e.g. GCC mesh gap +370.7%→+249.9%). No leader flips.
+
+---
+
 ## EXP-049 — 2026-05-31 — Race setup: make fast_float a mutable competitor
 
 **Target**: infrastructure (both parsers) — no algorithm change
