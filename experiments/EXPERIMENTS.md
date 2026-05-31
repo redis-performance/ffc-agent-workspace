@@ -9,6 +9,27 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-051 — 2026-06-01 — [fast_float] FASTFLOAT_ASSUME_ROUNDS_TO_NEAREST compile-time macro
+
+**Target**: fast_float — `parse_number.h` `rounds_to_nearest()` (port of ffc EXP-030)
+**Hypothesis**: shortcut the per-call volatile rounding-mode probe to constexpr `true`
+(enabled via build flag, symmetric to `-DFFC_ROUNDS_TO_NEAREST`) to fold the Clinger
+nearest-path branch and cut the fixed per-float overhead.
+**Files changed**: `fast_float/include/fast_float/parse_number.h`, `scripts/build-bench.sh`
+
+### Step 1: Benchmark — ARM, fast_float canonical MB/s vs EXP-050
+| Dataset | GCC before→after | Δ% | Clang before→after | Δ% |
+| random | 1088.5→1080.0 | −0.8% | 1328.8→1338.9 | +0.8% |
+| canada |  924.0→898.3 | **−2.8%** | 1051.6→1060.1 | +0.8% |
+| mesh   |  495.8→491.5 | −0.9% |  884.7→912.1 | +3.1% |
+
+**Decision**: reject (reverted)
+**Reason**: GCC canada −2.8% (>1% regression): removing the volatile probe cut i/f
+(248.7→246.2) but raised c/f (52.7→54.2) — GCC was using the load to hide latency
+(same scheduling effect seen in ffc EXP-021/025). Clang gains marginal. Net negative.
+
+---
+
 ## EXP-050 — 2026-06-01 — [fast_float] straight-line nested-if integer-part scan
 
 **Target**: fast_float — `ascii_number.h` `parse_number_string` integer scan
