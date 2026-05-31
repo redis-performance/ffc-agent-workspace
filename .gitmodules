@@ -4,3 +4,7 @@
 [submodule "simple_fastfloat_benchmark"]
 	path = simple_fastfloat_benchmark
 	url = git@github.com:filipecosta90/simple_fastfloat_benchmark.git
+[submodule "fast_float"]
+	path = fast_float
+	url = git@github.com:redis-performance/fast_float.git
+	branch = redis-perf/optim

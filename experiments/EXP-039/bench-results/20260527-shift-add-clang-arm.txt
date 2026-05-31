@@ -1,0 +1,55 @@
+# EXP-039: AArch64/Clang shift-add inline asm for byte-by-byte digit accumulator (i*10+digit)
+# Host: ubuntu@3.92.205.222 (AWS m8g.metal-24xl, Graviton4 / Neoverse V2)
+# Compiler: clang-18 and gcc-13, -march=native -O3 -DFFC_ROUNDS_TO_NEAREST
+#
+# Clang baseline (EXP-038 reverted): random 1379/248.03/42.55  canada 1335/204.08/36.47  mesh 1351/102.10/15.21
+# GCC   baseline (EXP-034 corrected): random 1927/219.04/30.38  canada 1737/190.70/28.02  mesh 1741/83.92/11.78
+#
+# EXP-039 Clang results:
+# random [0,1]:   1399 MB/s  (+1.4%)   247.03 i/f   41.96 c/f
+# canada.txt:     1365 MB/s  (+2.2%)   208.99 i/f   35.65 c/f
+# mesh.txt:       1357 MB/s  (+0.4%)   103.96 i/f   15.16 c/f
+#
+# EXP-039 GCC results (should be unchanged — macro expands to plain C):
+# random [0,1]:   1921 MB/s  (−0.3%, noise)   219.04 i/f   30.54 c/f
+# canada.txt:     1737 MB/s  (0%)              190.70 i/f   28.02 c/f
+# mesh.txt:       1745 MB/s  (+0.2%, noise)    83.92 i/f    11.78 c/f
+#
+# Key observations:
+#
+# 1. i/f INCREASES on canada (+4.9) and mesh (+1.9): expected — shift-add emits 2 instructions
+#    per accumulation vs 1 `mul` instruction. With ~5 integer/fraction accumulations per canada
+#    float, +5 i/f per float is consistent.
+#
+# 2. c/f DECREASES: canada −2.2% c/f, random −1.4% c/f. The shift-add chain is 2 cycles
+#    vs Clang's mul-based 4-cycle recurrence (smaddl 3c + sub 1c). Serial digit accumulation
+#    chains are cut from 4-cycle to 2-cycle per level.
+#
+# 3. Constraint choice (`=r` not `=&r`): with `=&r` (early-clobber), the compiler allocates a
+#    separate result register and inserts `mov acc, result` after the asm block — +2 extra i/f
+#    per accumulation. With `=r`, the compiler can allocate the result in the same register as
+#    `acc` (%2), achieving true in-place update: 2 instructions total per accumulation, no mov.
+#
+# 4. GCC preserved: the `#else` branch expands FFC_DIGIT_ACC10(acc, d_expr) to
+#    `((acc) * 10 + (uint64_t)(d_expr))` — identical to the original expression. GCC sees
+#    the same code as before and generates its natural shift-add sequence.
+#
+# Decision: ACCEPTED — +2.2% canada ≥ 2% threshold, GCC unchanged.
+#
+# Raw benchmark output (clang, random):
+# ffc : 1398.53 MB/s (+/- 0.5 %)  66.66 Mfloat/s  11.23 i/B  247.03 i/f (+/- 0.0 %)  1.91 c/B  41.96 c/f (+/- 0.3 %)  5.89 i/c  39.00 b/f  0.63 bm/f  2.80 GHz
+#
+# Raw benchmark output (clang, canada):
+# ffc : 1365.30 MB/s (+/- 0.3 %)  78.46 Mfloat/s  11.45 i/B  208.99 i/f (+/- 0.0 %)  1.95 c/B  35.65 c/f (+/- 0.2 %)  5.86 i/c  36.33 b/f  12.72 bm/f  2.80 GHz
+#
+# Raw benchmark output (clang, mesh):
+# ffc : 1356.50 MB/s (+/- 0.5 %)  184.79 Mfloat/s  13.51 i/B  103.96 i/f (+/- 0.0 %)  1.97 c/B  15.16 c/f (+/- 0.3 %)  6.86 i/c  23.77 b/f  5.88 bm/f  2.80 GHz
+#
+# Raw benchmark output (gcc, random):
+# ffc : 1921.45 MB/s (+/- 0.4 %)  91.58 Mfloat/s   9.96 i/B  219.04 i/f (+/- 0.0 %)  1.39 c/B  30.54 c/f (+/- 0.3 %)  7.17 i/c  44.00 b/f  0.66 bm/f  2.80 GHz
+#
+# Raw benchmark output (gcc, canada):
+# ffc : 1737.01 MB/s (+/- 0.1 %)  99.82 Mfloat/s  10.45 i/B  190.70 i/f (+/- 0.0 %)  1.54 c/B  28.02 c/f (+/- 0.1 %)  6.81 i/c  38.26 b/f  13.64 bm/f  2.80 GHz
+#
+# Raw benchmark output (gcc, mesh):
+# ffc : 1745.19 MB/s (+/- 0.5 %)  237.74 Mfloat/s  10.90 i/B  83.92 i/f (+/- 0.0 %)  1.53 c/B  11.78 c/f (+/- 0.4 %)  7.12 i/c  18.79 b/f  5.37 bm/f  2.80 GHz

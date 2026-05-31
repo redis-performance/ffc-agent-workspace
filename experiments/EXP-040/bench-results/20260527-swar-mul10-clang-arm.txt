@@ -1,0 +1,37 @@
+# EXP-040: Shift-add inline asm for SWAR val*10 digit compression
+# Host: ubuntu@3.92.205.222 (AWS m8g.metal-24xl, Graviton4 / Neoverse V2)
+# Compiler: clang-18 and gcc-13, -march=native -O3 -DFFC_ROUNDS_TO_NEAREST
+#
+# EXP-039 baseline (Clang): random 1399/247.03/41.96  canada 1365/208.99/35.65  mesh 1357/103.96/15.16
+# EXP-039 baseline (GCC):   random 1921/219.04/30.54  canada 1737/190.70/28.02  mesh 1745/83.92/11.78
+#
+# EXP-040 Clang results:
+# random [0,1]:   1370 MB/s  (−2.1%)   249.03 i/f (+2.0)   42.82 c/f (+2.1%)
+# canada.txt:     1342 MB/s  (−1.7%)   210.97 i/f (+2.0)   36.28 c/f (+1.8%)
+# mesh.txt:       1356 MB/s  (≈0%)     104.62 i/f (+0.7)   15.16 c/f (0%)
+#
+# EXP-040 GCC results (macro expands to plain mul for GCC, should be unchanged):
+# random [0,1]:   1920 MB/s  (≈0%)     219.04 i/f          30.55 c/f
+# canada.txt:     1737 MB/s  (0%)      190.70 i/f          28.02 c/f
+# mesh.txt:       1751 MB/s  (+0.3%, noise) 83.92 i/f      11.74 c/f
+#
+# Key finding: OOO processor hides mul latency. Replacing 1-insn mul with 2-insn
+# add+lsl adds instruction pressure (decoding, dispatch, execution units) that
+# outweighs the 1-cycle latency reduction on the SWAR compression path.
+# The 4.13% profile sample at mul w15, w14, w26 reflects code path frequency,
+# not a stalled latency bottleneck.
+#
+# Decision: REJECTED
+#
+# Raw benchmark output (clang, random):
+# ffc : 1370.35 MB/s (+/- 0.7%)  65.31 Mfloat/s  11.32 i/B  249.03 i/f  1.95 c/B  42.82 c/f  5.82 i/c
+# Raw benchmark output (clang, canada):
+# ffc : 1341.71 MB/s (+/- 0.2%)  77.10 Mfloat/s  11.56 i/B  210.97 i/f  1.99 c/B  36.28 c/f  5.81 i/c
+# Raw benchmark output (clang, mesh):
+# ffc : 1356.16 MB/s (+/- 1.0%)  184.75 Mfloat/s 13.59 i/B  104.62 i/f  1.97 c/B  15.16 c/f  6.90 i/c
+# Raw benchmark output (gcc, random):
+# ffc : 1920.32 MB/s (+/- 0.5%)  91.53 Mfloat/s   9.96 i/B  219.04 i/f  1.39 c/B  30.55 c/f  7.17 i/c
+# Raw benchmark output (gcc, canada):
+# ffc : 1736.92 MB/s (+/- 0.3%)  99.82 Mfloat/s  10.45 i/B  190.70 i/f  1.54 c/B  28.02 c/f  6.81 i/c
+# Raw benchmark output (gcc, mesh):
+# ffc : 1751.22 MB/s (+/- 1.1%)  238.56 Mfloat/s 10.90 i/B   83.92 i/f  1.52 c/B  11.74 c/f  7.15 i/c

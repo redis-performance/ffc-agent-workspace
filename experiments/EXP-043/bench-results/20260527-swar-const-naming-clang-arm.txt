@@ -1,0 +1,45 @@
+# EXP-043: Declare SWAR constants as named variables outside loop to help Clang LICM hoist
+# Host: ubuntu@3.92.205.222 (AWS m8g.metal-24xl, Graviton4 / Neoverse V2)
+# Compiler: clang-18 and gcc-13, -march=native -O3 -DFFC_ROUNDS_TO_NEAREST
+#
+# EXP-042 baseline (Clang): random 1524/245.02/38.50  canada 1369/207.90/35.56  mesh 1380/101.96/14.90
+# EXP-042 baseline (GCC):   random 1930/219.04/30.39  canada 1737/190.70/28.03  mesh 1738/83.92/11.83
+#
+# EXP-043 Clang results:
+# random [0,1]:   1484 MB/s  (−2.6%)   245.02 i/f (0.0)   39.50 c/f (+1.00, +2.6%)
+# canada.txt:     1370 MB/s  (+0.1%)   207.90 i/f (0.0)   35.53 c/f (−0.03, ≈0%)
+# mesh.txt:       1375 MB/s  (−0.4%)   101.96 i/f (0.0)   14.96 c/f (+0.06, −0.4%)
+#
+# EXP-043 GCC results (unchanged):
+# random [0,1]:   1930 MB/s  (≈0%)    219.04 i/f   30.39 c/f
+# canada.txt:     1737 MB/s  (≈0%)    190.70 i/f   28.03 c/f
+# mesh.txt:       1738 MB/s  (≈0%)     83.92 i/f   11.83 c/f
+#
+# Change: ffc_loop_parse_if_eight_digits in parse.h
+#   Declared SWAR check/scale constants as named const variables before the while loop:
+#     const uint64_t swar_check = UINT64_C(0x4646464646464646);
+#     const uint64_t swar_mask  = UINT64_C(0x000000FF000000FF);
+#     const uint64_t swar_mul1  = UINT64_C(0x000F424000000064);
+#     const uint64_t swar_mul2  = UINT64_C(0x0000271000000001);
+#   These were passed into ffc_is_made_of_eight_digits_fast and
+#   ffc_parse_eight_digits_unrolled_swar as explicit arguments.
+#
+# Analysis:
+# The hypothesis was that Clang rematerializes ~11 SWAR constants inside the loop
+# body each iteration (vs. GCC which hoists them to callee-saved registers x22/x23).
+# Explicitly naming them as const variables before the loop was expected to trigger
+# Clang's LICM pass to hoist them into registers.
+#
+# Result: i/f unchanged at 245.02 — identical instruction count, hypothesis disproved.
+# Clang generates the same code regardless of source-level naming. The root cause is
+# register pressure: the large inlined findmax_ffc context uses all available
+# caller-saved registers, so Clang cannot keep additional values live across the
+# loop back-edge without spilling. GCC's different register allocation strategy
+# (larger function size, different spill decisions) naturally keeps constants live.
+# This is a structural compiler difference not addressable at the source level without
+# restructuring the function boundaries.
+#
+# The random regression (-2.6% c/f) with unchanged i/f is a code layout/alignment
+# artifact from the slightly different source structure.
+#
+# Decision: REJECTED

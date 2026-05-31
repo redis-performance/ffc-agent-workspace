@@ -1,0 +1,32 @@
+=== EXP-048: __attribute__((uninitialized)) on before/frac_end_local for Clang/AArch64 ===
+Host: ip-10-0-7-254 (AWS m8g.metal-24xl, Graviton4/Neoverse V2)
+Date: 2026-05-28
+
+--- CLANG 18 (-march=native -O3 -DFFC_ROUNDS_TO_NEAREST) ---
+
+=== random ===
+ffc                                     :  1586.90 MB/s (+/- 0.4 %)    75.64 Mfloat/s      10.36 i/B   228.02 i/f (+/- 0.0 %)      1.68 c/B    36.94 c/f (+/- 0.4 %)      6.17 i/c     40.00 b/f      0.30 bm/f      2.79 GHz 
+
+=== canada.txt ===
+ffc                                     :  1391.62 MB/s (+/- 0.2 %)    79.97 Mfloat/s      11.06 i/B   201.86 i/f (+/- 0.0 %)      1.92 c/B    34.98 c/f (+/- 0.1 %)      5.77 i/c     38.04 b/f     11.98 bm/f      2.80 GHz 
+
+=== mesh.txt ===
+ffc                                     :  1364.87 MB/s (+/- 0.5 %)   185.93 Mfloat/s      13.00 i/B   100.03 i/f (+/- 0.0 %)      1.96 c/B    15.06 c/f (+/- 0.3 %)      6.64 i/c     23.99 b/f      5.53 bm/f      2.80 GHz 
+
+--- GCC 13 (-march=native -O3 -DFFC_ROUNDS_TO_NEAREST) ---
+
+=== random ===
+ffc                                     :  1928.01 MB/s (+/- 0.7 %)    91.89 Mfloat/s       9.96 i/B   219.04 i/f (+/- 0.0 %)      1.38 c/B    30.44 c/f (+/- 0.7 %)      7.20 i/c     44.00 b/f      0.66 bm/f      2.80 GHz 
+
+=== canada.txt ===
+ffc                                     :  1737.30 MB/s (+/- 0.4 %)    99.84 Mfloat/s      10.45 i/B   190.70 i/f (+/- 0.0 %)      1.54 c/B    28.01 c/f (+/- 0.2 %)      6.81 i/c     38.26 b/f     13.65 bm/f      2.80 GHz 
+
+=== mesh.txt ===
+ffc                                     :  1721.91 MB/s (+/- 1.6 %)   234.57 Mfloat/s      10.90 i/B    83.92 i/f (+/- 0.0 %)      1.55 c/B    11.91 c/f (+/- 1.6 %)      7.05 i/c     18.79 b/f      5.35 bm/f      2.79 GHz 
+
+=== VERDICT: REJECTED ===
+Clang random: 1587 MB/s (baseline 1613 MB/s, -1.6%)
+Clang canada: 1392 MB/s (baseline 1420 MB/s, -2.0%)
+Clang mesh:   1365 MB/s (baseline 1393 MB/s, -2.0%)
+i/f regressed: random +5 i/f (223→228), mesh +1.5 i/f (98.5→100.03)
+GCC unchanged (as expected — guard under #if __clang__ && __aarch64__)

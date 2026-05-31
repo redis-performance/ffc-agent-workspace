@@ -1,0 +1,37 @@
+# ffc-agent-workspace RACE benchmark — 20260531-175514
+# host: fco-tp  arch: x86_64  cpu: Intel(R) Core(TM) Ultra 7 155U
+# compiler: clang (Ubuntu clang version 18.1.3 (1ubuntu1))
+# ffc-commit: 43e22b3
+# fast_float-commit: 7790aa6   fast_float-base(upstream/main): 7790aa6
+# canonical row = FIRST 'fastfloat' per section (char from_chars->double), paired with 'ffc'
+
+
+===== random [0,1] =====
+# parsing random numbers
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB 
+strtod                                  :   130.02 MB/s (+/- 12.4 %)     6.20 Mfloat/s  
+abseil                                  :   332.60 MB/s (+/- 13.8 %)    15.85 Mfloat/s  
+fastfloat                               :   653.95 MB/s (+/- 4.2 %)    31.17 Mfloat/s  
+ffc                                     :   700.72 MB/s (+/- 19.4 %)    33.40 Mfloat/s  
+fastfloat                               :  1287.80 MB/s (+/- 5.2 %)    30.69 Mfloat/s  
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+
+===== canada.txt =====
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+strtod                                  :    98.17 MB/s (+/- 5.6 %)     5.64 Mfloat/s  
+abseil                                  :   297.46 MB/s (+/- 4.8 %)    17.09 Mfloat/s  
+fastfloat                               :   500.89 MB/s (+/- 5.5 %)    28.78 Mfloat/s  
+ffc                                     :   666.35 MB/s (+/- 6.4 %)    38.29 Mfloat/s  
+fastfloat                               :   963.55 MB/s (+/- 5.6 %)    27.69 Mfloat/s  
+
+===== mesh.txt =====
+# read 73019 lines 
+ASCII volume = 0.536009 MB 
+strtod                                  :    86.89 MB/s (+/- 10.2 %)    11.84 Mfloat/s  
+abseil                                  :   190.92 MB/s (+/- 4.0 %)    26.01 Mfloat/s  
+fastfloat                               :   349.35 MB/s (+/- 8.5 %)    47.59 Mfloat/s  
+ffc                                     :   635.82 MB/s (+/- 9.6 %)    86.62 Mfloat/s  
+fastfloat                               :   690.86 MB/s (+/- 5.5 %)    47.06 Mfloat/s  

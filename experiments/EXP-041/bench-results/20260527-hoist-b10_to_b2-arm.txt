@@ -1,0 +1,45 @@
+# EXP-041: Hoist ffc_b10_to_b2(q) before UMULH chain in ffc_compute_float
+# Host: ubuntu@3.92.205.222 (AWS m8g.metal-24xl, Graviton4 / Neoverse V2)
+# Compiler: clang-18 and gcc-13, -march=native -O3 -DFFC_ROUNDS_TO_NEAREST
+#
+# EXP-039 baseline (Clang): random 1399/247.03/41.96  canada 1365/208.99/35.65  mesh 1357/103.96/15.16
+# EXP-039 baseline (GCC):   random 1921/219.04/30.54  canada 1737/190.70/28.02  mesh 1745/83.92/11.78
+#
+# EXP-041 Clang results:
+# random [0,1]:   1373 MB/s  (−1.9%)   248.03 i/f (+1.0)   42.70 c/f (+1.7%)
+# canada.txt:     1355 MB/s  (−0.7%)   209.90 i/f (+0.9)   35.92 c/f (+0.8%)
+# mesh.txt:       1358 MB/s  (≈0%)     103.96 i/f (0)      15.14 c/f (≈0%)
+#
+# EXP-041 GCC results:
+# random [0,1]:   1924 MB/s  (+0.2%, noise)   219.04 i/f   30.50 c/f
+# canada.txt:     1719 MB/s  (−1.0%)          190.70 i/f   28.30 c/f  ← regression!
+# mesh.txt:       1701 MB/s  (−2.5%)           83.92 i/f   12.08 c/f  ← regression!
+#
+# Motivation: Profile showed `mul w0, w15, w6` (ffc_b10_to_b2 multiply by 217706) at
+# 12.69% of Clang findmax_ffc cycles. Observed that Clang reuses register w0 for both
+# `2*q` (index computation) and `217706*q` (b10_to_b2), creating a sequential schedule.
+# By introducing a named intermediate `power_of_2_from_q = ffc_b10_to_b2(q)` BEFORE
+# ffc_compute_product_approximation, hoped to force the multiply to overlap with the
+# UMULH chain (~7-cycle latency path).
+#
+# What actually happened:
+# - Clang: +1 i/f per float (extra register kept live across UMULH), +1.7% c/f regression.
+#   The pre-computation increased register pressure; the scheduler had to spill or
+#   delay something else. Clang was already scheduling optimally with w0 reuse.
+# - GCC: canada −1.0%, mesh −2.5% regression. GCC was also scheduling ffc_b10_to_b2
+#   optimally; the forced early computation disrupted its scheduling for those paths.
+# - The `mul w0, w15, w6` in Clang's scheduling at 107e8 is intentional register reuse,
+#   not a false dependency bug. Moving it earlier costs more than it saves.
+#
+# Decision: REJECTED
+#
+# Raw benchmark output (clang, random):
+# ffc : 1372.58 MB/s (+/- 0.4%)  65.42 Mfloat/s  11.27 i/B  248.03 i/f  1.94 c/B  42.70 c/f  5.81 i/c
+# Raw benchmark output (clang, canada):
+# ffc : 1355.26 MB/s (+/- 0.2%)  77.88 Mfloat/s  11.50 i/B  209.90 i/f  1.97 c/B  35.92 c/f  5.84 i/c
+# Raw benchmark output (clang, mesh):
+# ffc : 1358.14 MB/s (+/- 0.5%)  185.02 Mfloat/s 13.51 i/B  103.96 i/f  1.97 c/B  15.14 c/f  6.87 i/c
+# Raw benchmark output (gcc, canada):
+# ffc : 1719.35 MB/s (+/- 0.1%)  98.81 Mfloat/s  10.45 i/B  190.70 i/f  1.55 c/B  28.30 c/f  6.74 i/c
+# Raw benchmark output (gcc, mesh):
+# ffc : 1700.64 MB/s (+/- 0.5%)  231.67 Mfloat/s 10.90 i/B   83.92 i/f  1.57 c/B  12.08 c/f  6.95 i/c

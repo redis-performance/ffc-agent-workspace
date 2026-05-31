@@ -6,6 +6,22 @@ organized by tier and expected throughput gain. Inspired by AutoKernel's program
 Read this before each experiment to choose the next technique to try.
 After profiling, use the **Bottleneck Classification** section to pick the right tier.
 
+> **Two competitors.** These tiers are parser-agnostic — apply them to whichever
+> of `ffc` or `fast_float` you are targeting this experiment (see `experiments/RACE.md`
+> for who's behind). The symbol names below are ffc's; fast_float's equivalents live in
+> `fast_float/include/fast_float/` — `ascii_number.h` (digit scan / SWAR),
+> `parse_number.h` (dispatch + Clinger), `digit_comparison.h` (slow path),
+> `float_common.h` (tables / Eisel-Lemire). A technique that wins on one parser is a
+> prime **cross-pollination** candidate for the other.
+>
+> **fast_float correctness gate** (replaces the `make -C ffc …` stages when the
+> target is fast_float):
+> ```
+> scripts/test-fast_float.sh                 # core unit tests + supplemental corpus
+> EXHAUSTIVE=1 scripts/test-fast_float.sh    # + exhaustive (mantissa-loop changes)
+> ```
+> Both compile under fast_float's strict `-Werror -Wall -Wextra -Weffc++ -Wconversion`.
+
 ---
 
 ## Bottleneck Classification

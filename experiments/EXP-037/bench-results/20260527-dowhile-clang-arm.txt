@@ -1,0 +1,18 @@
+# EXP-037: do-while loop restructuring — Clang 18, AArch64 Graviton4 (m8g.metal-24xl)
+# Host: ubuntu@3.92.205.222
+# Compiler: clang-18 -march=native -O3 -DFFC_ROUNDS_TO_NEAREST
+# Status: REJECTED — regression on GCC, no improvement on Clang
+#
+# Clang results (EXP-037 do-while vs EXP-036 baseline ~1381/1333/1348):
+#
+# random [0,1]:   ~1381 MB/s  (≈0% vs baseline)   248.04 i/f  42.55 c/f
+# canada.txt:     ~1333 MB/s  (≈0% vs baseline)   204.08 i/f  36.47 c/f
+# mesh.txt:       ~1348 MB/s  (≈0% vs baseline)   102.10 i/f  15.21 c/f
+#
+# GCC results regressed (do-while adds extra inner branch for single-iteration case):
+# random [0,1]:   ~1875 MB/s  (−3% vs GCC baseline ~1932)
+# canada.txt:     ~1679 MB/s  (−3% vs GCC baseline ~1737)
+# mesh.txt:       ~1686 MB/s  (−3% vs GCC baseline ~1741)
+#
+# Conclusion: do-while adds overhead for common single-iteration case.
+# Reverted.

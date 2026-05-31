@@ -87,7 +87,7 @@ win — document it and keep going.
 
 ---
 
-## Current State (post EXP-034 baseline correction, 2026-05-27)
+## Current State (post EXP-042, 2026-05-27)
 
 Dedicated bare-metal servers, GCC 13 `-march=native -O3 -DFFC_ROUNDS_TO_NEAREST`.
 
@@ -99,13 +99,24 @@ Dedicated bare-metal servers, GCC 13 `-march=native -O3 -DFFC_ROUNDS_TO_NEAREST`
 | canada.txt | **1676** | 1416 | **+18% (ffc leads)** |
 | mesh.txt | **1741** | 1134 | **+54% (ffc leads)** |
 
-### ARM — Graviton4 (m8g.metal-24xl)
+### ARM — Graviton4 (m8g.metal-24xl), GCC 13
 
 | Dataset | ffc MB/s | fastfloat MB/s | Δ% |
 |---------|----------|----------------|----|
 | random [0,1] | **1927** | 1088 | **+77% (ffc leads)** |
 | canada.txt | **1737** | 889 | **+95% (ffc leads)** |
-| mesh.txt | **1727** | 501 | **+245% (ffc leads)** |
+| mesh.txt | **1741** | 501 | **+247% (ffc leads)** |
+
+### ARM — Graviton4 (m8g.metal-24xl), Clang 18 (ongoing gap-closure campaign)
+
+| Dataset | ffc Clang MB/s | ffc GCC MB/s | Clang vs GCC |
+|---------|---------------|-------------|--------------|
+| random [0,1] | **1613** | 1933 | −16.6% |
+| canada.txt | **1420** | 1737 | −18.2% |
+| mesh.txt | **1395** | 1741 | −19.9% |
+
+EXP-044 (2x SWAR loop unroll as while≥16 + if≥8 for Clang/AArch64) closed the random i/f gap from 26 instructions to 4.
+EXP-042 (shift-add asm for exponent accumulator) cut the random gap from −27% to −21%.
 
 Note: EXP-034 corrected the ARM baseline — previous ARM numbers (1820/1673/1656) were
 measured without `-DFFC_ROUNDS_TO_NEAREST`, missing EXP-030's compile-time macro benefit.
@@ -121,10 +132,14 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 
 | Status | Count |
 |--------|-------|
-| Accepted | 9 |
-| Rejected | 25 |
+| Accepted | 13 |
+| Rejected | 35 |
 | Parked | 1 |
 | In Progress | 0 |
+
+The workspace is now a **race** between two mutable parsers, `ffc` and `fast_float`
+(forked at `redis-performance/fast_float`, live-tracking upstream main). See
+[`experiments/RACE.md`](experiments/RACE.md) for the 12-cell head-to-head leaderboard.
 
 ---
 

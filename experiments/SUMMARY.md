@@ -1,10 +1,29 @@
-# Approach Summary — ffc.h
+# Approach Summary — ffc vs fast_float race
 
 Single source of truth for all optimization attempt status.
-Keep README.md counts in sync whenever this table changes.
+Keep `README.md` counts and `experiments/RACE.md` cells in sync whenever this table changes.
+
+**Parser**: EXP-001 … EXP-048 all target **ffc** (the workspace optimized ffc in
+isolation before the race began at EXP-049). From EXP-049 onward, prefix the `Title`
+with the parser under test — `[ffc]` or `[fast_float]` — since either may be the
+target. The `Target` column below denotes the dataset/arch/compiler focus, not the parser.
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-049 | Race setup: fast_float as mutable `redis-performance` fork submodule (live-tracks upstream main), build redirect via `FETCHCONTENT_SOURCE_DIR_FAST_FLOAT`, `test-fast_float.sh` gate, `RACE.md` 12-cell leaderboard, provenance-stamped results | infra (both) | n/a — no algorithm change; establishes the race + dual baselines | **Accepted** | 2026-05-31 |
+| EXP-048 | `__attribute__((uninitialized))` on `before`/`frac_end_local` + `has_decimal_point` guard in too_many_digits to eliminate zero-inits at integer-scan merge point | clang-arm | Clang random −1.6% (+5 i/f), canada −2.0% (0 i/f), mesh −2.0% (+1.5 i/f); GCC unchanged — annotation prevents optimization rather than enabling it | **Rejected** | 2026-05-28 |
+| EXP-047 | Remove redundant Clang-only `mantissa == 0` guard in exponent=0 fast path | clang-arm | Clang mesh +3.5% (−0.55 i/f); Clang canada −2.2% (binary layout shift moves hot path off cache-line boundary, c/f +2.3% at identical i/f); GCC unchanged | **Rejected** | 2026-05-28 |
+| EXP-046 | Split combined sign-check if into dedicated if-negative / else-if-plus branches | clang-arm | Clang canada −1 i/f (+0.4%); Clang mesh −1.9%; GCC mesh −6.4% (+1.35 i/f — constprop.0.isra.0 disrupted) | **Rejected** | 2026-05-28 |
+| EXP-045 | Defer `answer.negative` assignment inside sign-check if-block to eliminate `cset` from positive-number path | clang-arm | Clang: −0.7% random/−2.1% canada/−0.2% mesh, i/f +1.00 all (no cset eliminated); GCC mesh −9.2% regression | **Rejected** | 2026-05-28 |
+| EXP-044 | Manual 2x unroll of `ffc_loop_parse_if_eight_digits` (while≥16 + if≥8) eliminating loop context for typical inputs | clang-arm | +5.8% random (−22 i/f!), +3.7% canada (−9.7 i/f), +1.1% mesh; GCC unchanged | **Accepted** | 2026-05-27 |
+| EXP-043 | Declare SWAR constants as named variables outside loop to trigger Clang LICM hoisting | clang-arm | ≈0% canada/mesh; −2.6% random (alignment regression); 0 i/f reduction — Clang regenerates constants regardless; register pressure structural | **Rejected** | 2026-05-27 |
+| EXP-042 | Apply `FFC_DIGIT_ACC10` to exponent parsing accumulator (`exp_number = 10*exp_number + digit`) | clang-arm | +8.9% random, +1.7% mesh, +0.3% canada; GCC unchanged (macro falls through) | **Accepted** | 2026-05-27 |
+| EXP-041 | Hoist `ffc_b10_to_b2(q)` before UMULH chain in `ffc_compute_float` to overlap 3-cycle mul with load+UMULH latency | clang-arm, all | Clang −1.9% random, −0.7% canada; GCC −1.0% canada, −2.5% mesh; both schedulers disrupted by extra live register | **Rejected** | 2026-05-27 |
+| EXP-040 | SWAR `val*10` shift-add inline asm in `ffc_parse_four_digits_unrolled` and `ffc_parse_eight_digits_unrolled_swar` | clang-arm | −2.1% random, −1.7% canada (OOO hid mul latency; extra instruction pressure regresses); GCC unchanged | **Rejected** | 2026-05-27 |
+| EXP-039 | Shift-add inline asm (`add+lsl`) for byte-by-byte digit accumulator (`i*10+d`): 4-cycle Clang mul chain → 2-cycle shift-add chain | clang-arm | +2.2% canada, +1.4% random, +0.4% mesh; GCC unchanged (macro preserves original expression) | **Accepted** | 2026-05-27 |
+| EXP-038 | Inline asm `madd` for SWAR accumulator: force fused multiply-add to close 17-cycle recurrence | clang-arm | ≈0% all datasets; `lsr`+`madd` (2 insn) replaces `add-with-barrel-shift` (1 insn); non-SWAR path is real gap | **Rejected** | 2026-05-27 |
+| EXP-037 | Do-while loop restructuring in `ffc_loop_parse_if_eight_digits` to hoist accumulator multiply | clang-arm | ≈0% Clang; −3% GCC all datasets; extra inner branch for single-iteration common case | **Rejected** | 2026-05-27 |
+| EXP-036 | SWAR `val*10` strength reduction: add+lsl inline asm for Clang/AArch64 | clang-arm | ±0.4% all datasets (noise); 3 muls/iteration downstream absorb the 2-cycle savings; GCC fall-through loop structure is the real gap | **Rejected** | 2026-05-27 |
 | EXP-035 | `ffc_acc10` inline asm: Clang/AArch64 smaddl→add+lsl | clang-arm | +2.3% Clang canada; −5.3% GCC canada; smaddl not primary bottleneck; wrapping forces sub onto accumulator critical path for GCC | **Rejected** | 2026-05-27 |
 | EXP-034 | Compiler sweep: GCC 13 vs Clang 18 vs GCC `-mcpu=native` on ARM | all | GCC wins: Clang −28% (21% more instructions, lower IPC); `-mcpu=native` ≈ same as `-march=native`; corrected ARM baseline to 1927/1737/1727 MB/s | **Rejected** | 2026-05-27 |
 | EXP-033 | Early exit for `exponent == 0` in `ffc_from_chars_advanced` | mesh | +12.9% mesh (83.92 i/f from 93.86), +1.1% canada, +0.4% random; EXP-030 FCMP elimination made adding pre-Clinger checks safe | **Accepted** | 2026-05-27 |

@@ -1,0 +1,45 @@
+# EXP-042: Apply FFC_DIGIT_ACC10 to exponent parsing accumulator
+# Host: ubuntu@3.92.205.222 (AWS m8g.metal-24xl, Graviton4 / Neoverse V2)
+# Compiler: clang-18 and gcc-13, -march=native -O3 -DFFC_ROUNDS_TO_NEAREST
+#
+# EXP-039 baseline (Clang): random 1399/247.03/41.96  canada 1365/208.99/35.65  mesh 1357/103.96/15.16
+# EXP-039 baseline (GCC):   random 1927/219.04/30.54  canada 1737/190.70/28.02  mesh 1741/83.92/11.78
+#
+# EXP-042 Clang results:
+# random [0,1]:   1524 MB/s  (+8.9%)   245.02 i/f (−2.0)   38.50 c/f (−3.46, −8.2%)
+# canada.txt:     1369 MB/s  (+0.3%)   207.90 i/f (−1.1)   35.56 c/f (−0.09, −0.3%)
+# mesh.txt:       1380 MB/s  (+1.7%)   101.96 i/f (−2.0)   14.90 c/f (−0.26, −1.7%)
+#
+# EXP-042 GCC results (unchanged — macro preserves original expression for non-Clang):
+# random [0,1]:   1930 MB/s  (≈0%)    219.04 i/f   30.39 c/f
+# canada.txt:     1737 MB/s  (≈0%)    190.70 i/f   28.03 c/f
+# mesh.txt:       1738 MB/s  (≈0%)     83.92 i/f   11.83 c/f
+#
+# Change: parse.h line 416
+#   exp_number = 10 * exp_number + digit;
+# →
+#   exp_number = FFC_DIGIT_ACC10(exp_number, digit);
+#
+# Analysis:
+# The random dataset encodes floats with ~2 explicit exponent digits on average
+# (consistent with -2 i/f reduction). The exponent accumulator was a `smaddl`-based
+# chain in Clang (3-cycle latency), exactly as the integer scan was before EXP-039.
+# Replacing it with the shift-add inline asm cuts ~1.7 cycles/iteration; over 2
+# iterations per float the savings compound to -3.46 c/f (-8.2%) on random.
+# Canada shows only -1 i/f, suggesting ~1 exponent digit on average there.
+# GCC was already using shift-add scheduling; macro fall-through is identical.
+#
+# Decision: ACCEPTED
+#
+# Raw benchmark output (clang, random):
+# ffc : 1524.25 MB/s (+/- 0.6%)  72.65 Mfloat/s  11.14 i/B  245.02 i/f  1.75 c/B  38.50 c/f  6.36 i/c
+# Raw benchmark output (clang, canada):
+# ffc : 1368.96 MB/s (+/- 0.2%)  78.67 Mfloat/s  11.39 i/B  207.90 i/f  1.95 c/B  35.56 c/f  5.85 i/c
+# Raw benchmark output (clang, mesh):
+# ffc : 1380.01 MB/s (+/- 0.9%)  188.00 Mfloat/s 13.25 i/B  101.96 i/f  1.94 c/B  14.90 c/f  6.84 i/c
+# Raw benchmark output (gcc, random):
+# ffc : 1930.14 MB/s (+/- 0.4%)  92.00 Mfloat/s   9.96 i/B  219.04 i/f  1.38 c/B  30.39 c/f  7.21 i/c
+# Raw benchmark output (gcc, canada):
+# ffc : 1736.57 MB/s (+/- 0.1%)  99.79 Mfloat/s  10.45 i/B  190.70 i/f  1.54 c/B  28.03 c/f  6.80 i/c
+# Raw benchmark output (gcc, mesh):
+# ffc : 1738.14 MB/s (+/- 0.5%)  236.78 Mfloat/s 10.90 i/B   83.92 i/f  1.54 c/B  11.83 c/f  7.10 i/c

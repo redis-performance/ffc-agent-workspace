@@ -1,0 +1,27 @@
+# EXP-038: inline asm madd for SWAR accumulator — Clang 18 + GCC 13, AArch64 Graviton4 (m8g.metal-24xl)
+# Host: ubuntu@3.92.205.222
+# Compiler: clang-18 and gcc-13, -march=native -O3 -DFFC_ROUNDS_TO_NEAREST
+#
+# Clang results (EXP-038 madd vs EXP-036 baseline ~1381/1333/1348):
+# random [0,1]:   1379 MB/s  (≈−0.1%, noise)   248.03 i/f   42.55 c/f
+# canada.txt:     1335 MB/s  (≈+0.1%, noise)   204.08 i/f   36.47 c/f
+# mesh.txt:       1351 MB/s  (≈+0.2%, noise)   102.10 i/f   15.21 c/f
+#
+# GCC results (EXP-038 madd vs baseline ~1932/1737/1741):
+# random [0,1]:   1931 MB/s  (≈−0.1%, noise)   219.04 i/f   30.38 c/f  (was 31.27 c/f → +2.9% cycles)
+# canada.txt:     1737 MB/s  (≈0%)              190.70 i/f   28.02 c/f
+# mesh.txt:       1746 MB/s  (≈+0.3%, noise)    83.92 i/f    11.78 c/f
+#
+# Disassembly analysis (Clang at 0x7310):
+#   7310: madd x20, x20, x5, x6   ← inline asm IS present
+#   730c: lsr  x6, x6, #32        ← NEW: explicit shift (barrel-shift no longer free)
+#   Net: adds 1 instruction vs old `add x20, x20, x6, lsr#32` (1 insn with free shift)
+#   For single-iteration SWAR: result ready at t=20 (new) vs t=17 (old) = 3 cycles worse
+#
+# Why Clang unchanged: the extra lsr offsets the madd benefit; i/f unchanged at 248
+# Why GCC random c/f improved: coincidental CSE improvement — GCC eliminated val-=0x3030
+#   step in SWAR body by reusing x6 from digit check (saves 1 dynamic insn/iter)
+#
+# Conclusion: madd approach is flawed — lsr+madd (2 insn) worse than add-with-shift (1 insn).
+# The SWAR loop is NOT the primary bottleneck; non-SWAR path has 15+ extra Clang instructions.
+# Reverted.

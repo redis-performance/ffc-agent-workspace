@@ -9,6 +9,513 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-049 — 2026-05-31 — Race setup: make fast_float a mutable competitor
+
+**Target**: infrastructure (both parsers) — no algorithm change
+**Hypothesis**: fast_float can be turned from a frozen FetchContent baseline into a
+mutable, forked, optimizable competitor without modifying the immutable benchmark harness.
+**Files changed**: `.gitmodules`, new submodule `fast_float/` (→ `redis-performance/fast_float`
+@ `redis-perf/optim`, live-tracking `upstream/main`), `scripts/build-bench.sh`,
+`scripts/run-bench.sh`, new `scripts/test-fast_float.sh`, new `experiments/RACE.md`,
+`.claude/CLAUDE.md`, `.claude/program.md`, `experiments/SUMMARY.md`, `README.md`
+
+### What changed
+- `fast_float` added as a submodule of the `redis-performance` fork (push access
+  confirmed); `upstream` remote → fastfloat/fast_float; our branch `redis-perf/optim`
+  created from `upstream/main` (`7790aa6`, **v8.x**).
+- Build redirected to the mutable source via `-DFETCHCONTENT_SOURCE_DIR_FAST_FLOAT`
+  (no edits to benchmark.cpp / its CMakeLists). Verified: cache `fast_float_SOURCE_DIR`
+  points at the submodule; touching a fast_float header recompiles the benchmark.
+- `scripts/test-fast_float.sh` correctness gate: 14/14 core+supplemental tests pass
+  (≈4.3s); `EXHAUSTIVE=1` opt-in for mantissa-loop changes.
+- `RACE.md` 12-cell leaderboard; results now stamp ffc-commit / fast_float-commit /
+  fast_float-base / compiler / arch.
+
+### Step 1: Benchmark — provisional local x86 (laptop `fco-tp`, NOT scored)
+| Dataset | ffc | fast_float (v8) | Leader |
+| random  | 947.7 (gcc) / 700.7 (clang) | 883.9 / 654.0 | ffc / ffc |
+| canada  | 586.5 / 666.4 | 633.3 / 500.9 | fast_float (gcc) / ffc (clang) |
+| mesh    | 734.6 / 635.8 | 493.4 / 349.4 | ffc / ffc |
+
+### Step 2: Profile
+n/a — infrastructure experiment, no hot-path change to profile.
+
+**Decision**: accept
+**Reason**: Race harness is live and behavior-neutral; both parsers build, test, and
+benchmark head-to-head. Real 12-cell baselines pending metal-VM deployment.
+**Race Δ**: establishes the start line — fast_float upgraded from old v6.1.4 to live
+upstream v8; canada-under-GCC is fast_float's clearest early lead and first attack target.
+
+---
+
+## EXP-048 — 2026-05-28 — `__attribute__((uninitialized))` on `before`/`frac_end_local` to eliminate zero-inits at integer-scan merge point
+
+**Status**: REJECTED — Clang random −1.6% (+5 i/f), canada −2.0%, mesh −2.0%; GCC unchanged
+
+**Hypothesis**: Clang/AArch64 emits 2 `mov xzr` instructions at the merge point after the integer scan loop for `before` and `frac_end_local` (NULL-initialized pointer variables hoisted to function scope for the too_many_digits path). These zero-inits appear in `objdump` as dead assignments visible at the merge point. Applying `__attribute__((uninitialized))` to both vars for Clang/AArch64 (safe since both are only read inside the `has_decimal_point` branch that sets them first) should eliminate ~2 i/f. A paired `#if defined(__clang__) && defined(__aarch64__)` guard in the too_many_digits fractional recovery adds an explicit `if (has_decimal_point)` check to make the safe-uninitialized contract explicit, replacing the existing NULL-pointer arithmetic (NULL - NULL = 0, technically UB).
+
+**Change**: `parse.h` — two hunks under `#if defined(__clang__) && defined(__aarch64__)`:
+1. Declaration site (lines 362-373): `before` and `frac_end_local` declared with `__attribute__((uninitialized))` instead of `= NULL`
+2. too_many_digits fractional recovery (lines ~508-518): wrapped in `if (has_decimal_point) { ... }` to avoid reading uninitialized vars in the no-decimal case
+
+**Result**:
+- Clang random: 1586.90 MB/s (baseline 1613, **−1.6%**); i/f 228.02 (baseline ~223, **+5 i/f** — regression!)
+- Clang canada: 1391.62 MB/s (baseline 1420, **−2.0%**); i/f 201.86 (unchanged)
+- Clang mesh: 1364.87 MB/s (baseline 1393, **−2.0%**); i/f 100.03 (baseline ~98.5, +1.5 i/f regression)
+- GCC random: 1928 MB/s (unchanged); GCC canada: 1737 MB/s; GCC mesh: 1722 MB/s
+
+**Root cause**: The `__attribute__((uninitialized))` annotation prevented a downstream optimization that Clang was performing in the NULL-initialized version. Marking variables uninitialized may have disabled alias analysis or value-range propagation that allowed Clang to elide some dependent loads/stores. The regression in i/f (especially +5 random) confirms the compiler generates MORE instructions with the annotation, not fewer. The zero-init `mov xzr` instructions measured in objdump were either not on the critical path, or removing them caused worse codegen elsewhere. The `has_decimal_point` branch guard may also have introduced a scheduling dependency that hurt IPC for no-decimal-point inputs (random numbers are all integers or short floats — the guard adds a test+branch on the too_many_digits cold path that may influence branch prediction for the hot path via shared BTB entries.
+
+**Reverted**: `parse.h` and `ffc/ffc.h` restored to EXP-044 baseline state.
+
+---
+
+## EXP-047 — 2026-05-28 — Remove redundant Clang-only `mantissa == 0` special-case in fast path
+
+**Status**: REJECTED — Clang mesh +3.5%, −0.55 i/f; but Clang canada −2.2% (IPC regression from binary layout shift)
+
+**Hypothesis**: `ffc_from_chars_advanced` has a Clang-only guard `#if defined(__clang__)` around a special-case for `pns.mantissa == 0` (lines 303–307 of ffc.h). This emits a `cbz x11, far_label` instruction in the hot path before `ucvtf`. The check is redundant: for mantissa=0, `ucvtf d0, xzr` gives 0.0, `fneg` gives -0.0, and `fcsel` selects the correct sign — same result as the special case. Removing the `__clang__` from the `#ifdef` eliminates this unnecessary branch (−1 i/f on the exponent=0 fast path that mesh integers use).
+
+**Change**: `ffc.h` line 303 — changed `#if defined(__clang__) || defined(FFC_32BIT)` to `#if defined(FFC_32BIT)`. The 32-bit path retains the guard (needed for 32-bit integer-to-float semantics).
+
+**Result**:
+- Clang random: ~1610 MB/s (≈−0.2%, noise), 223.02 i/f (unchanged — fast path not used for random)
+- Clang canada: ~1389 MB/s (−2.2%, stable, replicated), 198.17 i/f (unchanged — fast path not used for canada)
+- Clang mesh: ~1444 MB/s (+3.5%), 97.95 i/f (−0.55!, fast path IS used for integer mesh numbers)
+- GCC: all within baseline range (change is `#if defined(__clang__)` only)
+
+**Root cause of regression**: The `cbz` removal shifts all subsequent instructions by 4 bytes, changing branch-target alignment for the canada hot path. Canada's hot path was sitting on a cache-line boundary that depended on this alignment; after the shift, it spans two cache lines or loses branch-predictor alignment. Canada c/f rose from 34.27 → 35.03 (+2.3%) with identical i/f (198.17), confirming an IPC regression from instruction scheduling / cache alignment — not from extra instructions. The correct fix is architectural (code layout alignment hints), not trivial source-level.
+
+**Reverted**: `ffc.h` and `ffc/ffc.h` restored to EXP-044 state.
+
+---
+
+## EXP-046 — 2026-05-28 — Split combined sign-check if into dedicated if-negative / else-if-plus branches
+
+**Status**: REJECTED — Clang canada −1 i/f (+0.4%); Clang mesh −1.9%; GCC mesh −6.4% (+1.35 i/f regression)
+
+**Hypothesis**: Clang's sign check emits a redundant `cmp w24, #0x2d` + `cset w10, eq` at the merge point of the sign-check if-block (one path for '-', one for '+', one for no-sign). These instructions run on every positive-number parse. Splitting the combined `if (*p == '-' || allow_leading_plus && *p == '+')` into two separate branches — `if (*p == '-') { answer.negative = true; ... } else if (+) { ... }` — would eliminate the merge-point comparison for positive numbers. Positive numbers skip both branches and rely on `ffc_parsed answer = {0}` zero-init for `answer.negative = false`.
+
+**Change**: `ffc_parse_number_string` in `parse.h` — split the single combined sign-check if into two branches: `if (*p == '-') { answer.negative = true; ... } else if ((uint64_t)(allow_leading_plus && !basic_json_fmt && *p == '+')) { ... }`. The '+' branch duplicates the pend-check and digit/dot validation but omits the json-mode fork (guaranteed non-json by the condition).
+
+**Result**:
+- Clang random: 1630.82 MB/s (+1.1%, noise, same i/f)
+- Clang canada: 1426.02 MB/s (+0.4%), 197.17 i/f (−1.00 — the cset WAS eliminated for canada!)
+- Clang mesh: 1368.97 MB/s (−1.9%), 98.50 i/f (unchanged — IPC drop)
+- GCC random: 1952 MB/s (+0.9%, noise)
+- GCC canada: 1710.5 MB/s (−1.5%, minor)
+- GCC mesh: 1629 MB/s (−6.4%!), 85.27 i/f (+1.35 — GCC regression)
+
+**Root cause**: GCC mesh regression confirmed: verified baseline 1741-1751 MB/s at 83.92 i/f; EXP-046 gives 1629 MB/s at 85.27 i/f. The structural change (removing unconditional `answer.negative = (*p == '-')`) disrupted GCC's constprop.0.isra.0 specialization path. The Clang mesh IPC regression (−1.9% at same i/f) is likely a branch-prediction effect from the new branch structure for mesh's mixed-sign coordinate data.
+
+**Reverted**: `parse.h` and `ffc/ffc.h` restored to EXP-044 state.
+
+---
+
+## EXP-045 — 2026-05-28 — Defer `answer.negative` assignment inside sign-check if-block
+
+**Status**: REJECTED — Clang i/f +1.00 all datasets (no cset elimination); GCC mesh −9.2%
+
+**Hypothesis**: Clang emits `cset w10, eq` for `answer.negative = (*p == '-')` unconditionally before the sign-check branch, costing 1 instruction on every positive-number parse. Moving the assignment inside the `if (*p == '-' || ...)` block should eliminate this instruction from the positive-number hot path (the most common case), saving ~1 i/f uniformly. Positive numbers skip the block and rely on `ffc_parsed answer = {0}` zero-init for `answer.negative = false`.
+
+**Change**: `ffc_parse_number_string` in `parse.h` — removed `answer.negative = (*p == '-');` from before the sign-check if-block and placed it as the first statement inside the if-block. No functional change: positive numbers remain zero-initialized for `answer.negative`; negative numbers set it to 1 inside the block.
+
+**Result**:
+- Clang random: 1613 → 1601.6 MB/s (−0.7%), 223.02 → 224.02 i/f (+1.00!)
+- Clang canada: 1420 → 1390.6 MB/s (−2.1%), 198.17 → 199.17 i/f (+1.00!)
+- Clang mesh: 1395 → 1392.7 MB/s (−0.2%), 98.50 → 99.50 i/f (+1.00!)
+- GCC random: 1933 → 1951.4 MB/s (+0.9%), 216.04 → 216.04 i/f (unchanged)
+- GCC canada: 1737 → 1710.5 MB/s (−1.5%), i/f unchanged
+- GCC mesh: 1741 → 1581.1 MB/s (−9.2%), 85.36 i/f (significant regression)
+
+**Root cause**: Clang was already emitting one `cset` for the combined branch+assignment. Moving the assignment inside the if-block caused Clang to emit the `cset` inside the block (for '-' vs '+' disambiguation) AND did not remove any instruction from the positive path — net +1 i/f. The GCC mesh −9.2% regression likely disrupted GCC's constprop.0.isra.0 inter-procedural specialization: the IPA pass relied on `answer.negative` being unconditionally computed (and thus having a known value in the specialized integer code path). The revised control flow may have blocked the optimization that allows GCC to jump directly to `scvtf` after the integer scan without constructing the full `ffc_parsed` struct.
+
+**Reverted**: `parse.h` and `ffc/ffc.h` restored to EXP-044 state.
+
+---
+
+## EXP-044 — 2026-05-27 — Manual 2x unroll of `ffc_loop_parse_if_eight_digits` (Clang/AArch64 only)
+
+**Status**: ACCEPTED — Clang +5.8% random, +3.7% canada, +1.1% mesh; GCC unchanged
+
+**Hypothesis**: Clang doesn't auto-unroll the SWAR while loop (evidence: GCC's binary is 23% larger, suggesting GCC unrolls). Under high register pressure inside the inlined `findmax_ffc` function, Clang rematerializes SWAR constants on each loop iteration. Converting to a 2-unrolled loop (`while >= 16`) plus a straight-line `if >= 8` block eliminates the loop context for typical inputs (≤15 fraction digits never enter the while loop), allowing Clang to treat the SWAR code as straight-line and keep constants in registers.
+
+**Change**: `ffc_loop_parse_if_eight_digits` in `parse.h` — wrapped in `#if defined(__aarch64__) && defined(__clang__)`: original `while(>= 8)` replaced with `while(>= 16)` (processes 16 digits per iteration) + `if(>= 8)` for residuals. GCC path unchanged.
+
+**Result**:
+- Clang random: 1524 → 1613 MB/s (+5.8%), 245.02 → 223.02 i/f (−22.0!), 38.50 → 36.38 c/f
+- Clang canada: 1369 → 1420 MB/s (+3.7%), 207.90 → 198.17 i/f (−9.73), 35.56 → 34.27 c/f
+- Clang mesh: 1380 → 1395 MB/s (+1.1%), 101.96 → 98.50 i/f (−3.46), 14.90 → 14.74 c/f
+- GCC: all datasets unchanged (Clang-only #ifdef)
+
+**Root cause confirmed**: The −22 i/f drop on random is decisive. Random floats have ~9 fraction digits — the original while(≥8) loop fired exactly once with no back-edge taken, yet Clang still allocated registers conservatively as if the loop could iterate many times. Converting the 8-digit block to a plain `if` (no loop context) lets Clang see it as straight-line code and keep all SWAR constants in registers. This also explains why EXP-043 (source-level const naming) failed: the loop *structure* was the issue, not how constants were named. The universal unroll was tested and rejected because GCC's auto-unroll strategy conflicted with explicit unrolling (canada −5.7%, mesh −4.2% for GCC). The Clang-only #ifdef preserves GCC's optimized code.
+
+**Updated Clang-GCC gap**:
+- random: 1613 vs 1933 = −16.6% (was −21%); i/f gap 3.98 (was 25.98!)
+- canada: 1420 vs 1737 = −18.2% (was −21%); i/f gap 7.47 (was 17.20)
+- mesh: 1395 vs 1741 = −19.9% (was −21%); i/f gap 14.58 (was 18.04)
+
+---
+
+## EXP-043 — 2026-05-27 — Declare SWAR constants as named variables outside loop (Clang LICM)
+
+**Status**: REJECTED — no instruction reduction; random −2.6% (alignment regression)
+
+**Hypothesis**: Clang rematerializes ~11 SWAR constants inside `ffc_loop_parse_if_eight_digits` each iteration while GCC hoists them to callee-saved registers (x22/x23). Declaring them as explicit named `const` variables before the `while` loop should trigger Clang's LICM pass to hoist them into registers, reducing i/f and c/f.
+
+**Change**: `ffc_loop_parse_if_eight_digits` in `parse.h` — extracted `swar_check`, `swar_mask`, `swar_mul1`, `swar_mul2` as named `const uint64_t` variables before the loop and threaded them into `ffc_is_made_of_eight_digits_fast` and `ffc_parse_eight_digits_unrolled_swar` as explicit arguments.
+
+**Result**:
+- Clang random: 1524 → 1484 MB/s (−2.6%), 245.02 i/f (unchanged), 38.50 → 39.50 c/f
+- Clang canada: 1369 → 1370 MB/s (≈0%), 207.90 i/f (unchanged), 35.56 → 35.53 c/f
+- Clang mesh: 1380 → 1375 MB/s (−0.4%), 101.96 i/f (unchanged), 14.90 → 14.96 c/f
+- GCC: all datasets unchanged
+
+**Root cause**: i/f unchanged at 245.02 proves Clang generates identical code regardless of source-level naming. Register pressure in the large inlined `findmax_ffc` context exhausts caller-saved registers; Clang cannot keep additional values live across the loop back-edge without spilling. GCC's different register allocation (larger function, different spill decisions) naturally hoists constants. Source-level hints do not overcome this structural compiler difference. The random regression is a code layout/alignment artifact.
+
+---
+
+## EXP-042 — 2026-05-27 — Apply `FFC_DIGIT_ACC10` to exponent parsing accumulator
+
+**Status**: ACCEPTED — Clang +8.9% random, +1.7% mesh, +0.3% canada; GCC unchanged
+
+**Hypothesis**: The exponent accumulation loop (`exp_number = 10 * exp_number + digit`) uses the same scalar `acc*10+digit` pattern as the integer scan. Clang generates a `smaddl`-based 3-cycle chain here too. Applying `FFC_DIGIT_ACC10` (already defined from EXP-039) eliminates it.
+
+**Change**: `parse.h` line 416: `exp_number = 10 * exp_number + digit` → `exp_number = FFC_DIGIT_ACC10(exp_number, digit)`
+
+**Result**:
+- Clang random: 1399 → 1524 MB/s (+8.9%), 247.03 → 245.02 i/f (−2), 41.96 → 38.50 c/f (−3.46)
+- Clang canada: 1365 → 1369 MB/s (+0.3%), 208.99 → 207.90 i/f (−1), 35.65 → 35.56 c/f
+- Clang mesh: 1357 → 1380 MB/s (+1.7%), 103.96 → 101.96 i/f (−2), 15.16 → 14.90 c/f
+- GCC: all datasets unchanged (macro falls through to original expression)
+
+**Why random improves most**: The random dataset encodes ~2 exponent digits per float on average (consistent with −2 i/f). At ~1.7 cycles saved per iteration × 2 iterations, the −3.46 c/f follows directly. The exponent path was a latency bottleneck that EXP-039's macro was already positioned to fix — this was the second application site.
+
+---
+
+## EXP-041 — 2026-05-27 — Hoist `ffc_b10_to_b2(q)` before UMULH chain in `ffc_compute_float`
+
+**Status**: REJECTED — Clang −1.9% random, −0.7% canada; GCC −1.0% canada, −2.5% mesh; disrupted both schedulers
+
+### Hypothesis
+
+Profile shows `mul w0, w15, w6` (Clang, 217706*q = ffc_b10_to_b2) at 12.69% of Clang cycles
+in the Eisel-Lemire hot path. Clang reuses register w0 for both `2*q` (UMULH index) and
+`217706*q` (b10_to_b2), forcing sequential execution. Pre-computing `power_of_2_from_q =
+ffc_b10_to_b2(q)` before `ffc_compute_product_approximation` should let the multiply overlap
+with the 7+ cycle load+UMULH latency chain.
+
+### Changes Made
+
+In `ffc_compute_float` in `ffc.h`, introduced:
+```c
+int32_t power_of_2_from_q = ffc_b10_to_b2((int32_t)(q));  // before UMULH call
+```
+And replaced the inline call in `answer.power2 = ...` with `power_of_2_from_q`.
+
+### What Actually Happened
+
+Clang regressed: random −1.9% (248.03 i/f +1.0, 42.70 c/f +1.7%), canada −0.7%.
+GCC regressed: canada −1.0% (28.30 c/f +0.28), mesh −2.5% (12.08 c/f +0.30). i/f unchanged.
+
+The extra named variable (`power_of_2_from_q`) must be kept alive in a register for the entire
+UMULH computation chain, increasing register pressure. GCC was already scheduling
+`ffc_b10_to_b2` at the optimal point; the forced early computation disrupted scheduling.
+Clang's w0 reuse is a deliberate pressure-reducing choice, not a false dependency bug.
+
+The `mul w0, w15, w6` appearing at 12.69% in the profile reflects the start of the
+post-UMULH exponent assembly sequence, not a sequencing fault.
+
+### Why Rejected
+
+Both compilers regressed. Clang's scheduler already optimally placed the computation.
+Introducing an early intermediate adds register pressure without reducing stall cycles.
+
+---
+
+## EXP-040 — 2026-05-27 — Shift-add inline asm for SWAR `val*10` digit compression
+
+**Status**: REJECTED — Clang random −2.1%, canada −1.7%; GCC unchanged; extra instruction pressure offsets latency savings
+
+### Hypothesis
+
+`ffc_parse_four_digits_unrolled` (line 122) contains `val = (val * 10) + (val >> 8)` where
+`mul w15, w14, w26` appears at 4.13% in the Clang canada profile. Replacing with
+`add+lsl` (val*5 → val*10) should cut the 3-cycle `mul` latency to 2 cycles on the serial
+digit-compression chain. No inter-byte carry since packed digits ≤ 9 and 9×10 = 90 < 256.
+
+Applied same change to the 64-bit path in `ffc_parse_eight_digits_unrolled_swar` (0.97% hot).
+
+### Changes Made
+
+Added `ffc_swar_mul10_u32` / `ffc_swar_mul10_u64` inline asm functions and
+`FFC_SWAR_MUL10_U32` / `FFC_SWAR_MUL10_U64` macros, replacing `(val * 10)` in both
+SWAR compression functions.
+
+### What Actually Happened
+
+EXP-040 Clang results vs EXP-039 baseline (1399/1365/1357 MB/s):
+- Random: 1370 MB/s (−2.1%), 249.03 i/f (+2.0), 42.82 c/f (+2.1%)
+- Canada: 1342 MB/s (−1.7%), 210.97 i/f (+2.0), 36.28 c/f (+1.8%)
+- Mesh:   1356 MB/s (≈0%),   104.62 i/f (+0.7), 15.16 c/f (unchanged)
+
+GCC: unchanged (macro expands to `(val) * (uint32_t)10` / `(uint64_t)10` → plain mul).
+
+Both c/f AND i/f increased. The OOO processor was already hiding the 3-cycle `mul` latency
+by executing it in parallel with other work. Replacing 1 `mul` with 2 `add+lsl` instructions
+adds execution-unit pressure and instruction-cache pressure that outweighs the latency benefit.
+
+The 4.13% profile sample at `mul w15, w14, w26` reflects frequency of that code path, not a
+latency bottleneck. The SWAR digit-compression path is NOT the critical path for Clang on ARM.
+
+### Why Rejected
+
+Regression on all datasets. OOO execution hid the `mul` latency; extra instruction count
+hurts more than the 1-cycle latency reduction helps.
+
+---
+
+## EXP-039 — 2026-05-27 — AArch64/Clang shift-add inline asm for byte-by-byte digit accumulator
+
+**Status**: ACCEPTED — +2.2% Clang canada, +1.4% Clang random, +0.4% Clang mesh; GCC unchanged
+
+### Hypothesis
+
+Clang emits `smaddl x11, w11, w26, x12` (3-cycle latency) + deferred `sub x11, x11, #0x30`
+(1-cycle) = 4-cycle recurrence per digit level in the byte-by-byte integer scan and fraction tail.
+GCC naturally strength-reduces `i*10` to `add x1, x1, x1, lsl #2; add x1, x0, x1, lsl #1`
+(2-cycle chain). Forcing the shift-add sequence via inline asm on AArch64/Clang should cut
+the per-digit serial chain from 4 cycles to 2 cycles.
+
+### Changes Made
+
+New helper and macro added in `parse.h`, just before `ffc_loop_parse_if_eight_digits`:
+
+```c
+#if defined(__aarch64__) && defined(__clang__)
+ffc_internal ffc_inline uint64_t
+ffc_digit_acc10(uint64_t acc, uint64_t d) {
+  uint64_t result;
+  __asm__("add %0, %2, %2, lsl #2\n\t"
+          "add %0, %1, %0, lsl #1"
+          : "=r"(result) : "r"(d), "r"(acc));
+  return result;
+}
+#define FFC_DIGIT_ACC10(acc, d_expr) ffc_digit_acc10((acc), (uint64_t)(d_expr))
+#else
+#define FFC_DIGIT_ACC10(acc, d_expr) ((acc) * 10 + (uint64_t)(d_expr))
+#endif
+```
+
+8 call sites replaced with `FFC_DIGIT_ACC10(i, ...)`:
+- 4 integer scan levels (levels 2–5 in the nested-if)
+- 1 while-loop body
+- 3 fraction byte-by-byte tail levels
+
+### What Actually Happened
+
+Clang generates the 2-instruction shift-add sequence as intended. The `=r` (non-early-clobber)
+constraint lets the compiler assign the output to the same register as `acc` — no extra `mov`
+needed to copy the result back to the accumulator variable.
+
+i/f increases on canada (+4.9) and mesh (+1.9) because shift-add emits 2 instructions vs 1 `mul`.
+With ~5 accumulation calls per canada float, +5 i/f is expected. c/f drops because the
+2-cycle chain replaces the 4-cycle mul chain.
+
+GCC preserved: the `#else` macro expands to `((acc) * 10 + (uint64_t)(d_expr))`, identical to
+the original expression. GCC sees no change and produces identical code.
+
+Clang results vs EXP-038 baseline (1379/1335/1351 MB/s, 248.03/204.08/102.10 i/f, 42.55/36.47/15.21 c/f):
+- Random: 1399 MB/s (+1.4%), 247.03 i/f (−1.0), 41.96 c/f (−1.4%)
+- Canada: 1365 MB/s (+2.2%), 208.99 i/f (+4.9), 35.65 c/f (−2.2%)
+- Mesh:   1357 MB/s (+0.4%), 103.96 i/f (+1.9), 15.16 c/f (−0.3%)
+
+GCC results (baseline 1927/1737/1741):
+- Random: 1921 MB/s (−0.3%, noise), 219.04 i/f, 30.54 c/f
+- Canada: 1737 MB/s (0%)
+- Mesh:   1745 MB/s (+0.2%, noise)
+
+### Why Accepted
+
+Canada +2.2% meets the ≥2% single-dataset threshold. GCC at baseline. The shift-add technique
+confirms the byte-by-byte accumulator was a real bottleneck for Clang on canada (multi-digit
+integer parts). The gap between Clang and GCC narrows from ~26% (canada) to ~21% after this change.
+
+---
+
+## EXP-038 — 2026-05-27 — Inline asm `madd` for SWAR accumulator on AArch64
+
+**Status**: REJECTED — Clang unchanged (0%); GCC random c/f −2.9% improvement absorbed by noise; `lsr`+`madd` (2 insn) replaces `add-with-barrel-shift` (1 insn), net cost +1 instruction
+
+### Hypothesis
+
+Clang emits `mul x20, x20, x18` (at t=0, waits for SWAR result at t=16) + `add x20, x20, x6, lsr#32`
+(1 cycle; serialized) = 17-cycle recurrence between loop iterations. GCC emits
+`madd x19, x19, x14, x5` (single instruction, starts when SWAR ready at t=3) = 3-cycle recurrence.
+Forcing a `madd` instruction via inline asm should close the recurrence gap.
+
+### Changes Made
+
+In `ffc_loop_parse_if_eight_digits`:
+```c
+uint64_t ffc_swar = ffc_parse_eight_digits_unrolled_swar(val);
+#if defined(__aarch64__) && (defined(__clang__) || defined(__GNUC__))
+    __asm__("madd %0, %0, %1, %2"
+            : "+r"(*i)
+            : "r"((uint64_t)100000000ULL), "r"(ffc_swar));
+#else
+    *i = (*i * 100000000) + ffc_swar;
+#endif
+```
+
+### What Actually Happened
+
+The `madd` IS generated by Clang (confirmed at address 0x7310). However, `madd` on AArch64
+cannot use a barrel-shifted source operand (unlike `add`). The old code was:
+```
+add x20, x20, x6, lsr#32   ← 1 instruction (shift is free in barrel shifter)
+```
+The new code is:
+```
+lsr x6, x6, #32             ← explicit shift instruction
+madd x20, x20, x5, x6       ← madd (3-cycle latency)
+```
+Net: +1 instruction. For a single SWAR iteration, result ready at t=20 (new) vs t=17 (old).
+The cycle cost of the extra `lsr` fully offsets any `madd` benefit.
+
+Clang results vs EXP-036 baseline (~1381/1333/1348 MB/s):
+- Random: 1379 MB/s (≈−0.1%), 248.03 i/f, 42.55 c/f
+- Canada: 1335 MB/s (≈+0.1%), 204.08 i/f, 36.47 c/f
+- Mesh:   1351 MB/s (≈+0.2%), 102.10 i/f, 15.21 c/f
+
+GCC random c/f improved 31.27→30.38 (−2.9% cycles, same i/f) from a coincidental CSE
+improvement: the inline asm restructuring caused GCC to eliminate the `val -= 0x3030...`
+step in the SWAR body by reusing the register from the digit-check expression.
+This is a GCC register allocator artifact, not the intended benefit.
+
+### Key Finding
+
+The SWAR loop is NOT the primary bottleneck. Instruction count breakdown for random [0,1]:
+- Clang: 248 i/f total, of which ~19 i/f is the SWAR loop body × iterations
+- GCC: 219 i/f total, of which ~20-21 i/f is the SWAR loop body × iterations
+- Non-SWAR path: Clang has ~15-29 extra instructions vs GCC across datasets
+- Mesh (no SWAR): Clang 102 i/f vs GCC 83-88 i/f = 14-19 extra non-SWAR instructions
+
+The real gap is in the integer-part scan, sign detection, Clinger path, and
+`ffc_compute_float` / `ffc_b10_to_b2`. Targeting the SWAR loop further is unproductive.
+
+---
+
+## EXP-037 — 2026-05-27 — Do-while loop restructuring for SWAR accumulator
+
+**Status**: REJECTED — Adds an extra inner branch for single-iteration SWAR (the common case); GCC regressed ~3% on all datasets; Clang unchanged
+
+### Hypothesis
+
+The `while` loop requires the accumulator update to happen inside the body, keeping `*i`
+as a live dependency through each iteration. Restructuring to `do { check; update } while`
+or hoisting the digit check might allow the compiler to schedule the `*i * 100000000`
+multiply in parallel with the 8-byte load, cutting 3 cycles of serial latency.
+
+### Changes Made
+
+In `ffc_loop_parse_if_eight_digits`, restructured the while loop to a do-while with an
+early `if (pend - *p < 8) return;` guard before the loop entry. Added explicit inner
+bounds check to allow break without re-evaluating the outer while condition.
+
+### What Actually Happened
+
+GCC results vs baseline (~1932/1737/1741 MB/s):
+- Random: ~1875 MB/s (−3%)
+- Canada: ~1679 MB/s (−3%)
+- Mesh:   ~1686 MB/s (−3%)
+
+Clang results: ≈0% change on all datasets.
+
+The do-while structure added an extra `if (pend - *p >= 8)` inner check for the loop-exit
+case. For numbers with a single 8-digit SWAR iteration (the common case in canada/random),
+this adds one branch evaluation that the original while loop avoids by falling through
+naturally. GCC's register allocation does not hoist the multiply across the restructured
+control flow, so the supposed latency benefit never materializes.
+
+---
+
+## EXP-036 — 2026-05-27 — SWAR `val*10` strength reduction for Clang/AArch64
+
+**Status**: REJECTED — No improvement on any dataset (±0.4% within noise), adds 1-2 i/f with no speed gain
+
+### Hypothesis
+
+In `ffc_parse_eight_digits_unrolled_swar` and `ffc_parse_four_digits_unrolled`, the line
+`val = (val * 10) + (val >> 8)` uses a 64-bit multiply-by-10 (3-cycle latency on Neoverse V2).
+GCC strength-reduces this to `add x5, x7, x7, lsl #2; lsr x7, x7, #8; add x5, x7, x5, lsl #1`
+— two independent 1-cycle operations in parallel, total 2-cycle latency. Clang emits
+`mul (3-cycle) + add (1-cycle) = 4-cycle serial path`. Forcing the GCC-style parallel
+shift-add sequence via AArch64 inline asm should close 2 cycles from the SWAR critical path.
+
+### Changes Made
+
+In `ffc/src/parse.h`:
+1. `ffc_parse_eight_digits_unrolled_swar`: replaced `val = (val * 10) + (val >> 8)` with
+   AArch64/Clang inline asm: `lsr t, val, #8; add val, val, val, lsl#2; add t, t, val, lsl#1`
+   (uses `=&r` early-clobber to ensure independence and parallel scheduling)
+2. `ffc_parse_four_digits_unrolled`: same fix with 32-bit `%w` register forms
+
+Both guarded by `#if defined(__aarch64__) && defined(__clang__)`.
+
+### What Actually Happened
+
+The fix IS algebraically correct: Clang CSE-elides the `val -= 0x3030...` step in
+`ffc_parse_eight_digits_unrolled_swar` by reusing `val + 0xcfcfcfcfcfcfcfd0` from the digit
+check (since `0xcfcfcfcfcfcfcfd0 = -0x3030303030303030 mod 2^64`). The inline asm receives
+the correct adjusted value.
+
+The fix DID produce 1 extra instruction per SWAR iteration (3-instruction shift-add sequence
+vs 2-instruction mul+add), confirmed by i/f metrics (248→250 with asm for random).
+
+But there was NO speedup. Analysis:
+- After replacing `val*10` with shift-adds, the SWAR critical path still ends with
+  `mul x5, x5, mul1 (3 cycles) → madd x5, x5, mul2, x5 (3 cycles)` = 6-cycle chain
+- The 2-cycle savings on `val*10` are absorbed by the OOO scheduler — the downstream
+  6-cycle multiply chain was already the bottleneck
+- Neoverse V2 can issue mul at 0.5 cycles/instruction; 3 muls per SWAR iteration at
+  0.5 throughput = 6-cycle minimum regardless of `val*10` latency
+
+### Root Cause of Clang-GCC Gap (Updated Understanding)
+
+From perf stat: Clang 18.38% vs GCC 13.50% backend stall. The gap is NOT from any
+single instruction but from the aggregate throughput of multiply units. Key data:
+- GCC: 219.04 i/f, 7.21 IPC, 9.96 i/B
+- Clang: 248.04 i/f, 5.87 IPC, 11.37 i/B
+- Difference: 29 i/f MORE for Clang; GCC has 29% higher IPC
+
+The SWAR loop body analysis:
+- GCC structure: check (tst) at bottom → if all-digits: backward branch to accumulate;
+  else fall-through to 4-digit SWAR. Only 1 explicit branch per hot-path iteration.
+- Clang structure: while-loop with check at top → forward-branch on fail (to exit);
+  backward-branch at bottom (loop-back). 2 branches per hot-path iteration.
+- Additionally, GCC's "fall-through to 4-digit SWAR" on loop exit requires NO branch
+  for the transition from 8-digit to 4-digit SWAR mode.
+
+### Results
+
+| Dataset | Clang before | Clang after | GCC before | GCC after |
+|---------|-------------|-------------|-----------|-----------|
+| random | 1388 MB/s | 1381 MB/s (−0.5%) | 1927 MB/s | 1932 MB/s (+0.3%) |
+| canada | 1334 MB/s | 1333 MB/s (−0.1%) | 1737 MB/s | 1737 MB/s (flat) |
+| mesh | 1345 MB/s | 1348 MB/s (+0.2%) | 1726 MB/s | 1741 MB/s (+0.9%) |
+
+All changes within measurement noise (±0.5-1%). Reverted.
+
+### Decision
+
+**REJECTED** — No improvement. The `val*10` step in SWAR is NOT on the critical path
+after OOO scheduling covers it. Future Clang-gap investigation should focus on loop
+structure (GCC's do-while fall-through pattern vs Clang's while-loop) which eliminates
+1 branch per SWAR iteration AND enables direct fall-through from 8-digit to 4-digit SWAR.
+
+---
+
 ## EXP-035 — 2026-05-27 — `ffc_acc10` inline asm: replace Clang/AArch64 `smaddl` with `add+lsl` for digit accumulation
 
 **Status**: REJECTED — Clang improved +0.5-2.3% but GCC regressed −5.3% canada; hypothesis wrong

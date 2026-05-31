@@ -1,0 +1,72 @@
+# EXP-044: Manual 2x unroll of ffc_loop_parse_if_eight_digits (Clang/AArch64 only)
+# Host: ubuntu@3.92.205.222 (AWS m8g.metal-24xl, Graviton4 / Neoverse V2)
+# Compiler: clang-18 and gcc-13, -march=native -O3 -DFFC_ROUNDS_TO_NEAREST
+#
+# EXP-042 baseline (Clang): random 1524/245.02/38.50  canada 1369/207.90/35.56  mesh 1380/101.96/14.90
+# EXP-042 baseline (GCC):   random 1930/219.04/30.39  canada 1737/190.70/28.03  mesh 1738/83.92/11.83
+#
+# EXP-044 Clang results:
+# random [0,1]:   1613 MB/s  (+5.8%)   223.02 i/f (−22.0)   36.38 c/f (−2.12, −5.5%)
+# canada.txt:     1420 MB/s  (+3.7%)   198.17 i/f (−9.73)   34.27 c/f (−1.29, −3.6%)
+# mesh.txt:       1395 MB/s  (+1.1%)    98.50 i/f (−3.46)   14.74 c/f (−0.16, −1.1%)
+#
+# EXP-044 GCC results (unchanged — Clang-only #ifdef):
+# random [0,1]:   1933 MB/s  (≈0%)    219.04 i/f   30.35 c/f
+# canada.txt:     1737 MB/s  (≈0%)    190.70 i/f   28.02 c/f
+# mesh.txt:       1741 MB/s  (≈0%)     83.92 i/f   11.81 c/f
+#
+# Change: ffc_loop_parse_if_eight_digits in parse.h
+#   For __aarch64__ && __clang__ only:
+#   - The original while(>= 8) loop is replaced with:
+#       while(>= 16) { process val1+val2 as 2 independent SWAR blocks }
+#       if(>= 8)    { process single 8-digit block (no back-edge) }
+#   - GCC path: unchanged original while(>= 8) loop
+#
+# Analysis:
+# The −22 i/f drop on random is the key result. Random floats have ~9 fraction
+# digits so the original while(>= 8) fired once (trivially, no back-edge), yet
+# Clang still treated SWAR constants as loop-body rematerializations under the
+# high register pressure of the inlined findmax_ffc context.
+#
+# Converting to a while(>= 16) loop that fires zero times for random, followed
+# by a plain if(>= 8) for the one-shot 8-digit block, removes the loop context
+# entirely. Clang then sees the SWAR code as a straight-line block with no loop
+# back-edges, and allocates registers optimally rather than conservatively.
+# Constants (mul1, mul2, 100000000) are kept live throughout the linear path.
+#
+# Canada benefits from the 2x loop eliminating the back-edge for 16-digit
+# fractions (one 16-digit iteration vs two 8-digit iterations), reducing
+# SWAR constant rematerialization from 2 rounds to 1.
+#
+# EXP-043 failure was expected: it only renamed constants but Clang still
+# treated them as compile-time constants rematerialized inside the while loop.
+# EXP-044's change works because it removes the while loop context itself.
+#
+# GCC auto-unrolls the original while(>= 8) naturally (23% larger binary).
+# Manual unrolling conflicted with GCC's strategy (tested: universal unroll
+# caused canada −5.7% and mesh −4.2% for GCC). The Clang-only #ifdef preserves
+# GCC's existing well-optimized behavior.
+#
+# Updated Clang-GCC gap:
+# random:  1613 vs 1933 = −16.6% (was −21%)
+# canada:  1420 vs 1737 = −18.2% (was −21%)
+# mesh:    1395 vs 1741 = −19.9% (was −21%)
+# i/f gap:
+# random:  223.02 vs 219.04 = +3.98 (was +25.98; nearly closed!)
+# canada:  198.17 vs 190.70 = +7.47 (was +17.20)
+# mesh:     98.50 vs  83.92 = +14.58 (was +18.04)
+#
+# Decision: ACCEPTED
+#
+# Raw benchmark output (clang, random):
+# ffc : 1612.68 MB/s (+/- 0.5%)  76.86 Mfloat/s  10.14 i/B  223.02 i/f  1.65 c/B  36.38 c/f  6.13 i/c
+# Raw benchmark output (clang, canada):
+# ffc : 1420.45 MB/s (+/- 0.2%)  81.63 Mfloat/s  10.86 i/B  198.17 i/f  1.88 c/B  34.27 c/f  5.78 i/c
+# Raw benchmark output (clang, mesh):
+# ffc : 1394.71 MB/s (+/- 0.7%) 190.00 Mfloat/s  12.80 i/B   98.50 i/f  1.92 c/B  14.74 c/f  6.68 i/c
+# Raw benchmark output (gcc, random):
+# ffc : 1932.67 MB/s (+/- 0.5%)  92.12 Mfloat/s   9.96 i/B  219.04 i/f  1.38 c/B  30.35 c/f  7.22 i/c
+# Raw benchmark output (gcc, canada):
+# ffc : 1737.32 MB/s (+/- 0.1%)  99.84 Mfloat/s  10.45 i/B  190.70 i/f  1.54 c/B  28.02 c/f  6.81 i/c
+# Raw benchmark output (gcc, mesh):
+# ffc : 1741.11 MB/s (+/- 0.6%) 237.19 Mfloat/s  10.90 i/B   83.92 i/f  1.53 c/B  11.81 c/f  7.11 i/c
