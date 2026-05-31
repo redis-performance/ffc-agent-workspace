@@ -9,6 +9,30 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-052 — 2026-06-01 — [fast_float] 2x unroll of char loop_parse_if_eight_digits
+
+**Target**: fast_float — `ascii_number.h` char `loop_parse_if_eight_digits` (ffc EXP-044)
+**Hypothesis**: the fraction SWAR loop processes 8 digits/iteration; a Clang/AArch64
+16-digit unroll removes the back-edge for typical 17-digit [0,1] mantissas.
+**Files changed**: `fast_float/include/fast_float/ascii_number.h`
+
+### Step 1: Benchmark — ARM, fast_float canonical MB/s vs EXP-050
+| Dataset | Clang before→after | Δ% | GCC |
+| random | 1328.8→1365.7 | **+2.8%** | unchanged (#else) |
+| canada | 1051.6→1056.3 | +0.5% | unchanged |
+| mesh   |  884.7→899.4 | +1.7% | unchanged |
+
+### Step 2: Profile
+Clang random benefits most (the long-fraction path); GCC takes the original
+auto-unrolled loop, so it is untouched by design.
+
+**Decision**: accept (fast_float `ee84946`)
+**Reason**: Clang random +2.8% (the target path), mesh +1.7%, no regression; GCC
+unchanged. Mirrors ffc EXP-044's Clang-only win.
+**Race Δ**: closes Clang gap further (random +13.7%→+10.6%); ffc still leads all cells.
+
+---
+
 ## EXP-051 — 2026-06-01 — [fast_float] FASTFLOAT_ASSUME_ROUNDS_TO_NEAREST compile-time macro
 
 **Target**: fast_float — `parse_number.h` `rounds_to_nearest()` (port of ffc EXP-030)

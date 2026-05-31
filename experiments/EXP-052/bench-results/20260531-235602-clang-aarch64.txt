@@ -1,0 +1,37 @@
+# ffc-agent-workspace RACE benchmark — 20260531-235602
+# host: ip-172-31-55-171  arch: aarch64  cpu: 0xd4f
+# compiler: clang (Ubuntu clang version 18.1.3 (1ubuntu1))
+# ffc-commit: 6ccc765
+# fast_float-commit: 7790aa6   fast_float-base(upstream/main): 7790aa6
+# canonical row = FIRST 'fastfloat' per section (char from_chars->double), paired with 'ffc'
+
+
+===== random [0,1] =====
+# parsing random numbers
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB 
+strtod                                  :   219.09 MB/s (+/- 0.1 %)    10.44 Mfloat/s      49.29 i/B  1084.32 i/f (+/- 0.0 %)     12.17 c/B   267.75 c/f (+/- 0.1 %)      4.05 i/c    207.03 b/f    141.47 bm/f      2.80 GHz 
+abseil                                  :   596.61 MB/s (+/- 0.7 %)    28.44 Mfloat/s      24.23 i/B   533.15 i/f (+/- 0.0 %)      4.47 c/B    98.31 c/f (+/- 0.7 %)      5.42 i/c    120.71 b/f     30.14 bm/f      2.80 GHz 
+fastfloat                               :  1365.66 MB/s (+/- 0.5 %)    65.09 Mfloat/s      12.73 i/B   280.04 i/f (+/- 0.0 %)      1.95 c/B    42.97 c/f (+/- 0.4 %)      6.52 i/c     54.00 b/f      0.66 bm/f      2.80 GHz 
+ffc                                     :  1509.53 MB/s (+/- 0.4 %)    71.95 Mfloat/s      10.27 i/B   226.04 i/f (+/- 0.0 %)      1.77 c/B    38.88 c/f (+/- 0.3 %)      5.81 i/c     39.00 b/f      0.66 bm/f      2.80 GHz 
+fastfloat                               :  2500.86 MB/s (+/- 0.6 %)    59.60 Mfloat/s       6.77 i/B   298.04 i/f (+/- 0.0 %)      1.07 c/B    46.94 c/f (+/- 0.5 %)      6.35 i/c     53.00 b/f      0.66 bm/f      2.80 GHz 
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+
+===== canada.txt =====
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+strtod                                  :   168.33 MB/s (+/- 0.2 %)     9.67 Mfloat/s      71.32 i/B  1301.30 i/f (+/- 0.0 %)     15.84 c/B   289.08 c/f (+/- 0.2 %)      4.50 i/c    237.50 b/f    118.39 bm/f      2.80 GHz 
+abseil                                  :   547.13 MB/s (+/- 0.3 %)    31.44 Mfloat/s      25.16 i/B   459.02 i/f (+/- 0.0 %)      4.87 c/B    88.95 c/f (+/- 0.2 %)      5.16 i/c    101.23 b/f     42.47 bm/f      2.80 GHz 
+fastfloat                               :  1056.29 MB/s (+/- 0.2 %)    60.70 Mfloat/s      15.11 i/B   275.65 i/f (+/- 0.0 %)      2.53 c/B    46.08 c/f (+/- 0.1 %)      5.98 i/c     57.70 b/f     13.32 bm/f      2.80 GHz 
+ffc                                     :  1387.37 MB/s (+/- 0.2 %)    79.73 Mfloat/s      10.92 i/B   199.26 i/f (+/- 0.0 %)      1.92 c/B    35.09 c/f (+/- 0.1 %)      5.68 i/c     35.26 b/f     16.86 bm/f      2.80 GHz 
+fastfloat                               :  2118.13 MB/s (+/- 0.2 %)    60.86 Mfloat/s       8.17 i/B   298.00 i/f (+/- 0.0 %)      1.26 c/B    45.97 c/f (+/- 0.1 %)      6.48 i/c     57.68 b/f     11.15 bm/f      2.80 GHz 
+
+===== mesh.txt =====
+# read 73019 lines 
+ASCII volume = 0.536009 MB 
+strtod                                  :   174.31 MB/s (+/- 0.5 %)    23.75 Mfloat/s      83.13 i/B   639.88 i/f (+/- 0.0 %)     15.30 c/B   117.76 c/f (+/- 0.5 %)      5.43 i/c    124.65 b/f     27.88 bm/f      2.80 GHz 
+abseil                                  :   323.55 MB/s (+/- 0.4 %)    44.08 Mfloat/s      46.86 i/B   360.69 i/f (+/- 0.0 %)      8.24 c/B    63.45 c/f (+/- 0.4 %)      5.68 i/c     80.64 b/f     17.96 bm/f      2.80 GHz 
+fastfloat                               :   899.38 MB/s (+/- 1.7 %)   122.52 Mfloat/s      20.55 i/B   158.22 i/f (+/- 0.0 %)      2.97 c/B    22.86 c/f (+/- 1.3 %)      6.92 i/c     37.04 b/f      6.90 bm/f      2.80 GHz 
+ffc                                     :  1421.37 MB/s (+/- 1.9 %)   193.63 Mfloat/s      12.93 i/B    99.56 i/f (+/- 0.0 %)      1.88 c/B    14.46 c/f (+/- 1.7 %)      6.88 i/c     21.91 b/f      5.64 bm/f      2.80 GHz 
+fastfloat                               :  1711.82 MB/s (+/- 0.6 %)   116.60 Mfloat/s      10.76 i/B   165.72 i/f (+/- 0.0 %)      1.56 c/B    24.02 c/f (+/- 0.4 %)      6.90 i/c     36.92 b/f      6.27 bm/f      2.80 GHz 

@@ -48,9 +48,9 @@ Canonical MB/s, stable (±0.1–1.8%). ffc `6ccc765`. fast_float advancing on
 | GCC   | random | 1920.7 | 1088.5 | **ffc** | +76.5%  | EXP-050 |
 | GCC   | canada | 1737.2 |  924.0 | **ffc** | +88.0%  | EXP-050 |
 | GCC   | mesh   | 1736.9 |  495.8 | **ffc** | +250.3% | EXP-050 |
-| Clang | random | 1510.7 | 1328.8 | **ffc** | +13.7%  | EXP-050 |
-| Clang | canada | 1387.3 | 1051.6 | **ffc** | +31.9%  | EXP-050 |
-| Clang | mesh   | 1423.3 |  884.7 | **ffc** | +60.9%  | EXP-050 |
+| Clang | random | 1510.7 | 1365.7 | **ffc** | +10.6%  | EXP-052 |
+| Clang | canada | 1387.3 | 1056.3 | **ffc** | +31.3%  | EXP-052 |
+| Clang | mesh   | 1423.3 |  899.4 | **ffc** | +58.2%  | EXP-052 |
 
 Start-line baseline (EXP-049, fast_float `7790aa6` v8): GCC 1088/889/369,
 Clang 1267/1023/842. Files: `experiments/EXP-049/bench-results/`.
