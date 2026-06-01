@@ -291,3 +291,10 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > Conclusion: the follow-up must inline (canada/mesh benefit) but inlining bloats gcc
 > random — no middle ground. #382's clang-gate is optimal. The gcc 4-digit follow-up
 > avenue is permanently closed.
+
+> **fast_float acc10 shift-add asm (ffc EXP-039/042 port) — REJECTED (2026-06-02).**
+> FASTFLOAT_ACC10 clang/aarch64 add+lsl for the integer/fraction/exponent accumulators
+> failed the gcc -Werror gate (the uint64_t cast narrows the int64_t exponent under
+> -Wsign-conversion). Also fundamentally non-upstreamable: inline asm breaks fast_float's
+> constexpr path. Even race-only it's marginal (acc10 saves ~1cyc on short accumulations).
+> Don't retry — fast_float's strict warnings + constexpr make inline-asm tricks unviable.
