@@ -306,3 +306,10 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > cells within noise (the ARM −25% gcc cliff does NOT occur on x86, but it's merely
 > neutral — no win). ARM-rejected compute-path ports don't become x86 wins; both
 > surfaces are at the same frontier.
+
+> **x86 SSE2 16-byte char digit-scan — REJECTED (2026-06-02).** Added an SSE2 path to
+> consume 16 char digits/iter. Correct (gate passed) but SLOWER on pinned x86: gcc
+> random −5.7%/mesh −7.1%, clang random −2.9%. The scalar read8_to_u64 + magic-multiply
+> parse_eight_digits beats SSE's per-iter setup (load/cmp/movemask/extract) for char —
+> confirming upstream's deliberate "scalar is better for char" choice, still true on
+> modern x86 (Core Ultra). SIMD char digit-scan is a non-starter.
