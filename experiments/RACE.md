@@ -137,6 +137,27 @@ program.md Known Non-Starters). ffc itself is at its tuned ceiling on this surfa
 > line overstate the improvement*. Always measure base+patch back-to-back
 > (program.md). EXP-052/053 deltas carry the same caveat.
 
+
+## x86 — local fco-tp, CORE-PINNED (2026-06-02, reliable ±0.3%)
+
+taskset -c 3 fixes the cross-run swing (±25%→±0.3%); local x86 is now usable for
+rigorous racing. ffc `6ccc765` vs merged-upstream fast_float `ed86132`.
+
+| Compiler | Dataset | ffc | fast_float | Leader | Gap |
+|----------|---------|----:|-----------:|--------|----:|
+| GCC   | random | 954.2 | 943.3 | **ffc** | +1.2% |
+| GCC   | canada | 747.5 | 674.1 | **ffc** | +10.9% |
+| GCC   | mesh   | 727.4 | 550.3 | **ffc** | +32.2% |
+| Clang | random | 699.1 | 673.5 | **ffc** | +3.8% |
+| Clang | canada | 670.7 | 576.6 | **ffc** | +16.3% |
+| Clang | mesh   | 632.6 | 394.2 | **ffc** | +60.5% |
+
+ffc leads all x86 cells too, but gaps are FAR smaller than ARM (gcc mesh +32% vs ARM
++247%) — ffc's ARM-only inline-asm (FFC_DIGIT_ACC10 etc.) doesn't apply on x86, so its
+edge is mostly the algorithm. **gcc random is nearly tied (+1.2%)** — the cell where
+fast_float is closest to its first win. Remaining gaps are compute-path (the merged
+digit-scan wins are already present on x86 via upstream).
+
 ## Update protocol
 
 On every **accepted** experiment, update the relevant cell(s) here and note the

@@ -53,6 +53,12 @@ RUN_CMD=""
 if command -v sudo &>/dev/null && sudo -n true 2>/dev/null; then
   RUN_CMD="sudo"
 fi
+# Pin to an isolated core for stable numbers on noisy/shared boxes (e.g. the local
+# x86 laptop swings ±25% unpinned, ±0.3% pinned). Set PIN_CPU= to disable.
+PIN_CPU="${PIN_CPU:-3}"
+if [[ -n "$PIN_CPU" ]] && command -v taskset &>/dev/null; then
+  RUN_CMD="$RUN_CMD taskset -c $PIN_CPU"
+fi
 
 run() {
   local label="$1"; shift
