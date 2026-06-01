@@ -9,6 +9,18 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-056 — 2026-06-01 — [fast_float] combined Clinger exponent range check (port of ffc EXP-012)
+
+**Target**: fast_float — `clinger_fast_path_impl` range test
+**Decision**: reject (reverted)
+**Reason**: GCC canada **−25.4%** (948→707) — folding the two signed comparisons into
+one unsigned range test wrecked GCC's codegen/path selection for canada's exponents
+(correctness fine, 14/14 pass; pure perf cliff). Clang flat. Third compute-path
+regression in a row (EXP-051/055/056): **compute/Clinger-path edits do not transfer
+ffc→fast_float; only digit-scanning ports (EXP-050/052/053) do.**
+
+---
+
 ## EXP-055 — 2026-06-01 — [fast_float] exponent==0 integer fast path (port of ffc EXP-033)
 
 **Target**: fast_float — `from_chars_advanced(pns, value)` before the Clinger call
