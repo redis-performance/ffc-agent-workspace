@@ -193,3 +193,9 @@ address isn't on record (only ARM EIP 3.92.205.222). Until then the x86 half of 
   race (canada gap +18%→+5.3%) since fast_float gains more on canada/mesh. Reusable
   via `scripts/build-bench-pgo.sh`. (gcc PGO/LTO by contrast were mixed — helped ffc,
   hurt fast_float.)
+
+- **clang PGO CONFIRMED on ARM metal (official scoreboard)**: both parsers up —
+  random ffc +23.7%/ff +31.4%, canada ffc +17.5%/ff +28.9%, mesh ffc +3.6%/ff +40.6%.
+  clang-PGO standings (the fastest config, ARM): ffc 1865/1631/1475, ff 1711/1516/1319
+  → gaps random +9.0%, canada +7.6%, mesh +11.8% (vs +16/+18/+52% non-PGO). PGO
+  disproportionately helps fast_float, materially narrowing the race on both arches.
