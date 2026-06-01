@@ -1,0 +1,37 @@
+# ffc-agent-workspace RACE benchmark — 20260601-225648
+# host: ip-172-31-55-171  arch: aarch64  cpu: 0xd4f
+# compiler: gcc (gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0)
+# ffc-commit: 6ccc765
+# fast_float-commit: 7790aa6   fast_float-base(upstream/main): 7790aa6
+# canonical row = FIRST 'fastfloat' per section (char from_chars->double), paired with 'ffc'
+
+
+===== random [0,1] =====
+# parsing random numbers
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB 
+strtod                                  :   218.91 MB/s (+/- 0.2 %)    10.43 Mfloat/s      15.36 i/B   337.93 i/f (+/- 6.4 %)      3.79 c/B    83.45 c/f (+/- 6.4 %)      4.05 i/c     68.94 b/f     47.32 bm/f      0.87 GHz 
+abseil                                  :   728.28 MB/s (+/- 1.5 %)    34.71 Mfloat/s       8.18 i/B   180.00 i/f (+/- 8.5 %)      1.12 c/B    24.61 c/f (+/- 9.7 %)      7.31 i/c     43.50 b/f      0.30 bm/f      0.85 GHz 
+fastfloat                               :  1105.53 MB/s (+/- 0.5 %)    52.69 Mfloat/s  
+ffc                                     :  1930.55 MB/s (+/- 0.3 %)    92.01 Mfloat/s  
+fastfloat                               :  2152.08 MB/s (+/- 0.4 %)    51.29 Mfloat/s  
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+
+===== canada.txt =====
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+strtod                                  :   168.11 MB/s (+/- 0.1 %)     9.66 Mfloat/s      21.74 i/B   396.75 i/f (+/- 8.5 %)      4.82 c/B    88.04 c/f (+/- 8.6 %)      4.51 i/c     79.13 b/f     39.29 bm/f      0.85 GHz 
+abseil                                  :   644.32 MB/s (+/- 0.1 %)    37.03 Mfloat/s       9.43 i/B   172.06 i/f (+/- 0.8 %)      1.36 c/B    24.88 c/f (+/- 0.9 %)      6.92 i/c     37.48 b/f      3.41 bm/f      0.92 GHz 
+fastfloat                               :   908.17 MB/s (+/- 0.2 %)    52.19 Mfloat/s       0.84 i/B    15.33 i/f (+/- 81.8 %)      0.18 c/B     3.28 c/f (+/- 81.8 %)      4.68 i/c     15.44 b/f      4.49 bm/f      0.17 GHz 
+ffc                                     :  1728.39 MB/s (+/- 0.2 %)    99.32 Mfloat/s  
+fastfloat                               :  1817.42 MB/s (+/- 0.2 %)    52.22 Mfloat/s       0.41 i/B    15.12 i/f (+/- 81.8 %)      0.09 c/B     3.25 c/f (+/- 81.7 %)      4.65 i/c     14.84 b/f      4.11 bm/f      0.17 GHz 
+
+===== mesh.txt =====
+# read 73019 lines 
+ASCII volume = 0.536009 MB 
+strtod                                  :   173.94 MB/s (+/- 0.3 %)    23.70 Mfloat/s      23.46 i/B   180.59 i/f (+/- 15.0 %)      4.95 c/B    38.10 c/f (+/- 3.0 %)      4.74 i/c     41.37 b/f      9.30 bm/f      0.90 GHz 
+abseil                                  :   366.80 MB/s (+/- 1.2 %)    49.97 Mfloat/s  
+fastfloat                               :   498.32 MB/s (+/- 0.3 %)    67.89 Mfloat/s  
+ffc                                     :  1740.67 MB/s (+/- 1.0 %)   237.13 Mfloat/s  
+fastfloat                               :   998.14 MB/s (+/- 0.3 %)    67.99 Mfloat/s  

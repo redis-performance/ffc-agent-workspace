@@ -56,3 +56,10 @@ back-to-back, ≥2 samples — see program.md.
 parsing) fails to build under **clang-18 `-Werror -Wimplicit-int-conversion`**
 (`uint16_t`→`unsigned char`) — only surfaces building the EXHAUSTIVE-tier `ipv4_test`
 under clang. Not ours; a candidate one-line upstream warning fix for later.
+
+- **issue #384** — "GCC: parsed_number_string marshaling dominates short-float parsing
+  on aarch64". Discussion (not PR) of the gcc-mesh struct-marshaling bottleneck:
+  ~74% in returning/consuming parsed_number_string_t by value; cheap SRA fix proven
+  no-op; only an internal fused fast path would help; asks Lemire if it's worth it.
+  https://github.com/fastfloat/fast_float/issues/384 — if he engages, the fused-path
+  refactor becomes worth building (with his buy-in + cross-platform validation).
