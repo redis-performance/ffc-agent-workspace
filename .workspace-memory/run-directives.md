@@ -9,8 +9,9 @@ For the autonomous race-optimization sessions (started 2026-06-01):
 
 - **Work continuously** through optimization experiments; don't stop to ask after
   each one. Keep iterating across both parsers per [[race-setup]].
-- **Do NOT open PRs** to upstream fast_float. Carry wins on `redis-perf/optim`;
-  PRs are explicitly deferred (the user will decide when).
+- **Open upstream PRs** for clean wins (the user reversed the earlier no-PR rule).
+  #381 + #382 merged by Lemire; #383 (parallel exhaustive tests) approved. Use the
+  OAuth-fallback gh trick in [[upstream-prs]]. Re-validate same-session before claiming.
 - **Only flag experiments that PASSED** (accepted) in progress reports. Rejections
   still get logged to EXPERIMENTS.md, but don't surface them in summaries to the user.
 

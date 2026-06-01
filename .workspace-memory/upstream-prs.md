@@ -40,7 +40,9 @@ single isolated commit on `upstream/main` (cherry-pick the one EXP), pre-cleared
   CMake links `Threads::Threads`. 96-core metal: ~1900s → ~25s, gcc+clang clean under
   -Werror, identical pass/fail. Low CI risk (exhaustive tier not built in CI). Grew out
   of validating #382 (the single-threaded sweep was unbearably slow). Offered to extend
-  to the sibling sweeps (exhaustive32 / exhaustive32_64) if welcomed.
+  to the sibling sweeps if welcomed. **Extended 2026-06-01** to all three
+  (exhaustive32 ~88x, exhaustive32_64 ~86x, midpoint ~75x); title now "...float32
+  sweeps..."; offered to revert to midpoint-only if he prefers the focused PR.
 
 **Not submitted:** EXP-052 (2x SWAR unroll) — re-validation showed only clang `random`
 +3.3% and nothing else; too marginal to justify a compiler-`#ifdef`. Held on the fork.
