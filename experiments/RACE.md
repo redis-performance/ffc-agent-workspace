@@ -141,3 +141,14 @@ program.md Known Non-Starters). ffc itself is at its tuned ceiling on this surfa
 
 On every **accepted** experiment, update the relevant cell(s) here and note the
 direction of the head-to-head gap (`Race Δ`) in the EXPERIMENTS.md entry.
+
+## x86 exploration (2026-06-02, local fco-tp — NOT scored)
+
+Local x86 (Core Ultra 7) is too noisy for rigorous racing: ffc gcc canada swung
+587→737 MB/s (±25%) across 3 runs. Median picture: ffc still leads all 6 cells on
+x86 too (gcc canada ffc ~735 vs ff ~665 = +10%; the one run showing ff ahead was an
+ffc low-outlier). No reliable small-win validation possible here.
+
+**Rigorous x86 racing needs the m7i metal VM** (stable ±0.2% like the ARM box). Its
+address isn't on record (only ARM EIP 3.92.205.222). Until then the x86 half of the
+12-cell board stays unscored. ARM surface is exhausted for safe wins on both parsers.
