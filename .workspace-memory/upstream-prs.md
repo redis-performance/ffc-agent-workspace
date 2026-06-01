@@ -7,7 +7,7 @@ metadata:
 
 Upstream PRs to `fastfloat/fast_float` from the race ([[race-setup]]):
 
-- **#381** — "Unroll the integer-part digit scan" (EXP-050). Branch
+- **#381** — ✅ **MERGED** (lemire, 2026-06-01). "Unroll the integer-part digit scan" (EXP-050). Branch
   `redis-performance/fast_float:pr/integer-scan-unroll` (`b64d014`) → `main`. +29/−6,
   one file. Opened 2026-06-01. https://github.com/fastfloat/fast_float/pull/381
   Verified numbers: canada ~+3%, mesh ~+5% (gcc & clang), exhaustive-clean.
@@ -23,7 +23,7 @@ GH_TOKEN= GITHUB_TOKEN= gh pr create -R fastfloat/fast_float \
 single isolated commit on `upstream/main` (cherry-pick the one EXP), pre-cleared by the
 [[run-directives]] review bar (review-fastfloat skill).
 
-- **#382** — "Add a 4-digit SWAR follow-up to loop_parse_if_eight_digits (clang)"
+- **#382** — ✅ **MERGED** (lemire, 2026-06-01; clang gate accepted as-is). "Add a 4-digit SWAR follow-up to loop_parse_if_eight_digits (clang)"
   (EXP-053, re-validated). Branch `redis-performance/fast_float:pr/four-digit-followup`
   (`7589a4f`) → `main`. +15, one file. Opened 2026-06-01.
   https://github.com/fastfloat/fast_float/pull/382
@@ -32,7 +32,7 @@ single isolated commit on `upstream/main` (cherry-pick the one EXP), pre-cleared
   PR body is upfront about the gate and invites the maintainer's preference. Clang
   default suite 14/14 passes; clang float32 exhaustive validated separately.
 
-- **#383** — "Parallelize the exhaustive midpoint test across hardware threads
+- **#383** — APPROVED (lemire, "This looks good"); CI green except slow QEMU Alpine aarch64/riscv64/armv7 pending; will merge on green. "Parallelize the exhaustive midpoint test across hardware threads
   (~75x faster)". Branch `redis-performance/fast_float:pr/parallel-exhaustive`
   (`b20c420`) → `main`. Opened 2026-06-01.
   https://github.com/fastfloat/fast_float/pull/383
