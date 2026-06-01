@@ -179,3 +179,17 @@ address isn't on record (only ARM EIP 3.92.205.222). Until then the x86 half of 
 - **PGO (gcc)**: canada ffc +2.8%, ff −2.6%. **LTO (gcc)**: ffc +5.2%, ff −5.0%. Both mixed,
   whole-binary, not committable to either parser's source. Hints ffc has branch-layout
   headroom. Not a usable race optimization.
+
+- **clang PGO — BIG WIN, BOTH parsers (x86 pinned)**: profile-guided clang build lifts
+  every cell vs plain -O3 clang —
+  | dataset | ffc | fast_float |
+  |---|---|---|
+  | random | +37.3% | +29.9% |
+  | canada | +18.3% | +32.9% |
+  | mesh   | +7.4%  | +38.8% |
+  Reproducible (±0.3% pinned). It's a build technique (not parser source / not
+  upstreamable), but it's a genuine, large optimization of BOTH parsers and the
+  fastest config measured (clang-PGO ffc random 960 > gcc 944). It also narrows the
+  race (canada gap +18%→+5.3%) since fast_float gains more on canada/mesh. Reusable
+  via `scripts/build-bench-pgo.sh`. (gcc PGO/LTO by contrast were mixed — helped ffc,
+  hurt fast_float.)
