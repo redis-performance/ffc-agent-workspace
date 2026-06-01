@@ -250,3 +250,13 @@ This playbook is the ffc.h equivalent of AutoKernel's `program.md` — the
 structured technique catalogue the agent reads before each experiment to
 decide *what* to try next and *what gain to expect*. Reference:
 Jaber & Jaber, arXiv:2603.21331, 2026.
+
+> **fast_float GCC-mesh profile (2026-06-01, race round 2).** Isolated perf on a
+> standalone fast_float-only driver (mesh, gcc -O3 -march=native) shows ~74% of time
+> in `ascii_number.h:544` (`return answer;` — returning `parsed_number_string_t` by
+> value) + `parse_number.h:264` (consuming it in `from_chars_advanced`). It's
+> **struct marshaling / GCC stack spills**, not parsing or Clinger math (<1.5% each).
+> The gap vs ffc on short inputs is STRUCTURAL (ffc fuses parse+compute; fast_float
+> materializes a fat intermediate struct with slow-path-only spans). Fixing it needs a
+> core interface change — invasive, high cross-matrix regression risk. Not a safe
+> micro-opt. Logged so future sessions don't re-profile to the same wall.
