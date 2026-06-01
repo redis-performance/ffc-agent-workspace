@@ -173,3 +173,9 @@ ffc low-outlier). No reliable small-win validation possible here.
 **Rigorous x86 racing needs the m7i metal VM** (stable ±0.2% like the ARM box). Its
 address isn't on record (only ARM EIP 3.92.205.222). Until then the x86 half of the
 12-cell board stays unscored. ARM surface is exhausted for safe wins on both parsers.
+
+## Build-technique experiments (2026-06-02, x86 pinned)
+
+- **PGO (gcc)**: canada ffc +2.8%, ff −2.6%. **LTO (gcc)**: ffc +5.2%, ff −5.0%. Both mixed,
+  whole-binary, not committable to either parser's source. Hints ffc has branch-layout
+  headroom. Not a usable race optimization.
