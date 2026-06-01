@@ -284,3 +284,10 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > codegen (the check never fires on random's 1-digit tail). Confirms the gcc-random
 > regression is architecture-independent → #382's clang-gate is correct on all
 > platforms. (Note: local x86 is now reliable via taskset core-pinning, ±0.3%.)
+
+> **noinline 4-digit follow-up — REJECTED hard (2026-06-02).** To dodge the gcc inline
+> bloat, moved the follow-up into a noinline helper: x86 gcc random −24.7%, canada
+> −11.4%, mesh −18% (call overhead per number + un-inlined SWAR dwarf any benefit).
+> Conclusion: the follow-up must inline (canada/mesh benefit) but inlining bloats gcc
+> random — no middle ground. #382's clang-gate is optimal. The gcc 4-digit follow-up
+> avenue is permanently closed.
