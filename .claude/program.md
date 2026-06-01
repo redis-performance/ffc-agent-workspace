@@ -269,3 +269,10 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > the gcc-mesh gap is a hard wall: only the invasive struct removal could help, and that
 > doesn't cross the AArch64 register-return threshold (Agent 3) and is upstream-DOA
 > (public API, Agent 5). DO NOT retry cheap variants. The 3 merged PRs were the real wins.
+
+> **ffc table cache-line alignment (Tier 5a) — REJECTED (2026-06-02).** Added
+> __attribute__((aligned(64))) to FFC_POWERS_OF_FIVE + FFC_DOUBLE_POWERS_OF_TEN.
+> Same-session: all cells within noise (gcc mesh +0.2%, clang mesh −1.2%, rest flat).
+> Tables already well-placed; alignment is a non-starter (cf. EXP-019). ffc remains at
+> its ARM ceiling. With fast_float digit-scan mined + compute-path wall, the ARM surface
+> is exhausted for safe wins on both parsers; next real territory is x86 (m7i / local).
