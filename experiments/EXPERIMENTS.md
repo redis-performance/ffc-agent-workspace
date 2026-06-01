@@ -9,6 +9,29 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-053 — 2026-06-01 — [fast_float] 4-digit SWAR follow-up (GCC path)
+
+**Target**: fast_float — `ascii_number.h` `loop_parse_if_eight_digits` (ffc EXP-001)
+**Hypothesis**: after the 8-digit block loop, a 4-7 digit remainder is parsed
+byte-by-byte; one 4-digit SWAR step (reusing fast_float's existing helpers) cuts it.
+**Files changed**: `fast_float/include/fast_float/ascii_number.h`
+
+### Step 1: Benchmark — ARM, fast_float canonical MB/s
+First tried applying to all compilers: GCC canada +3.6%, mesh +2.3%, **but Clang
+random −6.2%** (the follow-up never runs on random's 17-digit fraction yet its
+presence bloated the 2x-unroll codegen, i/f 279→296). Refined to GCC-only:
+| Dataset | GCC before→after | Δ% | Clang |
+| random | 1088.5→1087.8 | flat | unchanged |
+| canada |  924.0→948.1 | **+2.6%** (i/f 248.7→229.7) | unchanged |
+| mesh   |  495.8→496.1 | flat | unchanged |
+
+**Decision**: accept (fast_float `a30c1f3`)
+**Reason**: GCC canada +2.6%, no regressions; reuses existing 4-digit helpers.
+**Race Δ**: GCC canada gap +88.0%→+83.2%; ffc still leads. (Clang +8.9% canada is
+real but coupled to the random regression — parked for a dedicated Clang experiment.)
+
+---
+
 ## EXP-052 — 2026-06-01 — [fast_float] 2x unroll of char loop_parse_if_eight_digits
 
 **Target**: fast_float — `ascii_number.h` char `loop_parse_if_eight_digits` (ffc EXP-044)

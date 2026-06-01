@@ -10,6 +10,7 @@ target. The `Target` column below denotes the dataset/arch/compiler focus, not t
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-053 | `[fast_float]` 4-digit SWAR follow-up in loop_parse_if_eight_digits, GCC path (port of ffc EXP-001) | fast_float, ARM | GCC canada +2.6% (948.1 from 924.0, i/f 248.7→229.7), random/mesh flat; Clang excluded (all-compiler version regressed Clang random −6.2%) | **Accepted** | 2026-06-01 |
 | EXP-052 | `[fast_float]` 2x unroll of char loop_parse_if_eight_digits (port of ffc EXP-044) | fast_float, ARM | Clang random +2.8% (1365.7 from 1328.8), mesh +1.7%, canada +0.5%; GCC unchanged (#else path) | **Accepted** | 2026-06-01 |
 | EXP-051 | `[fast_float]` FASTFLOAT_ASSUME_ROUNDS_TO_NEAREST compile-time macro (port of ffc EXP-030) | fast_float, ARM | GCC canada −2.8% (volatile probe removal cut i/f 248.7→246.2 but raised c/f — GCC used the load to hide latency); Clang +0.8–3.1% marginal; net negative | **Rejected** | 2026-06-01 |
 | EXP-050 | `[fast_float]` straight-line nested-if integer-part scan (port of ffc EXP-026/028) | fast_float, ARM | GCC mesh +34.3% (495.8 from 369.0), canada +4.0%; Clang random +4.9%, mesh +5.1%, canada +2.8%; GCC random flat | **Accepted** | 2026-06-01 |

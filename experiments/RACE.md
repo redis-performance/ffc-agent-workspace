@@ -46,8 +46,8 @@ Canonical MB/s, stable (±0.1–1.8%). ffc `6ccc765`. fast_float advancing on
 | Compiler | Dataset | ffc | fast_float | Leader | Gap | fast_float set by |
 |----------|---------|----:|-----------:|--------|----:|----|
 | GCC   | random | 1920.7 | 1088.5 | **ffc** | +76.5%  | EXP-050 |
-| GCC   | canada | 1737.2 |  924.0 | **ffc** | +88.0%  | EXP-050 |
-| GCC   | mesh   | 1736.9 |  495.8 | **ffc** | +250.3% | EXP-050 |
+| GCC   | canada | 1737.2 |  948.1 | **ffc** | +83.2%  | EXP-053 |
+| GCC   | mesh   | 1736.9 |  496.1 | **ffc** | +250.1% | EXP-053 |
 | Clang | random | 1510.7 | 1365.7 | **ffc** | +10.6%  | EXP-052 |
 | Clang | canada | 1387.3 | 1056.3 | **ffc** | +31.3%  | EXP-052 |
 | Clang | mesh   | 1423.3 |  899.4 | **ffc** | +58.2%  | EXP-052 |
