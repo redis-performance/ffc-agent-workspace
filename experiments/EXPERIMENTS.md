@@ -9,6 +9,16 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-054 — 2026-06-01 — [fast_float] fraction-tail nested-if unroll (port of ffc EXP-015)
+
+**Target**: fast_float — fraction byte loop in `parse_number_string`
+**Decision**: reject (reverted)
+**Reason**: GCC random −2.1%, canada −1.5% (the residual tail after the SWAR block
+loop + 4-digit follow-up is only 0-3 digits, so the extra branches cost more than
+they save and add register pressure). Only Clang canada +1.6%; net negative.
+
+---
+
 ## EXP-053 — 2026-06-01 — [fast_float] 4-digit SWAR follow-up (GCC path)
 
 **Target**: fast_float — `ascii_number.h` `loop_parse_if_eight_digits` (ffc EXP-001)
