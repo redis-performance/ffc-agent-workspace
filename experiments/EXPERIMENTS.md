@@ -135,6 +135,20 @@ flat — `[0,1]` has a 1-digit integer part). 14/14 correctness pass.
 **Race Δ**: closes the ffc↔fast_float gap in all cells but ffc still leads every cell
 (e.g. GCC mesh gap +370.7%→+249.9%). No leader flips.
 
+> **CORRECTION (2026-06-01, post-review):** the "+34% GCC mesh" above was a
+> cross-session baseline artifact — it compared against the EXP-049 start-line
+> baseline (gcc mesh 369 MB/s), which was a low outlier. Re-measuring base vs patch
+> **back-to-back in one session** (2 samples each, branch `pr/integer-scan-unroll`
+> vs `upstream/main`) gives the true, reproducible result: **canada +3.1% (gcc) /
+> +2.8% (clang); mesh +5.4% (gcc) / +5.1% (clang); random flat**. gcc and clang now
+> agree (the earlier gcc≫clang gap was the artifact). The optimization is real and
+> positive, just ~+3-5%, not +34%. Two alternatives were benchmarked: reusing
+> `loop_parse_if_eight_digits` for the integer part **regressed 5-8%** (integer parts
+> too short for 8-digit SWAR), and a counted `for(k<5)` matched on gcc but clang
+> optimized it worse (canada −0.9%) — so the explicit peel is the best form.
+> Lesson recorded in `program.md` (measure base+patch same-session). The same caveat
+> likely applies to EXP-052/053 delta magnitudes (absolutes in RACE.md are ~ok).
+
 ---
 
 ## EXP-049 — 2026-05-31 — Race setup: make fast_float a mutable competitor

@@ -101,6 +101,11 @@ EXHAUSTIVE=1 scripts/test-fast_float.sh  # REQUIRED for mantissa/digit/round cha
 - If adding a new parse kind, add a `bench_*.cpp` (PR #359 added `bench_uint16.cpp`).
 - For this workspace, attach the `scripts/run-bench.sh` aarch64 gcc+clang rows from
   `experiments/<EXP>/bench-results/`. Report regressions honestly (none > noise).
+- **Measure base vs patch BACK-TO-BACK in the same session, ≥2 samples.** Never quote
+  a delta against a baseline from a prior session — the box drifts ~2-3% between
+  sessions and will fabricate large fake wins. If the delta differs a lot between gcc
+  and clang on the same dataset, suspect a baseline/alignment artifact and re-measure.
+  A claim should reproduce across samples and (ideally) agree across compilers.
 
 ### 9. PR hygiene & scope
 - **Small and single-purpose.** Merged PRs are overwhelmingly tiny

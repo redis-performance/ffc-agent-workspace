@@ -215,6 +215,16 @@ Document failed experiments here as they are discovered. Starting empty.
 > — fast_float's dispatch is differently balanced and GCC is especially fragile there.
 > Future fast_float work: stay in `ascii_number.h` digit scanning; avoid `parse_number.h`
 > fast-path edits unless profiling isolates a specific compute hotspot.
+
+> **MEASUREMENT BUG — measure base vs patch back-to-back in the SAME session.**
+> Comparing a patch against a baseline benchmarked in a *prior* session is unsafe: on
+> the metal box the baseline itself drifts ~2-3% between sessions (mesh-gcc especially).
+> EXP-050 was originally reported as "+34% gcc mesh" by comparing against a stale
+> low-outlier baseline (369 MB/s); a same-session base-vs-patch re-measurement gave the
+> true, reproducible result: **canada ~+3%, mesh ~+5%, consistent across gcc AND clang**
+> (random flat — 1-digit integer part). A cross-compiler *divergence* in the delta
+> (e.g. gcc +34% vs clang +5% on the same dataset/box) is the tell-tale of a baseline
+> or alignment artifact — always re-measure both sides together before believing it.
 | Guard 4-digit SWAR with first-byte digit check (EXP-007) | −3.9% ARM mesh; extra branch outweighs SWAR entry savings. |
 | Constant-format specialization (EXP-003, EXP-005) | Regressions; specialization prevented cross-call inlining. |
 | AArch64 FPCR direct read in rounds_to_nearest (EXP-013, EXP-020) | +0.8–1.0% random, −1.1% mesh; below 2% threshold in both pre- and post-EXP-015 states. MRS FPCR has comparable latency (~3–5 cycles) to FCMP sequence on Graviton4; L1 volatile-float load replaced by equally-latent MRS; net savings ~0–2 cycles. Mesh slight regression suggests MRS disrupts OOO scheduling. Do not retry. |

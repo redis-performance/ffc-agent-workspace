@@ -108,6 +108,15 @@ Rejected (reverted): EXP-051, 054, 055, 056. Meta-finding: ffc's **digit-scan** 
 transfer to fast_float; its **compute/Clinger-path** ports all regress it (see
 program.md Known Non-Starters). ffc itself is at its tuned ceiling on this surface.
 
+> **CORRECTION (post-review):** the per-experiment Δ% above were measured against
+> prior-session baselines and are inflated by ~2-3% cross-session drift (mesh-gcc
+> worst). The EXP-049 gcc-mesh start line (369) was a low outlier; same-session
+> re-measurement puts base ~472-484. Verified same-session gains for the EXP-050
+> integer-scan unroll: **canada ~+3%, mesh ~+5% on both gcc and clang** (not +34%).
+> The absolute MB/s in the table are approximately right; the *deltas vs the start
+> line overstate the improvement*. Always measure base+patch back-to-back
+> (program.md). EXP-052/053 deltas carry the same caveat.
+
 ## Update protocol
 
 On every **accepted** experiment, update the relevant cell(s) here and note the
