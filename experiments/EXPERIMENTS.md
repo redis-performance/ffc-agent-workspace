@@ -9,6 +9,18 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-055 — 2026-06-01 — [fast_float] exponent==0 integer fast path (port of ffc EXP-033)
+
+**Target**: fast_float — `from_chars_advanced(pns, value)` before the Clinger call
+**Decision**: reject (reverted)
+**Reason**: Clang random −3.6% — the exp==0 pre-check always fails on these datasets
+(random exp=−17; canada/mesh are fractional, not integer-valued) yet adds a branch to
+Clang's finely-balanced hot path. No compensating gain (mesh-gcc +1.4% is within its
+~1.6% cross-run drift). Same failure mode as ffc EXP-021/025: a pre-check that helps a
+rare case regresses the common path.
+
+---
+
 ## EXP-054 — 2026-06-01 — [fast_float] fraction-tail nested-if unroll (port of ffc EXP-015)
 
 **Target**: fast_float — fraction byte loop in `parse_number_string`
