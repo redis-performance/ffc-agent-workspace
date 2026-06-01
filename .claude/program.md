@@ -276,3 +276,11 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > Tables already well-placed; alignment is a non-starter (cf. EXP-019). ffc remains at
 > its ARM ceiling. With fast_float digit-scan mined + compute-path wall, the ARM surface
 > is exhausted for safe wins on both parsers; next real territory is x86 (m7i / local).
+
+> **x86 GCC 4-digit follow-up — REJECTED (2026-06-02, reliable pinned x86).** Tried
+> enabling #382's follow-up for x86 GCC (hypothesis: the gcc-random regression was
+> ARM-specific). Pinned local x86: canada +9.3%, mesh +1.8%, but **random −5.0%** —
+> the same regression as ARM gcc. The follow-up's mere presence bloats gcc's hot-loop
+> codegen (the check never fires on random's 1-digit tail). Confirms the gcc-random
+> regression is architecture-independent → #382's clang-gate is correct on all
+> platforms. (Note: local x86 is now reliable via taskset core-pinning, ±0.3%.)
