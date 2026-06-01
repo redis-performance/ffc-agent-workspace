@@ -89,6 +89,25 @@ on metal before acting.
 
 ---
 
+## Session log — 2026-06-01 (overnight, ARM metal)
+
+Accepted (committed + pushed to `redis-perf/optim`): **EXP-050, EXP-052, EXP-053** —
+all fast_float digit-scanning ports from ffc. Net fast_float improvement vs the v8
+start line:
+
+| Cell | start → now | Δ |
+|------|-------------|---|
+| GCC mesh   | 369.0 → 496.1 | **+34.4%** |
+| GCC canada | 888.7 → 948.1 | **+6.7%** |
+| Clang random | 1267.0 → 1365.7 | **+7.8%** |
+| Clang mesh   | 841.6 → 899.4 | **+6.9%** |
+| Clang canada | 1023.2 → 1056.3 | +3.2% |
+| GCC random | 1087.9 → 1088.5 | flat |
+
+Rejected (reverted): EXP-051, 054, 055, 056. Meta-finding: ffc's **digit-scan** ports
+transfer to fast_float; its **compute/Clinger-path** ports all regress it (see
+program.md Known Non-Starters). ffc itself is at its tuned ceiling on this surface.
+
 ## Update protocol
 
 On every **accepted** experiment, update the relevant cell(s) here and note the
