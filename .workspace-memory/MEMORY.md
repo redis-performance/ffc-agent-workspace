@@ -8,3 +8,4 @@ backends share the same context.
 
 - [race-setup](race-setup.md) — goal is now ffc vs fast_float race (EXP-049+), both mutable submodules
 - [metal-fleet](metal-fleet.md) — ARM m8g (Graviton4 @ 3.92.205.222) + x86 m7i benchmark VMs
+- [upstream-prs](upstream-prs.md) — fast_float PRs from the race (#381) + how to open them
