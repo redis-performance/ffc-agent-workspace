@@ -298,3 +298,11 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > -Wsign-conversion). Also fundamentally non-upstreamable: inline asm breaks fast_float's
 > constexpr path. Even race-only it's marginal (acc10 saves ~1cyc on short accumulations).
 > Don't retry — fast_float's strict warnings + constexpr make inline-asm tricks unviable.
+
+> **x86 fraction-tail unroll (EXP-054 on x86) — REJECTED (2026-06-02).** Pinned x86:
+> gcc +1.3% (sub-2% threshold), clang −1.1%/−4.2% regression. Doesn't transfer to x86.
+
+> **x86 combined-exp-check (EXP-056 on x86) — REJECTED (2026-06-02).** Pinned x86: all
+> cells within noise (the ARM −25% gcc cliff does NOT occur on x86, but it's merely
+> neutral — no win). ARM-rejected compute-path ports don't become x86 wins; both
+> surfaces are at the same frontier.
