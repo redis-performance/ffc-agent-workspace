@@ -38,7 +38,27 @@ Numbers are canonical MB/s. Leader = higher MB/s. Gap = (leader−loser)/loser.
 **TODO**: capture on `m8g.metal-24xl` (3.92.205.222) and `m7i.metal-24xl`, both
 GCC + Clang, with the redirected build. Until then cells are empty.
 
-### ARM — m8g.metal-24xl (Graviton4 / Neoverse V2) — CURRENT standings (`ip-172-31-55-171`)
+### ARM — Round 2 (2026-06-01): ffc vs MERGED upstream fast_float (`ed86132`)
+
+After PRs #381 + #382 merged upstream, fast_float = `upstream/main` (`ed86132`) now
+includes the integer-scan unroll + clang 4-digit follow-up. ffc `6ccc765`, same-session.
+
+| Compiler | Dataset | ffc | fast_float | Leader | Gap | (was, EXP-049) |
+|----------|---------|----:|-----------:|--------|----:|----:|
+| GCC   | random | 1930.1 | 1098.7 | **ffc** | +76%  | +76% |
+| GCC   | canada | 1737.1 |  925.6 | **ffc** | +88%  | +96% |
+| GCC   | mesh   | 1749.7 |  503.5 | **ffc** | +247% | +371% |
+| Clang | random | 1509.7 | 1304.0 | **ffc** | +16%  | +19% |
+| Clang | canada | 1386.7 | 1174.8 | **ffc** | +18%  | +36% |
+| Clang | mesh   | 1423.8 |  940.9 | **ffc** | +51%  | +69% |
+
+ffc still leads every cell, but our own merged wins closed the gap notably (clang
+canada +36%→+18%). fast_float's weakest cell remains **GCC mesh (+247%)** — the
+Clinger/compute path on short numbers, the documented non-starter zone for safe ports.
+
+---
+
+### ARM — m8g.metal-24xl (Graviton4 / Neoverse V2) — Round 1 standings (`ip-172-31-55-171`)
 
 Canonical MB/s, stable (±0.1–1.8%). ffc `6ccc765`. fast_float advancing on
 `redis-perf/optim`. ffc leads every cell; fast_float is the primary attack target.
