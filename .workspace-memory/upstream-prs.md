@@ -32,6 +32,16 @@ single isolated commit on `upstream/main` (cherry-pick the one EXP), pre-cleared
   PR body is upfront about the gate and invites the maintainer's preference. Clang
   default suite 14/14 passes; clang float32 exhaustive validated separately.
 
+- **#383** — "Parallelize the exhaustive midpoint test across hardware threads
+  (~75x faster)". Branch `redis-performance/fast_float:pr/parallel-exhaustive`
+  (`b20c420`) → `main`. Opened 2026-06-01.
+  https://github.com/fastfloat/fast_float/pull/383
+  `std::thread` over `hardware_concurrency()`, atomic fail-fast; `check_word()` helper;
+  CMake links `Threads::Threads`. 96-core metal: ~1900s → ~25s, gcc+clang clean under
+  -Werror, identical pass/fail. Low CI risk (exhaustive tier not built in CI). Grew out
+  of validating #382 (the single-threaded sweep was unbearably slow). Offered to extend
+  to the sibling sweeps (exhaustive32 / exhaustive32_64) if welcomed.
+
 **Not submitted:** EXP-052 (2x SWAR unroll) — re-validation showed only clang `random`
 +3.3% and nothing else; too marginal to justify a compiler-`#ifdef`. Held on the fork.
 
