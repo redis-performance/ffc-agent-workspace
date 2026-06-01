@@ -32,7 +32,9 @@ case "$COMPILER" in
   *)     echo "ERROR: COMPILER must be gcc|clang (got '$COMPILER')" >&2; exit 1 ;;
 esac
 
-EXH_ARGS=()
+# Always set FASTFLOAT_EXHAUSTIVE explicitly so a reused build dir can't keep a
+# stale =ON in its cache (that silently turns the fast gate into a ~50-min sweep).
+EXH_ARGS=(-DFASTFLOAT_EXHAUSTIVE=OFF)
 TIER="core + supplemental"
 if [[ "${EXHAUSTIVE:-0}" == "1" ]]; then
   EXH_ARGS=(-DFASTFLOAT_EXHAUSTIVE=ON)

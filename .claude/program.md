@@ -260,3 +260,12 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > materializes a fat intermediate struct with slow-path-only spans). Fixing it needs a
 > core interface change — invasive, high cross-matrix regression risk. Not a safe
 > micro-opt. Logged so future sessions don't re-profile to the same wall.
+
+> **gcc-mesh SRA fix — REJECTED (2026-06-01, empirical).** Tried using locals instead
+> of reading `answer.integer/.fraction` back in the >19-digit path (to let GCC drop the
+> struct stores on the fast path). Same-session vs upstream: gcc mesh −0.9%, all cells
+> within noise. The spans are STILL stored into the returned struct (slow path needs
+> them), so GCC still spills it — removing the readback alone changes nothing. Confirms
+> the gcc-mesh gap is a hard wall: only the invasive struct removal could help, and that
+> doesn't cross the AArch64 register-return threshold (Agent 3) and is upstream-DOA
+> (public API, Agent 5). DO NOT retry cheap variants. The 3 merged PRs were the real wins.
