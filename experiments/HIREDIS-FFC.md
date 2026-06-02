@@ -3,10 +3,11 @@
 **Goal**: replace `strtod()` in hiredis's RESP3 double-reply path with **ffc** (pure-C99
 single-header), and upstream it as a PR to `redis/hiredis`. Track the whole effort here.
 
-**Status**: 🟢 prototype working & validated (H2–H5 done) — read.c swap behind
-`-DHIREDIS_FLOAT_FFC`, 3M-value strtod-parity bit-identical, ~7–9× faster, locale bug
-reproduced. Next: H6 (default-on vs opt-in / license) then H7 (PR). Branch
-`ffc-double-parser` in the `hiredis/` submodule @ `9c895b4` (unpushed).
+**Status**: 🚀 **PR OPENED** — https://github.com/redis/hiredis/pull/1328 (H0–H7 done).
+ffc is the default RESP3 double parser (MIT-vendored `ffc.h`), `strtod` fallback via
+`-DHIREDIS_FLOAT_STRTOD`. Validated: 3M-value strtod-parity bit-identical, ~7–10× faster
+(x86+ARM), locale bug fixed, tests green under both builds. Branch `ffc-double-parser` @
+`f19c4b5`, pushed to `fcostaoliveira/hiredis`. Next: respond to maintainer review.
 **Owner**: this workspace. **Started**: 2026-06-02.
 **Submodule**: `hiredis/` → `git@github.com:fcostaoliveira/hiredis.git` (fork of `redis/hiredis`),
 currently `1d18adb` (heads/master).
@@ -155,8 +156,8 @@ finiteness, identical round-to-nearest-even result, identical PROTOCOL error on 
 | H3 | Implement read.c double-path swap + `hiTokCaseEq` helper | ✅ done — builds clean under `-std=c99 -pedantic -Werror`; hiredis double reader tests #48–62 pass (incl. embedded-NUL invalid + array) |
 | H4 | Parity test suite (strtod≡ffc) + locale regression test | ✅ done — `parity.c`: 3,000,000 values bit-identical, 0 accept/reject disagreements; locale bug reproduced |
 | H5 | double-parse microbenchmark (strtod vs ffc) | ✅ done — `bench.c`, x86 local + ARM Graviton4 metal |
-| H6 | Decide default-on vs opt-in; license header; NOTICE | ☐ |
-| H7 | PR fcostaoliveira/hiredis → redis/hiredis with bench + correctness evidence | ☐ |
+| H6 | Decide default-on vs opt-in; license header; NOTICE | ✅ done — default-on (ffc), `-DHIREDIS_FLOAT_STRTOD` fallback; SPDX MIT header on `ffc.h` |
+| H7 | PR fcostaoliveira/hiredis → redis/hiredis with bench + correctness evidence | ✅ **opened: [redis/hiredis#1328](https://github.com/redis/hiredis/pull/1328)** |
 
 ## Results (x86 local, Intel, pinned core 3)
 
@@ -226,3 +227,10 @@ PR changes.)
   `experiments/hiredis-ffc/` (`parity.c`, `bench.c`, `build-bench.sh`). Next: H6 — decide
   opt-in vs default-on + license header, then H7 (PR). Open question for H6: lead the PR with the
   *locale correctness bug* (hard to argue against) and offer it opt-in first to lower maintainer risk.
+- **2026-06-02** — H6 + H7 done. Decision (user): **default-on** (ffc default, `strtod` via
+  `-DHIREDIS_FLOAT_STRTOD`), vendored under **MIT** (SPDX header on `ffc.h`). Added build-agnostic
+  in-tree tests (bit-exact edge magnitudes + malformed rejections), green under both builds.
+  Squashed the branch to one commit (`f19c4b5`), pushed to `fcostaoliveira/hiredis`, and **opened
+  the PR: https://github.com/redis/hiredis/pull/1328** (via the `GH_TOKEN= GITHUB_TOKEN= gh`
+  OAuth fallback — the PAT can't open upstream PRs). PR body archived at
+  `experiments/hiredis-ffc/PR-BODY.md`. Now awaiting maintainer review.
