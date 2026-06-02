@@ -1,0 +1,40 @@
+=== ICX2 (Ice Lake, x86 WIN) — mesh ===
+==== node=redis-icx2 arch=x86_64 dataset=mesh pin=3 ====
+---- base: perf stat ----
+    18,878,388,233      instructions                     #    4.28  insn per cycle            
+    4,409,920,190      cycles                                                                
+    4,006,242,582      branches                                                              
+    11,220,166      branch-misses                    #    0.28% of all branches           
+    1.437434805 seconds time elapsed
+---- base: record+annotate findmax_fastfloat<char> (top self instrs) ----
+        4.84 :   3a072:  jmp    39610 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x500>
+        4.35 :   395ba:  vaddss %xmm0,%xmm2,%xmm3
+        3.86 :   394f1:  jle    3953c <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x42c>
+        2.90 :   3a060:  vxorpd 0x37e88(%rip),%xmm0,%xmm3        # 71ef0 <std::_Sp_make_shared_tag::_S_ti()::__tag+0xb8>
+        2.90 :   39faa:  jmp    3985b <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x74b>
+        2.90 :   39878:  jmp    394ea <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x3da>
+        2.90 :   39845:  jbe    39820 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x710>
+        2.90 :   39626:  jne    39158 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x48>
+        2.90 :   39189:  jbe    393d0 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x2c0>
+        2.90 :   39163:  cmp    %rcx,%rdi
+---- patch: perf stat ----
+    18,656,333,332      instructions                     #    4.29  insn per cycle            
+    4,351,405,195      cycles                                                                
+    4,007,256,606      branches                                                              
+    11,122,340      branch-misses                    #    0.28% of all branches           
+    1.418490147 seconds time elapsed
+---- patch: record+annotate findmax_fastfloat<char> (top self instrs) ----
+        5.56 :   36a95:  je     367c8 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x3d8>
+        5.56 :   367ce:  jle    3680f <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x41f>
+        4.04 :   36ad2:  jp     36c12 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x822>
+        4.04 :   3686c:  je     36aa8 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x6b8>
+        4.04 :   36838:  movq   $0x0,0x88(%rsp)
+        4.04 :   3681e:  mov    %r15b,0x78(%rsp)
+        4.04 :   3645f:  je     36538 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x148>
+        3.54 :   366b3:  cmp    %rbx,%rcx
+        3.53 :   37592:  jmp    36660 <double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)+0x270>
+        3.53 :   37567:  test   %r8,%r8
+---- top symbols (patch, self%) ----
+         4.56%  bench-patch-gcc  bench-patch-gcc       [.] double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+                ---double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+         3.83%  bench-patch-gcc  bench-patch-gcc       [.] findmax_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)

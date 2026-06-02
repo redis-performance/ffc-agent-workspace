@@ -1,0 +1,54 @@
+template <typename T, typename UC>
+fastfloat_really_inline FASTFLOAT_CONSTEXPR20 from_chars_result_t<UC>
+from_chars_float_advanced(UC const *first, UC const *last, T &value,
+                          parse_options_t<UC> options) noexcept {
+
+  static_assert(is_supported_float_type<T>::value,
+                "only some floating-point types are supported");
+  static_assert(is_supported_char_type<UC>::value,
+                "only char, wchar_t, char16_t and char32_t are supported");
+
+  chars_format const fmt = detail::adjust_for_feature_macros(options.format);
+
+  from_chars_result_t<UC> answer;
+  if (uint64_t(fmt & chars_format::skip_white_space)) {
+    while ((first != last) && fast_float::is_space(*first)) {
+      first++;
+    }
+  }
+  if (first == last) {
+    answer.ec = std::errc::invalid_argument;
+    answer.ptr = first;
+    return answer;
+  }
+  bool const bjf = uint64_t(fmt & detail::basic_json_fmt) != 0;
+
+  // Fast path: parse WITHOUT materializing the integer/fraction spans (read only
+  // by the rare slow paths). Skipping their stores keeps the fat
+  // parsed_number_string_t off the hot path. store_spans is a runtime argument,
+  // so this reuses the single parse_number_string instantiation.
+  parsed_number_string_t<UC> pns =
+      bjf ? parse_number_string<true, UC>(first, last, options, false)
+          : parse_number_string<false, UC>(first, last, options, false);
+  if (!pns.valid) {
+    if (uint64_t(fmt & chars_format::no_infnan)) {
+      answer.ec = std::errc::invalid_argument;
+      answer.ptr = first;
+      return answer;
+    } else {
+      return detail::parse_infnan(first, last, value, fmt);
+    }
+  }
+
+  // Slow path A (rare): > 19 significant digits. The no-span parse left the
+  // mantissa un-truncated and skipped the span-based recompute, so re-parse with
+  // spans and run the full algorithm (compute_float disambiguation + digit_comp).
+  if (pns.too_many_digits) {
+    pns = bjf ? parse_number_string<true, UC>(first, last, options, true)
+              : parse_number_string<false, UC>(first, last, options, true);
+    return from_chars_advanced(pns, value);
+  }
+
+  answer.ec = std::errc(); // be optimistic
+  answer.ptr = pns.lastmatch;
+
