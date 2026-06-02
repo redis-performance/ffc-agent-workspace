@@ -1,0 +1,9 @@
+=== run on clx1 (Xeon Gold 6248, core 3) ===
+node=redis-clx1 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 681.01    736.23    +8.11   | 704.74/704.73
+gcc   canada  | 600.11    687.11    +14.50  | 667.53/667.32
+gcc   mesh    | 447.87    501.70    +12.02  | 549.84/549.82
+clang random  | 527.06    578.31    +9.72   | 588.05/588.04
+clang canada  | 430.72    497.73    +15.56  | 549.19/549.11
+clang mesh    | 311.01    342.42    +10.10  | 461.60/461.41

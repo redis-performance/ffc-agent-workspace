@@ -1,0 +1,21 @@
+######## gnr1 ########
+node=redis-gnr1 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 1980.59   2203.00   +11.23  | 1772.13/1788.75
+gcc   canada  | 1590.38   1816.31   +14.21  | 1778.10/1767.50
+gcc   mesh    | 1223.95   1252.20   +2.31   | 1487.89/1491.68
+######## icx2 ########
+node=redis-icx2 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 1144.41   1282.96   +12.11  | 1288.74/1295.11
+gcc   canada  | 972.91    1112.24   +14.32  | 1121.83/1122.67
+gcc   mesh    | 814.01    865.93    +6.38   | 1027.44/1028.57
+[1]   Done                    ( out=$($RSH $a "CCS=gcc PIN=3 bash ~/ffc-race/interleave.sh" 2>&1); echo "######## $a ########"; echo "$out" )
+[3]+  Done                    ( out=$($RSH $a "CCS=gcc PIN=3 bash ~/ffc-race/interleave.sh" 2>&1); echo "######## $a ########"; echo "$out" )
+######## spr ########
+node=sas-spr-comp arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 948.97    1037.66   +9.35   | 907.90/899.88
+gcc   canada  | 756.96    873.76    +15.43  | 851.87/1614.51
+gcc   mesh    | 577.98    1163.19   +101.25 | 713.33/922.72
+[2]+  Done                    ( out=$($RSH $a "CCS=gcc PIN=3 bash ~/ffc-race/interleave.sh" 2>&1); echo "######## $a ########"; echo "$out" )

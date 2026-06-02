@@ -9,6 +9,55 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-058 — 2026-06-02 — [fast_float] runtime `store_spans` flag (marshaling elision, EXP-057 redux)
+
+**Target**: fast_float — `parse_number_string` (`ascii_number.h`) + `from_chars_float_advanced` (`parse_number.h`)
+**Context**: Lemire encouraged this direction on issue #384 ("the struct is too fat … I encourage a
+pull request"). EXP-057 (compile-time `store_spans` template) was rejected on a noisy x86 laptop +
+ARM; hypothesis here: the regression was the **second `parse_number_string` instantiation** (icache),
+so use a **runtime** `bool store_spans` param (single instantiation) instead.
+
+**Files changed**: `ascii_number.h` (+runtime `store_spans` param, guards 2 span stores + the >19
+recompute), `parse_number.h` (`from_chars_float_advanced` parses no-span → clinger/Eisel-Lemire inline
+→ re-parses with spans only on the rare too_many_digits / `am.power2<0` slow paths). Diff:
+`experiments/EXP-058/exp058-runtime-store-spans.patch`.
+
+### Step 1: Benchmark — interleaved base↔patch, ffc-control sentinel, median of 5, pinned core 3
+
+**Intel lab (gcc), drift-controlled (ffc control flat unless noted):**
+
+| Node (Intel gen) | random | canada | mesh |
+|------------------|-------:|-------:|-----:|
+| clx1 — Cascade Lake (Xeon Gold 6248) | **+8.11%** | **+14.50%** | **+12.02%** |
+| icx2 — Ice Lake (Xeon Plat 8360Y) | **+12.11%** | **+14.32%** | **+6.38%** |
+| gnr1 — Granite Rapids (Xeon 6972P) | **+11.23%** | **+14.21%** | +2.31% |
+| spr — Emerald Rapids (Xeon Plat 8592+) | +9.35% | (contended)¹ | (contended)¹ |
+
+¹ spr is a shared box; its ffc control swung 851→1614 (canada) / 713→922 (mesh) mid-run → those two
+cells invalid, re-run pending. clang unavailable on spr/gnr/icx (gcc-only there).
+
+**ARM Graviton4 metal (m8g), drift-controlled:**
+
+| | random | canada | mesh |
+|--|-------:|-------:|-----:|
+| gcc   | **−12.51%** | **−16.06%** | **−33.94%** |
+| clang | −4.97% | −2.32% | −18.67% |
+
+**x86 laptop (Core Ultra 7 155U, EXP-057 numbers, noisy):** clang +3.2/+5.9/−8.6, gcc −1.4/−3.5/−6.1.
+
+### Decision: **park — architecture-split** (investigation continues per #384)
+**Reason**: The marshaling elision is a **clean, consistent win on every Intel generation**
+(Cascade Lake → Ice Lake → Emerald Rapids → Granite Rapids: +8–15% random/canada, +2–12% mesh, gcc) but
+a **consistent regression on ARM Graviton4** (−12 to −34% gcc). The runtime-vs-template change did NOT
+explain EXP-057's regression — the cost is the **caller restructuring** (no-span fast attempt +
+slow-path re-dispatch), which ARM gcc codegen handles badly. Not PR-able as-is (upstream can't regress
+ARM). **Next: profile base-vs-patch on Intel (perf, sudo OK on lab) + ARM to localize the win/loss, and
+iterate toward an arch-neutral implementation (per /goal — experiment, no PR).**
+
+**Race Δ**: none committed (parked on branch `exp058-runtime-store-spans`); standings unchanged.
+
+---
+
 ## EXP-057 — 2026-06-02 — [fast_float] fused no-span fast path (`store_spans` template flag)
 
 **Target**: fast_float — `parse_number_string` (`ascii_number.h`) + `from_chars_float_advanced` (`parse_number.h`)
