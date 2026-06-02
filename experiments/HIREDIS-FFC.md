@@ -159,6 +159,27 @@ finiteness, identical round-to-nearest-even result, identical PROTOCOL error on 
 | H6 | Decide default-on vs opt-in; license header; NOTICE | ✅ done — default-on (ffc), `-DHIREDIS_FLOAT_STRTOD` fallback; SPDX MIT header on `ffc.h` |
 | H7 | PR fcostaoliveira/hiredis → redis/hiredis with bench + correctness evidence | ✅ **opened: [redis/hiredis#1328](https://github.com/redis/hiredis/pull/1328)** |
 
+## Review round 1 (2026-06-02, PR #1328 @ `a8ca884`)
+
+CI + Cursor Bugbot surfaced three items; all addressed (pushed `a8ca884`):
+1. **macOS CI fail** — Apple Clang `-Wstatic-in-inline` (`ffc.h`'s `extern inline`
+   entry points call file-local `static` helpers) → `-Werror` fail. Fixed: scoped
+   `#pragma clang diagnostic ignored "-Wstatic-in-inline"` around the vendored
+   include (GCC unaffected). **macOS now passes.**
+2. **Bugbot (medium)** — passing the raw reader pointer (`p[len]` == `\r`, not `\0`)
+   to `createDouble` changed the implicit NUL-terminated-string contract. Fixed:
+   restored the `buf` copy + NUL-terminate; ffc parses that buffer. Costs ~40% of
+   the ffc speedup but keeps the callback contract.
+3. **Bugbot (low)** — real `ffc.h` bug: `ffc_negative_digit_comp` called
+   `ffc_am_to_float(..., FFC_VALUE_KIND_DOUBLE)` instead of `vk` (8-byte-write /
+   4-byte-read of the value union on the float slow path). Not reachable from
+   hiredis. Fixed at the root in `ffc/src/digit_comparison.h:460`, regenerated,
+   re-vendored. ⏳ validating via ffc float exhaustive (2³² sweep, still running).
+
+**Faithful re-benchmark (both paths now copy+NUL-terminate → pure parser delta):**
+x86 random/canada/mesh +335/306/344%; ARM Graviton4 +411/400/251% (~**4×**, down
+from the ~7–9× of the copy-free prototype — the copy was the difference).
+
 ## Results (x86 local, Intel, pinned core 3)
 
 **Correctness (H3/H4):**

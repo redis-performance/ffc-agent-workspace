@@ -24,12 +24,16 @@ static double now_s(void) {
   return (double)t.tv_sec + (double)t.tv_nsec * 1e-9;
 }
 
-/* hiredis ffc path predicate (RESP3 numeric, inf/nan handled separately). */
+/* hiredis ffc path predicate — mirrors read.c exactly: copy + NUL-terminate
+ * (the string is handed to createDouble), then parse the range with ffc. */
 static int ffc_parse(const char *s, size_t len, double *out) {
+  char buf[326];
+  if (len >= sizeof(buf)) return 0;
+  memcpy(buf, s, len); buf[len] = '\0';
   ffc_parse_options o = ffc_parse_options_default();
   o.format |= FFC_FORMAT_FLAG_NO_INFNAN;
-  ffc_result r = ffc_from_chars_double_options(s, s + len, out, o);
-  return r.outcome == FFC_OUTCOME_OK && r.ptr == s + len && isfinite(*out);
+  ffc_result r = ffc_from_chars_double_options(buf, buf + len, out, o);
+  return r.outcome == FFC_OUTCOME_OK && r.ptr == buf + len && isfinite(*out);
 }
 /* hiredis strtod path predicate (incl. the per-reply NUL-terminated copy). */
 static int strtod_parse(const char *s, size_t len, double *out) {
@@ -102,10 +106,12 @@ int main(int argc, char **argv) {
   double mb = (double)bytes / 1e6;
   double s_copy = mb / best_copy, s_nocopy = mb / best_nocopy, f = mb / best_ffc;
   const char *name = strcmp(argv[1],"--random")==0 ? "random[0,1]" : argv[1];
-  printf("%-12s %zu vals %5.2fMB | strtod+copy(hiredis) %7.2f | strtod-nocopy %7.2f | ffc %7.2f MB/s"
-         " | ffc vs hiredis %+.0f%% (parser-only %+.0f%%)\n",
-         name, n, mb, s_copy, s_nocopy, f,
-         (f - s_copy)/s_copy*100.0, (f - s_nocopy)/s_nocopy*100.0);
+  /* hiredis (strtod) and ffc both copy+NUL-terminate identically, so this is a
+   * pure parser comparison. strtod-nocopy is shown only to confirm the copy is
+   * negligible (strtod itself is the cost). */
+  printf("%-12s %zu vals %5.2fMB | strtod %7.2f | ffc %7.2f MB/s | ffc %+.0f%%"
+         "   [strtod-nocopy %7.2f]\n",
+         name, n, mb, s_copy, f, (f - s_copy)/s_copy*100.0, s_nocopy);
   (void)sink;
   return 0;
 }
