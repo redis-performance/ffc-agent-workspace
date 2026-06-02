@@ -3,7 +3,10 @@
 **Goal**: replace `strtod()` in hiredis's RESP3 double-reply path with **ffc** (pure-C99
 single-header), and upstream it as a PR to `redis/hiredis`. Track the whole effort here.
 
-**Status**: 🟡 planning — submodule added, integration point identified, plan drafted.
+**Status**: 🟢 prototype working & validated (H2–H5 done) — read.c swap behind
+`-DHIREDIS_FLOAT_FFC`, 3M-value strtod-parity bit-identical, ~7–9× faster, locale bug
+reproduced. Next: H6 (default-on vs opt-in / license) then H7 (PR). Branch
+`ffc-double-parser` in the `hiredis/` submodule @ `9c895b4` (unpushed).
 **Owner**: this workspace. **Started**: 2026-06-02.
 **Submodule**: `hiredis/` → `git@github.com:fcostaoliveira/hiredis.git` (fork of `redis/hiredis`),
 currently `1d18adb` (heads/master).
@@ -148,12 +151,40 @@ finiteness, identical round-to-nearest-even result, identical PROTOCOL error on 
 |---|-----------|--------|
 | H0 | Add `hiredis/` submodule (fcostaoliveira fork) | ✅ done (2026-06-02) |
 | H1 | Identify integration point + draft proposal (this doc) | ✅ done |
-| H2 | Vendor `ffc.h` into the fork + `HIREDIS_FLOAT_FFC` build gate | ☐ |
-| H3 | Implement read.c double-path swap + `hi_strncasecmp` helper | ☐ |
-| H4 | Parity test suite (strtod≡ffc) + locale regression test | ☐ |
-| H5 | RESP3-reply microbenchmark (strtod vs ffc), x86 + ARM metal | ☐ |
+| H2 | Vendor `ffc.h` into the fork + `HIREDIS_FLOAT_FFC` build gate | ✅ done — `ffc.h` (3442 lines) vendored; `#define FFC_IMPL` in read.c (sole TU) |
+| H3 | Implement read.c double-path swap + `hiTokCaseEq` helper | ✅ done — builds clean under `-std=c99 -pedantic -Werror`; hiredis double reader tests #48–62 pass (incl. embedded-NUL invalid + array) |
+| H4 | Parity test suite (strtod≡ffc) + locale regression test | ✅ done — `parity.c`: 3,000,000 values bit-identical, 0 accept/reject disagreements; locale bug reproduced |
+| H5 | double-parse microbenchmark (strtod vs ffc) | ✅ done (x86 local) — `bench.c`; ARM metal TODO |
 | H6 | Decide default-on vs opt-in; license header; NOTICE | ☐ |
 | H7 | PR fcostaoliveira/hiredis → redis/hiredis with bench + correctness evidence | ☐ |
+
+## Results (x86 local, Intel, pinned core 3)
+
+**Correctness (H3/H4):**
+- hiredis reply-reader double tests pass on the ffc build (#48 parse, #49 invalid/embedded-NUL,
+  #50 inf, #51 nan, #52 -nan, #62 array).
+- `parity.c`: 3,000,000 generated doubles (random bit patterns / `[0,1)` / canada-ish /
+  mesh-ish, 6 printf formats) → **0 bit-mismatches, 0 accept-disagreements** vs `strtod` (C
+  locale). 26 hand-picked edge cases: 0 disagreements.
+- ffc is **stricter** than the strtod path (RESP3-correct): rejects ` 3.14` (leading ws),
+  `\t1`, `0x1p4`, `0X1.8p3` — all of which `strtod` silently accepts today.
+- **Locale bug** (`LOCPATH=~/.locale LC_NUMERIC=de_DE.UTF-8`): parsing `3.14`,
+  `strtod` → `3.0` and the hiredis predicate then **rejects it as a PROTOCOL error**;
+  ffc → `3.14`, accepted. A hiredis client in a comma-locale process errors on every
+  double reply today.
+
+**Speed (H5)** — `bench.c`, best of 200, parse predicates mirroring hiredis exactly:
+
+| Dataset | strtod+copy (hiredis today) | strtod no-copy | **ffc** | ffc vs hiredis | parser-only |
+|---------|----------------------------:|---------------:|--------:|---------------:|------------:|
+| random [0,1] | 108.45 MB/s | 112.55 | **783.09** | **+622%** | +596% |
+| canada.txt | 100.80 MB/s | 100.11 | **735.01** | **+629%** | +634% |
+| mesh.txt | 84.45 MB/s | 88.75 | **799.50** | **+847%** | +801% |
+
+The per-reply copy is **not** the bottleneck (~4%); glibc `strtod` itself is (~100 MB/s).
+ffc gives ~**7–9×** faster double parsing. (Reader-level throughput including
+`redisReply` alloc/free is alloc-dominated and dilutes this — the parse is the part the
+PR changes.)
 
 ## Risks / mitigations
 
@@ -177,3 +208,13 @@ finiteness, identical round-to-nearest-even result, identical PROTOCOL error on 
   (so the numeric path needs `NO_INFNAN` + the existing strict inf/nan guards). ffc.h amalgam
   = 3442 lines / 144K, tri-licensed Apache/MIT/Boost. Drafted integration shape + validation
   plan. Next: H2 (vendor + build gate).
+- **2026-06-02** — H2–H5 landed (branch `ffc-double-parser` @ `9c895b4`). Vendored `ffc.h`,
+  added the `-DHIREDIS_FLOAT_FFC` gate (`#define FFC_IMPL` in read.c, the sole TU — the amalgam
+  emits implementations only under `FFC_IMPL`). Swapped the read.c double branch (strict in-place
+  inf/nan tokens via `hiTokCaseEq`, `ffc_from_chars_double_options` with `NO_INFNAN`, no buf copy).
+  Builds clean under hiredis's `-std=c99 -pedantic -Werror -Wall -Wextra`. hiredis double reader
+  tests pass. `parity.c`: 3M values bit-identical to strtod; locale bug reproduced. `bench.c`:
+  ffc ~7–9× faster (the copy is only ~4%; strtod is the wall). Harness in
+  `experiments/hiredis-ffc/` (`parity.c`, `bench.c`, `build-bench.sh`). Next: H6 — decide
+  opt-in vs default-on + license header, then H7 (PR). Open question for H6: lead the PR with the
+  *locale correctness bug* (hard to argue against) and offer it opt-in first to lower maintainer risk.
