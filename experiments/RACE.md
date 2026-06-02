@@ -203,3 +203,19 @@ address isn't on record (only ARM EIP 3.92.205.222). Until then the x86 half of 
 - **clang PGO+ThinLTO — mixed, do not use**: ThinLTO on top of PGO helps ffc (+1.7-2.6%)
   but hurts fast_float (−0.8 to −3.2%) — same trade as gcc LTO. **clang PGO alone is the
   both-parser sweet spot.**
+
+## 15-reviewer panel decision (2026-06-02): fused/slim refactor
+
+Verdict: **BUILD-BRANCH-BUT-HOLD, Design A; do NOT open PR; drop B & C.**
+- Design C (slim public struct): DROP — breaks documented public parsed_number_string_t
+  hook AND still >16 bytes (doesn't clear register-return threshold; win illusory).
+- Design B (fusion): DROP as proposed — include-order forces ~200-line scanner
+  duplication; only viable after a separate shared-helper extraction.
+- Design A (store_spans template + slow-path re-parse): only viable design; public API
+  untouched; >19-digit/slow path re-parses with spans.
+- Caveats: the +3-10% diagnostic is an UPPER BOUND (it also DCE'd the >19 block);
+  needs same-session ARM-metal + cross-compiler (MSVC/Apple, untestable here)
+  confirmation; canada may regress where a compiler already DCEs the stores; PGO
+  already harvests +30-40% for free; Lemire: settle #384 first (A~55% w/ buy-in).
+Action: build Design A on a branch, validate (exhaustive + same-session bench), HOLD
+ready-to-PR pending Lemire's #384 reply. Building Design A IS the real-win measurement.
