@@ -208,7 +208,17 @@ Document failed experiments here as they are discovered. Starting empty.
 | **[fast_float]** exp==0 / pre-fast-path checks before Clinger (EXP-055) | Clang random −3.6%. Adding ANY pre-check before fast_float's Clinger/Lemire dispatch regresses Clang random (the canonical datasets are fractional, exp≠0, so the check never fires but costs a branch on a finely-balanced hot path). Mirrors ffc EXP-021/025. |
 | **[fast_float]** fraction-tail nested-if unroll (EXP-054) | GCC random −2.1%, canada −1.5%. After the SWAR 8-block loop + 4-digit follow-up the residual fraction tail is only 0-3 digits; extra branches cost more than they save. (Note: integer-part and 8/4-digit-block unrolls DO transfer well — EXP-050/052/053. It's the *post-SWAR byte tail* that doesn't.) |
 | **[fast_float]** combined Clinger exponent range check (EXP-056) | GCC canada −25.4% codegen cliff. |
-| **[fast_float]** fused no-span fast path / `store_spans` template elision (EXP-057) | The `parsed_number_string_t` sret-marshaling cost is real (PGO recovers −23% i/f), but skipping the integer/fraction span stores on the hot path does NOT extract it to portable source. The `store_spans=true/false` split forces two full `parse_number_string` instantiations (icache) + inlined slow-path re-dispatch; clang wins canada/random (+5.9%/+3.2%) but **mesh regresses −8.6% clang / −6.1% gcc and gcc regresses all three datasets** (drift-controlled, ffc-control flat). mesh's tight short-float loop is where fixed dispatch/icache cost beats the shrinking marshaling saving. Reviewer-panel Designs A/B/C all closed. **Marshaling needs PGO (codegen-level), not a source change — do not re-attempt span-elision or struct-slimming.** |
+| **[fast_float]** `store_spans` marshaling elision — template (EXP-057) / runtime (EXP-058) | **SUPERSEDED by EXP-059 (see win below).** Eliding the integer/fraction span stores on the hot path is the right idea, but BOTH the template-flag (EXP-057) and runtime-flag (EXP-058) forms left the two rare slow-path re-parses **inlined** in `from_chars_float_advanced` (3 `always_inline` scanner copies). On x86 that's still a net win, but on ARM Graviton4 gcc it triples the scanner (+3.2% instr, IPC 5.66→5.33) → gcc mesh −34%. The earlier "needs PGO, not source" verdict was a noisy-laptop artifact and was WRONG. |
+
+**WIN — [fast_float] marshaling elision + noinline cold slow-path (EXP-059).** The fix for the
+above: keep ONE force-inlined no-span scanner on the hot path and push the rare slow-path
+re-parse into a single `__attribute__((noinline,cold))` helper (routed through the unchanged
+public `from_chars_advanced`). Recovers the `parsed_number_string_t` marshaling cost in **portable
+source** (no PGO). Drift-controlled lab metal: **ARM Graviton4 gcc +75/+73/+196%** (random/canada/
+mesh), clang +8/+8/+11%; **Ice Lake gcc +19/+17/+17%; Cascade Lake gcc +18/+18/+22%, clang
++13/+23/+17%**. `exhaustive32` PASS. ARM post-fix: instr below base, IPC above base. **Lesson: when
+eliding work from a force-inlined hot path, the rare fallback MUST be `noinline cold` or the
+compiler (esp. ARM gcc) duplicates the hot code and erases the win.** See `experiments/EXP-059/`.
 
 > **fast_float meta-finding (EXP-050–056):** ffc's **digit-scanning** ports transfer
 > to fast_float and win (integer-scan unroll, 2x SWAR, 4-digit follow-up: EXP-050/052/053).

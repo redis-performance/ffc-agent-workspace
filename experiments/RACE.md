@@ -232,3 +232,26 @@ where fixed dispatch cost beats the shrinking marshaling saving. Reverted, branc
 archived at `experiments/EXP-057/`. **All three designs (A/B/C) now closed. The struct-marshaling
 cost needs PGO (codegen-level), not a portable source change — do NOT re-attempt span-elision.**
 Nothing to PR; #384 follow-up should report the negative result rather than propose a patch.
+
+### UPDATE (2026-06-03) — direction REVIVED and WON via EXP-058 → EXP-059
+
+The "needs PGO, not source" conclusion above was **wrong** — it was an artifact of the
+noisy x86 laptop + ARM, not a property of the direction. Lemire then *encouraged a PR* on
+#384 ("the struct is too fat … I encourage a pull request"). Re-attempted on real lab metal:
+
+- **EXP-058** (runtime `store_spans`, single instantiation): wins every Intel gen
+  (+8–15%) but regresses ARM Graviton4 (gcc mesh −34%). perf + a 4-subagent workflow
+  localized the cause: `parse_number_string` is `always_inline` and `from_chars_float_advanced`
+  had **3 call sites** → ARM gcc tripled the scanner (+3.2% instr, IPC 5.66→5.33). The base
+  spill was actually *eliminated*; the regression was purely the over-inlined cold re-parses.
+- **EXP-059** (one `noinline cold` slow-path helper → only the no-span scanner inlines hot):
+  **wins everywhere.** Drift-controlled (ffc-control flat): **ARM Graviton4 gcc +75/+73/+196%**,
+  clang +8/+8/+11%; **Ice Lake gcc +19/+17/+17%; Cascade Lake gcc +18/+18/+22%, clang
+  +13/+23/+17%** (gnr1/spr +15–72% but contended). `exhaustive32` PASS. ARM post-fix profile:
+  instr 18.09B→17.62B (below base), IPC 5.68→6.32 (above base) — captured both the
+  elision and ILP recovery. Lab x86 nodes: clx1 Cascade Lake, icx2 Ice Lake, spr Emerald
+  Rapids, gnr1 Granite Rapids (via `sdp@192.168.2.x` lab bastion). See `experiments/EXP-059/`.
+
+**Per current /goal: experiment-only, NO PR opened** (branch `exp059-noinline-coldpath` @ `b2f0686`).
+The marshaling cost is recoverable in **portable source** after all — the key was not the
+elision but keeping the rare slow-path *out of line*.
