@@ -9,6 +9,55 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-057 — 2026-06-02 — [fast_float] fused no-span fast path (`store_spans` template flag)
+
+**Target**: fast_float — `parse_number_string` (`ascii_number.h`) + `from_chars_float_advanced` (`parse_number.h`)
+**Hypothesis**: The 56/64-byte `parsed_number_string_t` is sret-marshaled through the
+by-value return; the `.integer`/`.fraction` spans are read only on the slow path
+(`digit_comp` / `too_many_digits`). Skipping their stores on the hot path and re-parsing
+with spans only when the slow path is actually reached should recover the marshaling cost
+(PGO showed −23% i/f on this path).
+
+**Design**: Added `bool store_spans = true` template param to `parse_number_string` (public
+default unchanged); guarded both span stores + the `>19`-digit truncation recompute behind it.
+Rewrote `from_chars_float_advanced` to parse no-span, attempt clinger + Eisel-Lemire inline,
+and re-parse with `store_spans=true` only on the two rare slow paths. Public
+`from_chars_advanced(pns&, value)` and `parsed_number_string_t` untouched. Diff archived at
+`experiments/EXP-057/design-A-fused-no-span.rejected.patch`.
+
+### Step 1: Benchmark — x86 pinned core 3, **interleaved** base↔patch (5 rounds/cell, ffc=drift sentinel)
+
+| Compiler | Dataset | base ff | patch ff | ΔFF% | ffc control |
+|----------|---------|---------|----------|------|-------------|
+| clang | random | 666.65 | 688.19 | **+3.23%** | 698→698 (flat) |
+| clang | canada | 553.72 | 586.39 | **+5.90%** | 664→648 |
+| clang | mesh   | 390.71 | 357.04 | **−8.62%** | 631→630 (flat → real) |
+| gcc   | random | 921.32 | 908.13 | **−1.43%** | 929→940 |
+| gcc   | canada | 655.26 | 632.56 | **−3.46%** | 723→753 (faster window, ff down) |
+| gcc   | mesh   | 552.23 | 518.34 | **−6.14%** | 735→773 (faster window, ff down) |
+
+### Correctness
+Core + supplemental (14 tests, strict `-Werror -Wconversion`) PASS. `exhaustive32` full
+2³² sweep PASS ("all ok"). (`fast_int` exhaustive target has a **pre-existing** `-Werror`
+`uint16_t→unsigned char` break on the base too — unrelated; float targets built directly.)
+
+**Decision**: **reject** (reverted; branch `pr/fused-fast-path` deleted)
+**Reason**: Confirms the reviewer-panel caveat exactly — with the `>19` block **preserved**
+(the original diagnostic also DCE'd it, inflating its +3–10%), the win does not survive.
+clang wins canada/random (+5.9%/+3.2%) but **mesh regresses on both compilers** (−8.6% clang,
+−6.1% gcc) and **gcc regresses on all three** — the ffc control confirms it's not drift (gcc
+machine was *faster* during patch reads, yet ff dropped). Root cause: the `store_spans` split
+forces **two full `parse_number_string` instantiations** (icache pressure) + inlined re-dispatch
+that hurts gcc's inliner; mesh (shortest floats, tightest loop, smallest per-call marshaling to
+save) is where fixed dispatch/icache cost dominates the shrinking benefit. A regression >1% on
+any dataset voids the win. **The struct-marshaling cost is real but not extractable to portable
+source via span-elision — it needs PGO (codegen-level), not a source change.**
+
+**Race Δ**: no change — reverted; standings unaffected. Closes the "fused fast path" thread
+opened by the 15-reviewer panel (Design A rejected; B/C already dropped).
+
+---
+
 ## EXP-056 — 2026-06-01 — [fast_float] combined Clinger exponent range check (port of ffc EXP-012)
 
 **Target**: fast_float — `clinger_fast_path_impl` range test

@@ -10,6 +10,7 @@ target. The `Target` column below denotes the dataset/arch/compiler focus, not t
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-057 | `[fast_float]` fused no-span fast path (`store_spans` template elision) | fast_float, x86 | clang canada +5.9%/random +3.2% BUT mesh −8.6% clang / −6.1% gcc and gcc regresses all three (drift-controlled, ffc-control flat); two scanner instantiations + re-dispatch icache cost. Reviewer-panel Design A — all 3 designs now closed; marshaling needs PGO not source | **Rejected** | 2026-06-02 |
 | EXP-056 | `[fast_float]` combined Clinger exponent range check (port of ffc EXP-012) | fast_float, ARM | GCC canada −25.4% (948→707, codegen cliff); Clang flat | **Rejected** | 2026-06-01 |
 | EXP-055 | `[fast_float]` exponent==0 integer fast path (port of ffc EXP-033) | fast_float, ARM | Clang random −3.6% (pre-check branch on hot path; datasets are fractional so exp==0 rarely triggers); no gain | **Rejected** | 2026-06-01 |
 | EXP-054 | `[fast_float]` fraction-tail nested-if unroll (port of ffc EXP-015) | fast_float, ARM | GCC random −2.1%, canada −1.5% (residual tail too short after SWAR+4-digit; extra branches cost); Clang canada +1.6% only | **Rejected** | 2026-06-01 |

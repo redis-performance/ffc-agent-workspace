@@ -219,3 +219,16 @@ Verdict: **BUILD-BRANCH-BUT-HOLD, Design A; do NOT open PR; drop B & C.**
   already harvests +30-40% for free; Lemire: settle #384 first (A~55% w/ buy-in).
 Action: build Design A on a branch, validate (exhaustive + same-session bench), HOLD
 ready-to-PR pending Lemire's #384 reply. Building Design A IS the real-win measurement.
+
+### RESOLUTION (2026-06-02) — Design A built + measured → **REJECTED** (EXP-057)
+
+Built on `pr/fused-fast-path`, exhaustive32 PASS. Drift-controlled interleaved x86 bench
+(ffc=control sentinel) confirmed reviewer #1's exact caveat: with the `>19` block preserved
+(no DCE), the diagnostic's win evaporates. clang wins canada/random (+5.9%/+3.2%) but **mesh
+regresses both compilers** (−8.6% clang, −6.1% gcc) and **gcc regresses all three datasets** —
+control proves it's not drift. The `store_spans` split forces two full `parse_number_string`
+instantiations (icache) + inlined re-dispatch that hurts gcc's inliner; mesh's tight loop is
+where fixed dispatch cost beats the shrinking marshaling saving. Reverted, branch deleted, diff
+archived at `experiments/EXP-057/`. **All three designs (A/B/C) now closed. The struct-marshaling
+cost needs PGO (codegen-level), not a portable source change — do NOT re-attempt span-elision.**
+Nothing to PR; #384 follow-up should report the negative result rather than propose a patch.
