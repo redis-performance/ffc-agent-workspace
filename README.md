@@ -9,6 +9,20 @@ valuable as wins.
 
 ---
 
+## Upstream PRs merged
+
+Wins from this workspace that landed upstream, by project:
+
+| Project | Merged PRs | What |
+|---------|:----------:|------|
+| [fastfloat/fast_float](https://github.com/fastfloat/fast_float) | **3** | [#381](https://github.com/fastfloat/fast_float/pull/381) integer-scan unroll · [#382](https://github.com/fastfloat/fast_float/pull/382) 4-digit SWAR follow-up · [#383](https://github.com/fastfloat/fast_float/pull/383) parallel exhaustive sweeps (~75–88×) |
+| [redis/hiredis](https://github.com/redis/hiredis) | **1** | [#1328](https://github.com/redis/hiredis/pull/1328) ffc as the RESP3 double parser (locale-correct, ~4× faster) |
+| [redis-performance/ffc.h](https://github.com/redis-performance/ffc.h) | — | the workspace's own racing parser (optimizations land directly, not via upstream PRs) |
+
+**Total: 4 merged PRs.** (fast_float [#384](https://github.com/fastfloat/fast_float/issues/384) is an open *issue* — the GCC short-float marshaling discussion — not a PR.)
+
+---
+
 ## Optimization Pipeline
 
 Population-based selection AND implementation, inspired by AutoKernel (arXiv:2603.21331).

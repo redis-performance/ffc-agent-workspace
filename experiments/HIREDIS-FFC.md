@@ -3,11 +3,12 @@
 **Goal**: replace `strtod()` in hiredis's RESP3 double-reply path with **ffc** (pure-C99
 single-header), and upstream it as a PR to `redis/hiredis`. Track the whole effort here.
 
-**Status**: 🚀 **PR OPENED** — https://github.com/redis/hiredis/pull/1328 (H0–H7 done).
+**Status**: ✅ **MERGED** — https://github.com/redis/hiredis/pull/1328 (merged 2026-06-02).
 ffc is the default RESP3 double parser (MIT-vendored `ffc.h`), `strtod` fallback via
-`-DHIREDIS_FLOAT_STRTOD`. Validated: 3M-value strtod-parity bit-identical, ~7–10× faster
-(x86+ARM), locale bug fixed, tests green under both builds. Branch `ffc-double-parser` @
-`f19c4b5`, pushed to `fcostaoliveira/hiredis`. Next: respond to maintainer review.
+`-DHIREDIS_FLOAT_STRTOD`. Validated: 3M-value strtod-parity bit-identical, ~4× faster
+(x86+ARM, with the safety copy retained), locale bug fixed, tests green under both builds,
+full CI green across macOS/Linux/Windows/FreeBSD/ARM. Two review rounds addressed (macOS
+`-Wstatic-in-inline`, createDouble NUL-termination, ffc `vk` bug, `-0` signbit test).
 **Owner**: this workspace. **Started**: 2026-06-02.
 **Submodule**: `hiredis/` → `git@github.com:fcostaoliveira/hiredis.git` (fork of `redis/hiredis`),
 currently `1d18adb` (heads/master).
@@ -157,7 +158,7 @@ finiteness, identical round-to-nearest-even result, identical PROTOCOL error on 
 | H4 | Parity test suite (strtod≡ffc) + locale regression test | ✅ done — `parity.c`: 3,000,000 values bit-identical, 0 accept/reject disagreements; locale bug reproduced |
 | H5 | double-parse microbenchmark (strtod vs ffc) | ✅ done — `bench.c`, x86 local + ARM Graviton4 metal |
 | H6 | Decide default-on vs opt-in; license header; NOTICE | ✅ done — default-on (ffc), `-DHIREDIS_FLOAT_STRTOD` fallback; SPDX MIT header on `ffc.h` |
-| H7 | PR fcostaoliveira/hiredis → redis/hiredis with bench + correctness evidence | ✅ **opened: [redis/hiredis#1328](https://github.com/redis/hiredis/pull/1328)** |
+| H7 | PR fcostaoliveira/hiredis → redis/hiredis with bench + correctness evidence | ✅ **MERGED: [redis/hiredis#1328](https://github.com/redis/hiredis/pull/1328)** (2026-06-02) |
 
 ## Review round 1 (2026-06-02, PR #1328 @ `a8ca884`)
 
