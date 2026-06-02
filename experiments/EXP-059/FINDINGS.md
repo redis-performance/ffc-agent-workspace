@@ -17,3 +17,19 @@ ARM. Further gains on this direction are diminishing. Next directions (future
 iterations): (a) cross-pollinate the noinline-cold-marshaling idea into ffc; (b)
 certified gnr1/spr quiet runs; (c) the subagent's alternative am-passing cold path
 (marginal, cold-only).
+
+# Does the EXP-059 marshaling technique apply to ffc? NO — ffc is already lean.
+
+Profiled findmax_ffc on ARM Graviton4 mesh. Top self instructions are ALL real
+parse/convert work: scvtf (int->float) 9.7%, ldrb (byte load), sub w,#0x30
+(digit-'0'), cmp #0x2d (sign), cmp #0x9 (digit<=9), ldp (load std::string {ptr,len}
+from the vector = harness). There is NO stp/ldp stack-spill of a parsed struct.
+
+=> ffc does NOT materialize+spill a fat parsed_number_string-style struct on its hot
+path. That is precisely WHY ffc was 2-3x faster than fast_float on ARM mesh to begin
+with. EXP-059's noinline-cold-marshaling technique has nothing to elide in ffc.
+
+CONCLUSION for the marshaling direction (Lemire #384): it is fast_float-specific.
+fast_float HAD the inefficiency -> EXP-059 removes it in portable source (huge win,
+closes the gap to ffc). ffc was already marshaling-free. The "cross-pollinate to ffc"
+idea is therefore N/A. The direction is now thoroughly explored and concluded.
