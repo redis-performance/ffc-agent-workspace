@@ -1,2 +1,4 @@
 exit=0 all ok
 exit=0 all ok
+exit=0 all ok
+exit=0 all ok (random64)

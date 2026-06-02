@@ -42,9 +42,9 @@ over-inlining → the full benefit lands (≈3×). vs EXP-058 the same ARM gcc m
 −34% → +196%; the fix is the single `noinline cold` helper.
 
 ### Step 2: Correctness
-Core + supplemental (14 tests, `-Werror -Wconversion`) PASS. **Float exhaustive PASS**: `exhaustive32`,
-`exhaustive32_64`, `exhaustive32_midpoint` all "all ok" on icx2 (random64 running); full 2³²
-single-precision round-trip + midpoint-rounding coverage. Slow path is upstream-equivalent by construction
+Core + supplemental (14 tests, `-Werror -Wconversion`) PASS. **Full float-exhaustive suite PASS**:
+`exhaustive32`, `exhaustive32_64`, `exhaustive32_midpoint`, `random64` all "all ok" on icx2 — full
+2³² single-precision round-trip + midpoint-rounding + random-double coverage. Correctness comprehensive. Slow path is upstream-equivalent by construction
 (re-parses with spans → unchanged public `from_chars_advanced`), and the fast path computes
 mantissa/exponent identically to base (only span *stores* skipped), so correctness ⊆ upstream +
 the dispatch (covered by core+supplemental). (The `scripts/test-fast_float.sh` full build hits a
