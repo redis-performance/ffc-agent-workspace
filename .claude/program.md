@@ -322,3 +322,11 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > hints are irrelevant (bm/f flat; cf. ffc EXP-004). The ONLY source-extractable form
 > is the targeted #384 fused parse→compute path. PGO is empirical proof that fusion is
 > worth ~20%.
+
+> **Fusion prototype — span-marshaling cost MEASURED (2026-06-02).** Diagnostic: removed
+> the answer.integer/.fraction stores from parse_number_string (breaks slow path; valid
+> for fast-path datasets). Pinned x86: gcc +3.6..5.6%, clang +3.2..9.7% (clang canada
+> +9.3%, mesh +9.7%). Confirms eliminating the span marshaling on the fast path is worth
+> +3-10% as a SOURCE change — validating the #384 fused/slim-struct refactor. Proper impl
+> must preserve spans for the slow path (re-derive in digit_comp, or fuse clinger before
+> the struct). This is the genuine source extraction of (part of) the PGO win.
