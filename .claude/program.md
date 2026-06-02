@@ -313,3 +313,12 @@ Jaber & Jaber, arXiv:2603.21331, 2026.
 > parse_eight_digits beats SSE's per-iter setup (load/cmp/movemask/extract) for char —
 > confirming upstream's deliberate "scalar is better for char" choice, still true on
 > modern x86 (Core Ultra). SIMD char digit-scan is a non-starter.
+
+> **Extracting PGO → source (2026-06-02).** PGO's fast_float win is a −23% i/f drop
+> (canada 263.6→203.3) with branch-misses FLAT (13.2→12.5) — i.e. the optimizer
+> eliminates hot-path work (selective inlining + struct scalarization), NOT branch
+> prediction. Cheap source proxies fail to capture it: `__attribute__((flatten))`
+> REGRESSES −0.4..2.0% (bloats by inlining the slow path indiscriminately); branch
+> hints are irrelevant (bm/f flat; cf. ffc EXP-004). The ONLY source-extractable form
+> is the targeted #384 fused parse→compute path. PGO is empirical proof that fusion is
+> worth ~20%.
