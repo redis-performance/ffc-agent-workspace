@@ -154,7 +154,7 @@ finiteness, identical round-to-nearest-even result, identical PROTOCOL error on 
 | H2 | Vendor `ffc.h` into the fork + `HIREDIS_FLOAT_FFC` build gate | ✅ done — `ffc.h` (3442 lines) vendored; `#define FFC_IMPL` in read.c (sole TU) |
 | H3 | Implement read.c double-path swap + `hiTokCaseEq` helper | ✅ done — builds clean under `-std=c99 -pedantic -Werror`; hiredis double reader tests #48–62 pass (incl. embedded-NUL invalid + array) |
 | H4 | Parity test suite (strtod≡ffc) + locale regression test | ✅ done — `parity.c`: 3,000,000 values bit-identical, 0 accept/reject disagreements; locale bug reproduced |
-| H5 | double-parse microbenchmark (strtod vs ffc) | ✅ done (x86 local) — `bench.c`; ARM metal TODO |
+| H5 | double-parse microbenchmark (strtod vs ffc) | ✅ done — `bench.c`, x86 local + ARM Graviton4 metal |
 | H6 | Decide default-on vs opt-in; license header; NOTICE | ☐ |
 | H7 | PR fcostaoliveira/hiredis → redis/hiredis with bench + correctness evidence | ☐ |
 
@@ -181,8 +181,16 @@ finiteness, identical round-to-nearest-even result, identical PROTOCOL error on 
 | canada.txt | 100.80 MB/s | 100.11 | **735.01** | **+629%** | +634% |
 | mesh.txt | 84.45 MB/s | 88.75 | **799.50** | **+847%** | +801% |
 
-The per-reply copy is **not** the bottleneck (~4%); glibc `strtod` itself is (~100 MB/s).
-ffc gives ~**7–9×** faster double parsing. (Reader-level throughput including
+**ARM Graviton4 metal** (`bench.c`, best of 200, pinned core 3):
+
+| Dataset | strtod+copy (hiredis today) | strtod no-copy | **ffc** | ffc vs hiredis | parser-only |
+|---------|----------------------------:|---------------:|--------:|---------------:|------------:|
+| random [0,1] | 195.14 MB/s | 201.08 | **1831.85** | **+839%** | +811% |
+| canada.txt | 168.69 MB/s | 174.42 | **1712.61** | **+915%** | +882% |
+| mesh.txt | 164.49 MB/s | 180.68 | **1664.86** | **+912%** | +821% |
+
+The per-reply copy is **not** the bottleneck (~3–10%); glibc `strtod` itself is. ffc gives
+~**7–9× (x86) / ~9–10× (ARM)** faster double parsing. (Reader-level throughput including
 `redisReply` alloc/free is alloc-dominated and dilutes this — the parse is the part the
 PR changes.)
 
