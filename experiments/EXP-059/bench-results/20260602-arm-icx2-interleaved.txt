@@ -1,0 +1,17 @@
+######## ARM Graviton4 (EXP-059) ########
+######## icx2 Ice Lake (EXP-059) ########
+node=ip-172-31-55-171 arch=aarch64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+node=redis-icx2 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 1087.07   1907.30   +75.45  | 1917.03/1914.54
+gcc   random  | 1141.85   1358.12   +18.94  | 1291.37/1258.39
+gcc   canada  | 948.28    1644.62   +73.43  | 1724.99/1723.61
+gcc   mesh    | 503.45    1489.06   +195.77 | 1756.97/1741.71
+gcc   canada  | 972.53    1138.26   +17.04  | 1120.97/1112.57
+gcc   mesh    | 813.66    954.99    +17.37  | 1024.72/1015.03
+clang random  | 1346.77   1449.06   +7.60   | 1509.33/1508.41
+clang canada  | 1049.42   1135.37   +8.19   | 1383.86/1383.79
+clang mesh    | 879.41    976.40    +11.03  | 1419.19/1423.72
+[1]-  Done                    ( echo "######## ARM Graviton4 (EXP-059) ########"; $ARM ubuntu@3.92.205.222 "CCS='gcc clang' PIN=3 bash ~/ffc-race/interleave.sh" 2>&1 )
+[2]+  Done                    ( echo "######## icx2 Ice Lake (EXP-059) ########"; $RSH icx2 "CCS=gcc PIN=3 bash ~/ffc-race/interleave.sh" 2>&1 )

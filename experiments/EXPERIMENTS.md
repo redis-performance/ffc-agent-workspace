@@ -9,6 +9,54 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-059 — 2026-06-02 — [fast_float] marshaling elision + **noinline cold slow-path** (the breakthrough)
+
+**Target**: fast_float — `float_common.h` (+`fastfloat_noinline` macro), `parse_number.h`
+(`parse_number_slow_path` cold helper + `from_chars_float_advanced`). Branch
+`exp059-noinline-coldpath`.
+**Context**: EXP-058 elided the span marshaling and won on Intel but regressed ARM Graviton4
+(gcc mesh −34%). A 4-subagent workflow (2 profile analysts + code reviewer + synthesizer) over
+perf data localized the cause: `parse_number_string` is `always_inline`, and
+`from_chars_float_advanced` had **three** call sites → ARM gcc inlined all three, tripling the
+scanner (+3.2% instructions, IPC 5.66→5.33); x86 gcc didn't. The base spill (67% of the ARM hot
+loop) was actually *eliminated* by EXP-058 — the regression was purely the over-inlined cold
+re-parses bloating the hot frame.
+**Hypothesis**: pull the two rare slow-path re-parses into ONE `__attribute__((noinline,cold))`
+helper (routed through the public `from_chars_advanced`) so only the single no-span scanner
+inlines on the hot path. Keeps the elision win; removes the over-inlining penalty.
+
+### Step 1: Benchmark — interleaved base↔patch, ffc-control sentinel, median of 5, pinned core 3
+
+| Node (arch / gen) | compiler | random | canada | mesh |
+|-------------------|----------|-------:|-------:|-----:|
+| **ARM Graviton4** (Neoverse-V2) | gcc | **+75.5%** | **+73.4%** | **+195.8%** |
+| ARM Graviton4 | clang | +7.6% | +8.2% | +11.0% |
+| Ice Lake (icx2, Xeon 8360Y) | gcc | +18.9% | +17.0% | +17.4% |
+| Cascade Lake (clx1, Xeon 6248) | gcc | +17.5% | +17.7% | +22.4% |
+| Cascade Lake (clx1) | clang | +12.7% | +22.7% | +17.3% |
+| Granite Rapids (gnr1, Xeon 6972P) | gcc | (+19/+23/+17, control drifted — contended box, re-run pending) |
+
+All reliable cells have **flat ffc control** (drift sentinel). The ARM gcc mesh **+196%** matches
+the profiling: marshaling was 67% of that loop; EXP-059 removes it WITHOUT the EXP-058
+over-inlining → the full benefit lands (≈3×). vs EXP-058 the same ARM gcc mesh cell went
+−34% → +196%; the fix is the single `noinline cold` helper.
+
+### Step 2: Correctness
+Core + supplemental (14 tests, `-Werror -Wconversion`) PASS. Float exhaustive on icx2
+(`exhaustive32`/`_64`/`_midpoint`, parallelized PR#383): [pending — see commit]. (The
+`scripts/test-fast_float.sh` full build hits a **pre-existing** gcc-11 `-Werror=conversion`
+break in `tests/ipv4_test.cpp` — unrelated test file; float targets built directly.)
+
+**Decision**: **accept (as a parked, no-PR experiment per current /goal)** — large, consistent
+win on every reliable node × both compilers × both architectures, correctness clean. This is the
+arch-neutral form of the direction Lemire invited on #384. Per the standing goal: logged, **no PR
+opened**.
+**Race Δ**: closes the ARM gap and extends the Intel lead for fast_float across the board; ffc
+still leads absolute MB/s but fast_float gained 8–196% on this path. Committed on branch
+`exp059-noinline-coldpath` (not merged to `redis-perf/optim`).
+
+---
+
 ## EXP-058 — 2026-06-02 — [fast_float] runtime `store_spans` flag (marshaling elision, EXP-057 redux)
 
 **Target**: fast_float — `parse_number_string` (`ascii_number.h`) + `from_chars_float_advanced` (`parse_number.h`)

@@ -1,0 +1,18 @@
+######## gnr1 Granite Rapids (EXP-059) ########
+node=redis-gnr1 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+######## clx1 Cascade Lake (EXP-059) ########
+gcc   random  | 1993.58   2367.81   +18.77  | 1770.46/2126.67
+node=redis-clx1 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   canada  | 1590.55   1949.53   +22.57  | 1772.31/1865.95
+gcc   mesh    | 1241.54   1454.54   +17.16  | 1503.45/1413.25
+gcc   random  | 681.09    800.28    +17.50  | 704.84/695.14
+gcc   canada  | 599.24    705.24    +17.69  | 667.38/655.82
+gcc   mesh    | 447.58    547.73    +22.38  | 550.22/568.07
+clang random  | 527.61    594.58    +12.69  | 588.08/588.16
+clang canada  | 430.59    528.20    +22.67  | 549.22/549.13
+clang mesh    | 311.04    364.82    +17.29  | 461.70/461.24
+[1]-  Done                    ( rsync -az -e "$RSH" fast_float/include/ clx1:ffc-race/fast_float/include/ > /dev/null 2>&1; $RSH clx1 'cd ~/ffc-race && COMPILER=gcc bash scripts/build-bench.sh >/tmp/g.log 2>&1 && cp simple_fastfloat_benchmark/build/gcc/benchmarks/benchmark /tmp/bench-patch-gcc && COMPILER=clang bash scripts/build-bench.sh >/tmp/c.log 2>&1 && cp simple_fastfloat_benchmark/build/clang/benchmarks/benchmark /tmp/bench-patch-clang && echo built' > /dev/null 2>&1; echo "######## clx1 Cascade Lake (EXP-059) ########"; $RSH clx1 "CCS='gcc clang' PIN=3 bash ~/ffc-race/interleave.sh" 2>&1 )
+[2]+  Done                    ( rsync -az -e "$RSH" fast_float/include/ gnr1:ffc-race/fast_float/include/ > /dev/null 2>&1; $RSH gnr1 "cd ~/ffc-race && PATH=$CMB:\$PATH COMPILER=gcc bash scripts/build-bench.sh >/tmp/g.log 2>&1 && cp simple_fastfloat_benchmark/build/gcc/benchmarks/benchmark /tmp/bench-patch-gcc" > /dev/null 2>&1; echo "######## gnr1 Granite Rapids (EXP-059) ########"; $RSH gnr1 "CCS=gcc PIN=3 bash ~/ffc-race/interleave.sh" 2>&1 )
+=== clx1+gnr1 EXP-059 interleave done ===
