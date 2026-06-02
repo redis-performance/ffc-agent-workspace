@@ -8,3 +8,6 @@
 	path = fast_float
 	url = git@github.com:redis-performance/fast_float.git
 	branch = redis-perf/optim
+[submodule "hiredis"]
+	path = hiredis
+	url = git@github.com:fcostaoliveira/hiredis.git
