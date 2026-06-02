@@ -1,0 +1,63 @@
+######## clx1 canada (EXP-059) ########
+######## ARM canada (EXP-059) ########
+==== node=ip-172-31-55-171 arch=aarch64 dataset=canada pin=3 ====
+---- base: perf stat ----
+    55036272616      instructions                     #    5.09  insn per cycle              (80.07%)
+    10811531143      cycles                                                                  (80.10%)
+    10390420139      branches                                                                (80.10%)
+    57179881      branch-misses                    #    0.55% of all branches             (80.15%)
+    3.874655803 seconds time elapsed
+==== node=redis-clx1 arch=x86_64 dataset=canada pin=3 ====
+---- base: record+annotate findmax_fastfloat<char> (top self instrs) ----
+       40.15 :   33f44:  stp     x7, x12, [sp, #136]
+       19.96 :   33f5c:  ldp     x3, x27, [sp, #40]
+        3.75 :   33ff4:  mov     w1, #0x526a                     // #21098
+        2.90 :   34028:  cmp     x8, #0x1
+        1.57 :   345a8:  and     x24, x24, #0xffefffffffffffff
+        1.57 :   33fc0:  clz     x9, x3
+        0.85 :   341d0:  cmp     x2, x3
+        0.85 :   33f50:  ldr     x0, [x21, #64]
+        0.73 :   341c8:  add     x3, x3, #0x1
+        0.72 :   341e8:  sub     x10, x9, x3
+---- patch: perf stat ----
+    54349234773      instructions                     #    5.25  insn per cycle              (80.13%)
+    10346881055      cycles                                                                  (80.17%)
+    10331115578      branches                                                                (80.13%)
+    56403098      branch-misses                    #    0.55% of all branches             (80.14%)
+    3.709426067 seconds time elapsed
+---- base: perf stat ----
+    56,524,715,966      instructions              #    2.80  insn per cycle           (70.08%)
+    20,212,471,175      cycles                                                        (45.51%)
+    11,398,249,887      branches                                                      (48.78%)
+    67,428,143      branch-misses             #    0.59% of all branches          (56.69%)
+    8.473637341 seconds time elapsed
+---- patch: record+annotate findmax_fastfloat<char> (top self instrs) ----
+       12.92 :   405cc:  add     x19, x19, #0x20
+       12.08 :   405d0:  fcmpe   d1, d0
+        8.14 :   40890:  cmp     x9, #0x1
+        7.86 :   40858:  mov     w1, #0x526a                     // #21098
+        3.09 :   40800:  mov     x1, #0x20000000000000           // #9007199254740992
+        2.81 :   408ac:  and     x1, x4, #0xffefffffffffffff
+        2.25 :   40520:  cmp     w2, #0x9
+        1.97 :   40518:  ldrb    w2, [x3]
+        1.69 :   40500:  add     x4, x4, x4, lsl #2
+        1.68 :   40724:  ldrb    w5, [x6, #2]
+---- top symbols (patch, self%) ----
+         3.20%  bench-patch-gcc  bench-patch-gcc      [.] double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+                ---double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+         3.04%  bench-patch-gcc  bench-patch-gcc      [.] findmax_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)
+---- base: record+annotate findmax_fastfloat<char> (top self instrs) ----
+---- patch: perf stat ----
+    56,200,041,836      instructions              #    2.82  insn per cycle           (58.17%)
+    19,929,816,629      cycles                                                        (56.92%)
+    11,272,686,901      branches                                                      (51.96%)
+    77,181,265      branch-misses             #    0.68% of all branches          (54.01%)
+    8.351541173 seconds time elapsed
+---- patch: record+annotate findmax_fastfloat<char> (top self instrs) ----
+---- top symbols (patch, self%) ----
+         3.59%  bench-patch-gcc  bench-patch-gcc       [.] findmax_ffc
+                ---findmax_ffc
+         3.31%  bench-patch-gcc  bench-patch-gcc       [.] findmax_fastfloat<char>
+[1]-  Done                    ( echo "######## clx1 canada (EXP-059) ########"; $RSH clx1 "PASS='\REDACTED_LAB_PW' DS=canada PIN=3 bash ~/ffc-race/profile.sh" 2>&1 | grep -vE "Warning|kernel|sampl" )
+[2]+  Done                    ( echo "######## ARM canada (EXP-059) ########"; $ARM ubuntu@3.92.205.222 "DS=canada PIN=3 bash ~/ffc-race/profile.sh" 2>&1 | grep -vE "Warning|kernel|sampl" )
+=== canada profiles done ===
