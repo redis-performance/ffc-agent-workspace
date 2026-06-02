@@ -199,3 +199,7 @@ address isn't on record (only ARM EIP 3.92.205.222). Until then the x86 half of 
   clang-PGO standings (the fastest config, ARM): ffc 1865/1631/1475, ff 1711/1516/1319
   → gaps random +9.0%, canada +7.6%, mesh +11.8% (vs +16/+18/+52% non-PGO). PGO
   disproportionately helps fast_float, materially narrowing the race on both arches.
+
+- **clang PGO+ThinLTO — mixed, do not use**: ThinLTO on top of PGO helps ffc (+1.7-2.6%)
+  but hurts fast_float (−0.8 to −3.2%) — same trade as gcc LTO. **clang PGO alone is the
+  both-parser sweet spot.**
