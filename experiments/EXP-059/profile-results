@@ -1,0 +1,17 @@
+==== node=ip-172-31-55-171 arch=aarch64 dataset=mesh pin=3 ====
+---- base: perf stat ----
+    18087297941      instructions                     #    5.68  insn per cycle              (80.33%)
+    3182266651      cycles                                                                  (80.14%)
+    9084846      branch-misses                    #    0.25% of all branches             (80.22%)
+---- base: record+annotate findmax_fastfloat<char> (top self instrs) ----
+       37.40 :   33f44:  stp     x7, x12, [sp, #136]
+       30.51 :   33f5c:  ldp     x3, x27, [sp, #40]
+        0.94 :   33f48:  stp     x9, x11, [sp, #152]
+        0.94 :   33f28:  stp     x10, x0, [sp, #104]
+---- patch: perf stat ----
+    17621594217      instructions                     #    6.32  insn per cycle              (80.21%)
+    2787180312      cycles                                                                  (80.14%)
+    8836560      branch-misses                    #    0.24% of all branches             (80.25%)
+---- patch: record+annotate findmax_fastfloat<char> (top self instrs) ----
+       45.06 :   405d0:  fcmpe   d1, d0
+---- top symbols (patch, self%) ----

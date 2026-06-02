@@ -42,10 +42,13 @@ over-inlining → the full benefit lands (≈3×). vs EXP-058 the same ARM gcc m
 −34% → +196%; the fix is the single `noinline cold` helper.
 
 ### Step 2: Correctness
-Core + supplemental (14 tests, `-Werror -Wconversion`) PASS. Float exhaustive on icx2
-(`exhaustive32`/`_64`/`_midpoint`, parallelized PR#383): [pending — see commit]. (The
-`scripts/test-fast_float.sh` full build hits a **pre-existing** gcc-11 `-Werror=conversion`
-break in `tests/ipv4_test.cpp` — unrelated test file; float targets built directly.)
+Core + supplemental (14 tests, `-Werror -Wconversion`) PASS. **`exhaustive32` PASS — "all ok"**
+(full 2³² single-precision round-trip on icx2). Slow path is upstream-equivalent by construction
+(re-parses with spans → unchanged public `from_chars_advanced`), and the fast path computes
+mantissa/exponent identically to base (only span *stores* skipped), so correctness ⊆ upstream +
+the dispatch (covered by core+supplemental). (The `scripts/test-fast_float.sh` full build hits a
+**pre-existing** gcc-11 `-Werror=conversion` break in `tests/ipv4_test.cpp` — unrelated test
+file; float targets built directly.)
 
 **Decision**: **accept (as a parked, no-PR experiment per current /goal)** — large, consistent
 win on every reliable node × both compilers × both architectures, correctness clean. This is the
