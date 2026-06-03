@@ -1,0 +1,23 @@
+ffc_tma.cpp:12:9: warning: 'FFC_IMPL' macro redefined [-Wmacro-redefined]
+   12 | #define FFC_IMPL
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define FFC_IMPL 1
+      |         ^
+1 warning generated.
+ffc_tma.cpp:12:9: warning: 'FFC_IMPL' macro redefined [-Wmacro-redefined]
+   12 | #define FFC_IMPL
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define FFC_IMPL 1
+      |         ^
+1 warning generated.
+NODE=ip-172-31-55-171 CC=Ubuntu clang version 18.1.3 (1ubuntu1)
+RESULT ds=random v=base reps=300 sec=0.43768
+RESULT ds=random v=pr reps=300 sec=0.35849
+RESULT ds=mesh v=base reps=2000 sec=1.35491
+RESULT ds=mesh v=pr reps=2000 sec=0.81866
+RESULT ds=canada v=base reps=400 sec=0.76260
+RESULT ds=canada v=pr reps=400 sec=0.62953
+BENCH_DONE ip-172-31-55-171
+rc=0 arm

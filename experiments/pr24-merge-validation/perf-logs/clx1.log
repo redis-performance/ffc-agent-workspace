@@ -1,0 +1,19 @@
+cc1plus: warning: command-line option ‘-std=c99’ is valid for C/ObjC but not for C++
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+cc1plus: warning: command-line option ‘-std=c99’ is valid for C/ObjC but not for C++
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-clx1 CC=cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+RESULT ds=random v=base reps=300 sec=0.99671
+RESULT ds=random v=pr reps=300 sec=0.80349
+RESULT ds=mesh v=base reps=2000 sec=3.15014
+RESULT ds=mesh v=pr reps=2000 sec=1.94588
+RESULT ds=canada v=base reps=400 sec=1.52001
+RESULT ds=canada v=pr reps=400 sec=1.15412
+BENCH_DONE redis-clx1
+rc=0 clx1

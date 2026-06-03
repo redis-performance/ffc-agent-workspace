@@ -1,0 +1,26 @@
+tar: ffc_tma.cpp: time stamp 2026-06-03 09:28:39 is 436.800841901 s in the future
+tar: ffc_base.h: time stamp 2026-06-03 09:28:39 is 436.800353278 s in the future
+tar: ffc_pr.h: time stamp 2026-06-03 09:28:39 is 436.799207977 s in the future
+tar: random.txt: time stamp 2026-06-03 09:28:39 is 433.172010885 s in the future
+tar: mesh.txt: time stamp 2026-06-03 09:28:39 is 432.651690875 s in the future
+tar: canada.txt: time stamp 2026-06-03 09:28:39 is 432.030290685 s in the future
+tar: bench-remote.sh: time stamp 2026-06-03 09:29:03 is 456.030253457 s in the future
+cc1plus: warning: command-line option ‘-std=c99’ is valid for C/ObjC but not for C++
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+cc1plus: warning: command-line option ‘-std=c99’ is valid for C/ObjC but not for C++
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-icx2 CC=cc (Ubuntu 11.4.0-2ubuntu1~20.04) 11.4.0
+RESULT ds=random v=base reps=300 sec=0.64589
+RESULT ds=random v=pr reps=300 sec=0.51989
+RESULT ds=mesh v=base reps=2000 sec=1.84970
+RESULT ds=mesh v=pr reps=2000 sec=1.13737
+RESULT ds=canada v=base reps=400 sec=0.93042
+RESULT ds=canada v=pr reps=400 sec=0.74291
+BENCH_DONE redis-icx2
+rc=0 icx2
