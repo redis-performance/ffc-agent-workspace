@@ -71,3 +71,13 @@ redis-performance/fast_float:pr/lazy-spans-coldpath off upstream/main (cherry-pi
 clean). Evidence: +17-196% per-parser microbench, Intel TMA backend 26%->2.2%, full
 float exhaustive + 2^32 byte-identical. Opened via GH_TOKEN= GITHUB_TOKEN= gh (OAuth).
 Addresses Lemire #384. https://github.com/fastfloat/fast_float/pull/386
+
+## redis-performance/ffc.h#4 (2026-06-03) — vk bugfix in ffc_negative_digit_comp
+Float slow-path correctness fix (hardcoded FFC_VALUE_KIND_DOUBLE -> caller's vk;
+8-byte-write/4-byte-read union mismatch). Found via hiredis #1328 review (Bugbot).
+~1.07e9 binary32 midpoints mis-rounded before fix; 0 after. 4 regression rows added
+to float_cases.csv (fail-before/pass-after, teeth-checked); full float exhaustive
+all-ok. Branch fix/negative-digit-comp-vk-clean off origin/main (clean, +6/-2, 3
+files). PR #3 was closed (accidentally based on local main 1 commit ahead w/ unrelated
+EXP-006 DSE commit). Opened via GH_TOKEN= GITHUB_TOKEN= gh (PAT can't open PRs).
+https://github.com/redis-performance/ffc.h/pull/4
