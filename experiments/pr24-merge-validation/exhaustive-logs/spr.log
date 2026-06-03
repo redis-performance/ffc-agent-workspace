@@ -1,0 +1,16 @@
+BUILT on sas-spr-comp cores=256
+Running exhaustive test: threads=256 sample_stride=1 (~100.00% of 4294967296 values)
+Progress: 10% (429496730/4294967296)
+Progress: 20% (858993460/4294967296)
+Progress: 30% (1288490189/4294967296)
+Progress: 40% (1717986919/4294967296)
+Progress: 50% (2147483648/4294967296)
+Progress: 60% (2576980378/4294967296)
+Progress: 70% (3006477108/4294967296)
+Progress: 80% (3435973837/4294967296)
+Progress: 90% (3865470567/4294967296)
+Progress: 100% (4294967296/4294967296)
+Exhaustive run completed: checked 4294967296 values in 75.10 seconds
+all ok
+EXH_EXIT=0 host=sas-spr-comp
+rc=0 node=spr done
