@@ -133,3 +133,14 @@ FINAL: the #384 marshaling direction is exhausted on EVERY cell with a mechanist
 explanation. Where marshaling existed (gcc), EXP-059 removed it (huge wins, gap closed/
 flipped). Where it didn't (clang), the parse is already harness/call-bound and the residual
 ffc lead is structural. No further #384 headroom anywhere.
+
+# PR OPENED — fastfloat/fast_float#386 (2026-06-03)
+
+EXP-058+059 squashed into one upstream-facing commit on top of upstream/main (the
+digit-scan work #381/#382/#383 is already merged there), cherry-picked clean, core+
+supplemental PASS on the upstream base. Pushed to redis-performance/fast_float
+pr/lazy-spans-coldpath; PR https://github.com/fastfloat/fast_float/pull/386 opened
+(addresses #384). Evidence in the PR: per-parser microbench (+17-196%), Intel TMA
+(backend-bound 26%->2.2%, retiring 60->77% on Ice Lake short floats), full float
+exhaustive + 2^32 byte-identical. ff_tma.cpp + base/patch TMA captures under
+experiments/EXP-059/tma/.

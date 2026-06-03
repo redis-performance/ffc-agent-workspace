@@ -63,3 +63,11 @@ under clang. Not ours; a candidate one-line upstream warning fix for later.
   no-op; only an internal fused fast path would help; asks Lemire if it's worth it.
   https://github.com/fastfloat/fast_float/issues/384 — if he engages, the fused-path
   refactor becomes worth building (with his buy-in + cross-platform validation).
+
+## fastfloat/fast_float#386 (2026-06-03) — lazy spans + noinline cold slow path
+EXP-058+059 marshaling elision. Skips parsed_number_string_t span materialization on
+the hot path; rare slow path re-parses out-of-line (noinline cold). Branch
+redis-performance/fast_float:pr/lazy-spans-coldpath off upstream/main (cherry-picked
+clean). Evidence: +17-196% per-parser microbench, Intel TMA backend 26%->2.2%, full
+float exhaustive + 2^32 byte-identical. Opened via GH_TOKEN= GITHUB_TOKEN= gh (OAuth).
+Addresses Lemire #384. https://github.com/fastfloat/fast_float/pull/386
