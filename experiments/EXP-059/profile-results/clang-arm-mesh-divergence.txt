@@ -1,0 +1,20 @@
+=== CLANG EXP-059 patch, ARM mesh — perf stat (base vs patch) ===
+-- clang base --
+       17961283968      instructions                     #    5.99  insn per cycle              (33.67%)
+        2996841755      cycles                                                                  (19.83%)
+          10099208      branch-misses                    #    0.26% of all branches             (17.47%)
+-- clang patch --
+       17338303668      instructions                     #    5.76  insn per cycle              (29.57%)
+        3008481470      cycles                                                                  (23.98%)
+           9367268      branch-misses                    #    0.25% of all branches             (21.40%)
+=== clang patch: top hot instrs in findmax_fastfloat<char> ===
+   76.23 :   196e0:  add     x19, x19, #0x20
+    5.98 :   196ec:  cmp     x19, x20
+    5.98 :   196c8:  add     x1, x0, x8
+    5.97 :   196c4:  movk    x4, #0xa, lsl #32
+    5.84 :   196b8:  mov     x4, #0x2e                       // #46
+    0.00 :   19748:  bl      6720 <_Unwind_Resume@plt>
+    0.00 :   19744:  mov     x0, x20
+    0.00 :   19740:  bl      63d0 <__cxa_free_exception@plt>
+    0.00 :   1973c:  mov     x0, x19
+    0.00 :   19738:  mov     x20, x0

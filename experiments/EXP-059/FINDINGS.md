@@ -95,3 +95,21 @@ FLOAT (benchmark32), interleaved, ffc-control flat:
 Mirrors the double result (ARM gcc double was +75/+73/+196%). EXP-059 improves BOTH
 float and double parsing, both arches, both compilers. Picture complete: 2 value types
 x 2 architectures x 2 compilers all confirm the marshaling-elision win.
+
+# Why does ARM clang get +11% on mesh but gcc gets +196%? (divergence explained)
+
+Profiled the EXP-059 clang patch on ARM mesh:
+- clang BASE: IPC 5.99, NO dominant stp/ldp marshaling spill in findmax_fastfloat<char>
+  (clang's codegen already largely avoided the fat-struct spill that crippled gcc base,
+  whose hot loop was 67% stp/ldp).
+- clang PATCH: instructions -3.5% (elision still removes work) but IPC 5.76; the hot loop
+  is now 76% in `add x19,x19,#0x20` = the IMMUTABLE findmax harness iterator advance
+  (sizeof std::string). The parse is so cheap it is HARNESS-BOUND.
+
+CONCLUSION: the gcc(+196%)-vs-clang(+11%) mesh divergence is because gcc base spilled the
+fat struct badly (huge headroom) while clang base did not (little headroom). Post-EXP-059
+clang mesh is harness-bound, so the residual ffc lead there (+46%) is structural (ffc's
+short-float algorithm edge + the immutable benchmark harness floor) and CANNOT be closed
+via the marshaling direction. This independently re-confirms the direction is exhausted:
+where there was marshaling to remove (gcc), EXP-059 removed it massively; where there
+wasn't (clang), there is nothing left to gain.
