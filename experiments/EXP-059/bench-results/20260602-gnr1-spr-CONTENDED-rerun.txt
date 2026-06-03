@@ -1,0 +1,15 @@
+######## gnr1 re-run ########
+node=redis-gnr1 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 1992.56   2368.28   +18.86  | 1807.40/2127.97
+######## spr (EXP-059) ########
+node=sas-spr-comp arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   canada  | 1587.92   1948.64   +22.72  | 1782.02/1851.82
+gcc   mesh    | 1207.92   1460.00   +20.87  | 1481.46/1400.40
+[1]-  Done                    ( echo "######## gnr1 re-run ########"; $RSH gnr1 "CCS=gcc PIN=3 bash ~/ffc-race/interleave.sh" 2>&1 )
+gcc   random  | 949.35    1089.97   +14.81  | 906.67/984.81
+gcc   canada  | 764.72    894.64    +16.99  | 851.46/1005.53
+gcc   mesh    | 580.03    998.08    +72.07  | 687.28/1233.38
+[2]+  Done                    ( rsync -az -e "$RSH" fast_float/include/ spr:ffc-race/fast_float/include/ > /dev/null 2>&1; $RSH spr "cd ~/ffc-race && PATH=$CMB:\$PATH COMPILER=gcc bash scripts/build-bench.sh >/tmp/g.log 2>&1 && cp simple_fastfloat_benchmark/build/gcc/benchmarks/benchmark /tmp/bench-patch-gcc" > /dev/null 2>&1; echo "######## spr (EXP-059) ########"; $RSH spr "CCS=gcc PIN=3 bash ~/ffc-race/interleave.sh" 2>&1 )
+=== gnr1+spr re-runs done ===

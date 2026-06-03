@@ -1,0 +1,12 @@
+######## gnr1 (EXP-059, certified quiet) ########
+node=redis-gnr1 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 1992.06   2367.75   +18.86  | 1808.28/2128.38
+gcc   canada  | 1591.09   1942.92   +22.11  | 1780.95/1863.45
+gcc   mesh    | 1234.13   1470.31   +19.14  | 1521.09/1444.89
+######## spr (EXP-059, certified quiet) ########
+node=sas-spr-comp arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 1930.21   2229.50   +15.51  | 1810.96/2003.22
+gcc   canada  | 1554.09   1831.03   +17.82  | 1741.71/1787.85
+gcc   mesh    | 1205.87   1418.08   +17.60  | 1434.67/1433.34

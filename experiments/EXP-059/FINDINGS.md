@@ -55,3 +55,29 @@ Independent review (equivalence / portability / adversarial-edge-cases + synthes
 
 VERDICT: correct + portable as implemented; overall_confidence=high; must_fix=[],
 should_fix=[]. Full result: review/adversarial-review-workflow-result.json.
+
+# 4-gen Intel comparison — methodological finding: alignment sensitivity on GNR/EMR
+
+Re-ran gnr1 (Granite Rapids) + spr (Emerald Rapids) at load 0.00 (quiet). The ffc
+CONTROL (byte-identical code in base & patch binaries) STILL drifts a REPRODUCIBLE
++18% on gnr1 random (1808->2128, same as the prior "contended" run) and +11% on spr
+random. Reproducible (not random) => NOT contention but CODE-ALIGNMENT sensitivity:
+changing fast_float shifts ffc's hot code to a different address; on Granite/Emerald
+Rapids that crosses an alignment/decode boundary (~18%). clx1 (Cascade Lake) and icx2
+(Ice Lake) had FLAT controls => alignment-stable => trustworthy.
+
+CONSEQUENCE: the two-binary interleave + ffc-control-sentinel method is only valid on
+alignment-stable nodes. gnr1/spr fastfloat deltas (+15-22%) are confounded by the same
+layout shift and cannot be cleanly attributed to EXP-059 with this method.
+
+4-GENERATION INTEL COMPARISON (EXP-059, gcc, random/canada/mesh):
+- Cascade Lake (clx1, Xeon 6248):   +18 / +18 / +22%   [control FLAT -> certified]
+- Ice Lake     (icx2, Xeon 8360Y):  +19 / +17 / +17%   [control FLAT -> certified]
+- Emerald Rapids (spr, Xeon 8592+): +16 / +18 / +18%   [control drifts +11% random -> alignment-confounded]
+- Granite Rapids (gnr1, Xeon 6972P):+19 / +22 / +19%   [control drifts +18% random -> alignment-confounded]
++ ARM Graviton4: gcc +75/+73/+196%, clang +8/+8/+11%   [control FLAT -> certified]
+
+VERDICT: EXP-059 wins on all 4 Intel gens directionally; CERTIFIED clean on Cascade
+Lake + Ice Lake (+17-22%) and ARM. GNR/EMR positive but alignment-confounded (would
+need alignment-robust measurement — e.g. per-function perf counters or LBR — to
+certify, which the immutable two-binary benchmark harness doesn't support).
