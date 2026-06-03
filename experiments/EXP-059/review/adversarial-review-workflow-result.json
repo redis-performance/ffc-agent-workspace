@@ -1,0 +1,103 @@
+{
+  "summary": "Adversarially review the EXP-059 fast_float patch for correctness, portability, and edge-case bugs",
+  "agentCount": 4,
+  "logs": [],
+  "result": {
+    "equivalence": {
+      "issues": [
+        {
+          "severity": "none",
+          "title": "too_many_digits path: caller never uses un-truncated mantissa/exponent (risk 1 cleared)",
+          "detail": "In parse_number_string with store_spans=false and digit_count>19, line 554 sets answer.too_many_digits=true unconditionally, and the store_spans guard (lines 559-583) only skips the truncation recompute that mutates i/exponent. The hot path in from_chars_float_advanced checks ONLY pns.too_many_digits (parse_number.h:354) and immediately calls parse_number_slow_path BEFORE touching pns.mantissa/pns.exponent. The slow path re-parses with store_spans=true (parse_number.h:303-305), producing a pns with the correctly truncated mantissa/exponent AND materialized integer/fraction spans, then runs upstream from_chars_advanced unchanged. The un-truncated values are therefore discarded, never observed. Bit-identical to upstream."
+        },
+        {
+          "severity": "none",
+          "title": "am.power2<0 path: double-clinger cannot diverge (risk 2 cleared)",
+          "detail": "When am.power2<0 and not too_many_digits, the hot path routes to parse_number_slow_path, whose from_chars_advanced re-runs clinger_fast_path_impl (parse_number.h:266-268). clinger_fast_path_impl is a pure function of (mantissa, exponent, negative, T). For !too_many_digits, store_spans does not affect mantissa/exponent (only the integer/fraction span fields, which clinger never reads). The hot path already called clinger with identical (pns.mantissa, pns.exponent, pns.negative, value) at parse_number.h:361 and it returned false; the re-run with byte-identical arguments must also return false. compute_float(exponent,mantissa) is likewise pure and reproduces the same am; the too_many_digits compute_error block is skipped (false); am.power2<0 -> digit_comp(pns,am), which now reads the re-materialized integer/fraction spans (digit_comparison.h:272-305). Reproduces upstream exactly."
+        },
+        {
+          "severity": "none",
+          "title": "clinger and Eisel-Lemire success paths inlined identically",
+          "detail": "Path !too_many_digits + clinger success: hot path sets answer.ec=errc(), answer.ptr=pns.lastmatch, returns on clinger true (parse_number.h:358-363); upstream condition !pns.too_many_digits && clinger reduces to the same since too_many_digits already branched out. Path Eisel-Lemire success (am.power2>=0): compute_error block skipped in both (too_many_digits false), digit_comp skipped, to_float + over/underflow test use identical pns.mantissa/am.mantissa/am.power2 (parse_number.h:374-379 vs 283-288). Spans are not read on either path, so eliding them is invisible."
+        },
+        {
+          "severity": "none",
+          "title": "answer.ptr / ec set identically across all four paths + infnan/invalid",
+          "detail": "infnan/invalid: hot path checks pns.valid (parse_number.h:341) — validity is deterministic for the same input/options — and on invalid returns parse_infnan(first,last,...) (unchanged, identical ptr/ec) or invalid_argument with answer.ptr=first under no_infnan, matching upstream. For valid paths, answer.ptr=pns.lastmatch; the re-parse in the slow path produces an identical lastmatch (same deterministic scan), and parse_number_slow_path forwards from_chars_advanced's answer verbatim. The bjf bool (parse_number.h:332, '!=0') is semantically equal to the original integer-in-ternary condition and is reused for the slow re-parse, selecting the same basic_json_fmt template branch."
+        },
+        {
+          "severity": "none",
+          "title": "noinline/cold attribute and constexpr are behaviorally inert",
+          "detail": "fastfloat_noinline (__attribute__((noinline,cold)) / __declspec(noinline)) affects codegen/placement only, not observable result. Under FASTFLOAT_CONSTEXPR20 constexpr evaluation the attribute is ignored and the function body executes the same logic. The store_spans default argument (=true) preserves all other callers (parse_number_slow_path passes true; any external caller of parse_number_string gets the original fully-materialized behavior)."
+        }
+      ],
+      "confidence": "high",
+      "summary": "EXP-059 is correctness-EQUIVALENT to upstream fast_float: it returns bit-identical values and the same from_chars_result (ptr, ec) for all inputs. The transform splits from_chars_advanced's body inline into the hot path (clinger + Eisel-Lemire success) and routes the two rare slow branches (too_many_digits, am.power2<0) to a noinline cold helper that re-parses WITH spans and calls the unchanged upstream from_chars_advanced.\\n\\nRisk (1) cleared: with store_spans=false and >19 digits, the un-truncated mantissa/exponent are never read — the caller checks only pns.too_many_digits and re-parses before using mantissa/exponent. Risk (2) cleared: the am.power2<0 re-parse re-runs clinger, but clinger is a pure function of (mantissa, exponent, negative, T) which are unchanged by store_spans for !too_many_digits, so a clinger that failed in the hot path provably fails again; compute_float + digit_comp then reproduce upstream exactly using the re-materialized spans. answer.ptr/ec are set identically on every path (fast, too_many_digits, digit_comp, infnan, invalid). bjf bool conversion and the noinline/cold attribute are behaviorally inert.\\n\\nI could construct no input that diverges. The empirical evidence agrees: experiments/EXP-059/correctness/ shows exhaustive float32 sweeps and random64 all exit 0 / 'all ok', exercising the digit_comp and too_many_digits paths across the entire float space. Verdict: airtight equivalence.\\n\\nKey files: /home/fco/redislabs/ffc-agent-workspace/fast_float/include/fast_float/parse_number.h (from_chars_float_advanced 309-381, parse_number_slow_path 299-307, from_chars_advanced 253-290), /home/fco/redislabs/ffc-agent-workspace/fast_float/include/fast_float/ascii_number.h (parse_number_string 366-589, store_spans guards at 439, 468, 559), /home/fco/redislabs/ffc-agent-workspace/fast_float/include/fast_float/digit_comparison.h (digit_comp span reads 272-305)."
+    },
+    "portability": {
+      "issues": [
+        {
+          "severity": "none",
+          "title": "constexpr + __attribute__((noinline,cold)) is legal and constant-evaluates on GCC and Clang",
+          "detail": "The highest-risk concern. Verified empirically: parse_number_slow_path is marked `fastfloat_noinline FASTFLOAT_CONSTEXPR20` which expands to `__attribute__((noinline,cold)) constexpr` (non-MSVC). Attributes are codegen hints, ignored during constant evaluation — both g++ 13.3 and clang 18.1 compile and `static_assert` through it. Confirmed against the REAL test suite: `tests/basictest.cpp` compiled with `-DFASTFLOAT_CONSTEXPR_TESTS` under C++20 on both gcc and clang (rc=0). This matters because FASTFLOAT_CONSTEXPR_TESTS=ON is enabled in 4 CI jobs (ubuntu24, ubuntu22-gcc12, ubuntu22-clang, vs17-cxx20) and basictest.cpp contains >19-digit `verify()` cases (e.g. line 1147/1178 \"100000...001000...\", line 1217 e-128, line 1218 E72) that now route through the noinline+cold parse_number_slow_path during constant evaluation. Standalone repro static_asserts pass for all three slow-path classes (too_many_digits, digit_comp/power2<0, float)."
+        },
+        {
+          "severity": "none",
+          "title": "MSVC __declspec(noinline) placement and constexpr interaction",
+          "detail": "Could not run MSVC locally, but: (1) the macro precedent is solid — fast_float already places `fastfloat_really_inline` (== `__forceinline` on MSVC) in the exact same position before FASTFLOAT_CONSTEXPR20 on dozens of constexpr functions, so `__declspec(noinline)` in that slot is grammatically identical. (2) The expansion ordering `__declspec(noinline) [constexpr|empty] R fn(...)` was validated via clang's MSVC-compat `-fdeclspec` mode in both the pre-C++20 (empty CONSTEXPR20) and C++20 (constexpr) forms — both -fsyntax-only clean. (3) `__declspec(noinline)` is a codegen hint that does not block MSVC constant evaluation, same as the already-used `__forceinline`. The vs17-cxx20 CI job (FASTFLOAT_CONSTEXPR_TESTS=ON) is the backstop. Low residual risk."
+        },
+        {
+          "severity": "none",
+          "title": "All UC char types + basic_json_fmt=true instantiate cleanly under strict warnings",
+          "detail": "Explicitly instantiated from_chars_advanced for char/wchar_t/char16_t/char32_t with double and float under `-Werror -Wall -Wextra -Weffc++ -Wconversion -Wsign-conversion -Wshadow` (C++17) on both gcc and clang — rc=0. The bjf=true (JSON) slow path with >19 digits was run and produces the correct value (1e43) on both compilers. The real basictest.cpp (which exercises wchar/json/etc.) compiles clean under the full strict set including -Weffc++."
+        },
+        {
+          "severity": "none",
+          "title": "New `bool store_spans=true` default arg and `bool bjf` — no -Werror issues",
+          "detail": "No unused-parameter, sign-conversion, shadow, or -Weffc++ warnings observed in any of the strict builds (standalone instantiation harness + real basictest.cpp). `bool const bjf = uint64_t(fmt & detail::basic_json_fmt) != 0;` is a clean bool, no -Wconversion flag. The default argument value `true` preserves the exact original behavior for the public `from_chars_advanced(pns,value)` overload and any direct `parse_number_string` callers (only the two new from_chars_float_advanced call sites pass false)."
+        },
+        {
+          "severity": "none",
+          "title": "No template/instantiation bloat from the cold helper",
+          "detail": "parse_number_slow_path<T,UC> adds one extra template instantiation per (T,UC) pair, but store_spans being a RUNTIME arg (not a template param) means parse_number_string still has exactly ONE instantiation per <basic_json_fmt,UC> — no doubling of the heavy scanner. The cold helper body is tiny (a branch + one call to the pre-existing from_chars_advanced), and being noinline+cold it is emitted once off the hot path. Net effect is less hot-path code, not more."
+        },
+        {
+          "severity": "none",
+          "title": "Big-endian (s390x) correctness preserved",
+          "detail": "The patch touches no endian-sensitive code. The only logic change is gating the span stores and the truncation-recompute behind `store_spans`; the recompute block is byte-for-byte identical to upstream, merely wrapped in `if (store_spans)` and reached only via the slow re-parse (which uses store_spans=true). When store_spans=false the un-truncated mantissa is never consumed: from_chars_float_advanced checks `if (pns.too_many_digits) return slow_path` (line 354) BEFORE the inline clinger/compute_float, so the dropped truncation is harmless. No new memcpy/byteswap paths. s390x CI runs the same corpus."
+        }
+      ],
+      "confidence": "high",
+      "summary": "PORTABILITY: PASS — no blockers. The patch's single highest-risk feature, a function marked both `constexpr` (FASTFLOAT_CONSTEXPR20) and `__attribute__((noinline,cold))`, is legal and constant-evaluates correctly on both GCC 13.3 and Clang 18.1 — verified by compiling the real tests/basictest.cpp with -DFASTFLOAT_CONSTEXPR_TESTS under C++20 (rc=0 both), which is significant because that flag is enabled in 4 CI jobs and the suite contains >19-digit slow-path inputs that now route through the cold helper during constant evaluation. All four UC types (char/wchar_t/char16_t/char32_t) plus float/double, and the basic_json_fmt=true path, instantiate and run correctly under the full strict warning set (-Werror -Wall -Wextra -Weffc++ -Wconversion -Wsign-conversion -Wshadow) on both compilers with zero patch-related warnings. The new `bool store_spans=true` default arg and `bool bjf` produce no unused-param/sign/shadow/conversion diagnostics. MSVC __declspec(noinline) could not be run locally but follows the exact placement precedent of the existing __forceinline-based fastfloat_really_inline macro and parses correctly under clang -fdeclspec in both pre-C++20 and C++20 macro expansions; the vs17-cxx20 CI job (constexpr tests ON) is the backstop. Big-endian/s390x is unaffected — no endian-sensitive code is touched, the truncation-recompute is byte-identical and only reached via the store_spans=true re-parse, and the un-truncated mantissa from the fast pass is never consumed because too_many_digits is checked before the inline clinger/compute_float. No template bloat: store_spans is a runtime arg so parse_number_string keeps one instantiation per <bjf,UC>."
+    },
+    "adversarial": {
+      "skill": "",
+      "args": "",
+      "issues": [
+        {
+          "severity": "none",
+          "title": "No correctness divergence found between EXP-059 and base (redis-perf/optim)",
+          "detail": "Compiled both branches (exp059-noinline-coldpath vs redis-perf/optim) into a differential harness (g++ -O2 -std=c++17, /tmp/ffdiff) and compared parsed bit-pattern + errc + ptr offset across 4 modes (double default, double json via from_chars_advanced(chars_format::json), float default, char16_t double). Results were byte-identical on: (a) ~190 hand-crafted adversarial inputs explicitly targeting 19-vs-20 significant digits, '0.000...01' with >19 leading fractional zeros (the zero-strip block), all-zero fractions, huge/overflow exponents (1e308/1e309/1e1000/1e99999999999999999999), subnormal/underflow boundaries (5e-324, 4.9e-324, 1e-323, 1e-330 -> result_out_of_range), max-double/overflow (1.7976931348623159e308 -> inf+out_of_range), 2^53/2^63 boundaries, trailing-garbage lastmatch checks, json leading-zero/leading-plus rejection, and inf/nan forms; (b) a 200,000-input randomized fuzz weighted toward the boundary regions (800k comparisons); (c) the classic truncation-sensitive >19-digit rounding triples (exact-halfway / just-above / just-below 1 ULP at 1.0000000000000001110... and 9007199254740992.5...), where the result depends on digits beyond the 19th -- all matched, confirming the slow-path re-parse reproduces the truncation + digit_comp behavior exactly. (d) An EXHAUSTIVE float32 sweep over the full 2^32 bit-space (all finite patterns, formatted %.9g, parsed both ways): all 8 shards produced identical FNV-1a hashes between base and exp059 with zero round-trip mismatches. (e) The project's own scripts/test-fast_float.sh gate (14 tests incl. json_fmt, wide_char, powersoffive_hardround, long_test) PASSED on exp059."
+        },
+        {
+          "severity": "none",
+          "title": "Logic-equivalence review confirms the inlined hot path matches from_chars_advanced",
+          "detail": "from_chars_float_advanced's pre-pns code (whitespace skip, empty check, no_infnan/parse_infnan dispatch on !pns.valid) is byte-identical to base. The inlined fast path mirrors from_chars_advanced for the !too_many_digits case: clinger (the base guard '!pns.too_many_digits &&' is trivially true here since too_many_digits returns early), compute_float, am.power2<0 -> slow helper, to_float, and the same over/underflow test. The base 'too_many_digits && am.power2>=0' mantissa+1 disambiguation block is correctly omitted from the inline copy because too_many_digits is routed to parse_number_slow_path before reaching it; that helper re-parses with store_spans=true and calls the unchanged from_chars_advanced, which performs that disambiguation on the truncated mantissa. The store_spans=false path leaving mantissa/exponent un-truncated is safe because that pns is discarded the moment too_many_digits is observed."
+        },
+        {
+          "severity": "nit",
+          "title": "Slow paths re-scan the whole string a second time (perf, not correctness)",
+          "detail": "parse_number_slow_path re-parses first..last from scratch (store_spans=true) on too_many_digits and on am.power2<0. This doubles scanning work for those inputs. By design these paths are rare (>19 sig digits, or Eisel-Lemire ties needing digit_comp), and the experiment's whole premise is keeping that cost off the hot path -- so this is an intended tradeoff, not a defect. Worth being aware of only if a workload is dominated by long/hard-to-round numbers (e.g. high-precision scientific text), where the duplicated scan could show up; the benchmark datasets (random/canada/mesh) will not stress it materially."
+        }
+      ],
+      "confidence": "high",
+      "summary": "EXP-059 (noinline cold slow-path, runtime store_spans elision) is correctness-equivalent to base redis-perf/optim in all my adversarial tests. I compiled both branches and diffed parsed results (value bits + errc + ptr) across double-default, double-json, float-default, and char16_t modes on ~190 hand-crafted edge cases (19/20 sig digits, >19 leading fractional zeros, all-zeros, huge/overflow/underflow exponents, subnormal boundaries, 2^53/2^63, json-strict rejection, inf/nan, trailing garbage), a 200k randomized boundary-weighted fuzz, truncation-sensitive halfway-rounding triples, and a FULL exhaustive float32 sweep (2^32) whose FNV hashes were byte-identical between the two builds with zero round-trip mismatches. The project's own scripts/test-fast_float.sh (14 tests incl. json_fmt, wide_char, powersoffive_hardround) passed. No mismatch was found on any crafted input. The inlined hot path provably mirrors from_chars_advanced for the !too_many_digits case, and both rare slow branches collapse to a cold re-parse-with-spans + the unchanged from_chars_advanced. Only non-correctness observation: the slow paths re-scan the string twice (an intended perf tradeoff). Harness and artifacts live in /tmp/ffdiff (harness.cpp, exhaust32.cpp, runex.sh)."
+    },
+    "verdict": {
+      "verdict": "EXP-059 is correct and portable as implemented; ship as-is. The patch splits from_chars_advanced inline into a hot path (clinger + Eisel-Lemire success) parsed with store_spans=false, and routes the two rare slow branches — too_many_digits (parse_number.h:354) and am.power2<0 (parse_number.h:371) — to a noinline+cold parse_number_slow_path that re-parses with store_spans=true and calls the unchanged from_chars_advanced. I verified the source matches the reviews: the hot path checks pns.too_many_digits BEFORE ever reading pns.mantissa/pns.exponent, so the un-truncated mantissa from the no-span pass is provably discarded (risk 1 cleared); the am.power2<0 re-parse re-runs clinger, but clinger is a pure function of (mantissa, exponent, negative, T) which store_spans does not affect for !too_many_digits, so a failed clinger fails again and digit_comp reproduces upstream via the re-materialized spans (risk 2 cleared); answer.ptr/ec are set identically on every path. All three reviews reach correctness-equivalence with high confidence, corroborated by an exhaustive 2^32 float32 sweep with byte-identical FNV hashes, a 200k boundary-weighted fuzz, truncation-sensitive >19-digit rounding triples, and scripts/test-fast_float.sh passing. Portability passes on GCC 13.3 and Clang 18.1 (including the constexpr+__attribute__((noinline,cold)) combination validated against the real basictest.cpp constexpr suite, which is significant because FASTFLOAT_CONSTEXPR_TESTS is ON in 4 CI jobs that route >19-digit inputs through the cold helper during constant evaluation), across all four UC char types and basic_json_fmt=true under the full strict -Werror set, with no template bloat (store_spans is runtime, not a template param). MSVC __declspec(noinline) could not be run locally but follows the exact placement precedent of the existing __forceinline-based fastfloat_really_inline macro; the vs17-cxx20 CI job is the backstop. No genuine must-fix or should-fix items.",
+      "must_fix": [],
+      "should_fix": [],
+      "overall_confidence": "high"
+    }
+  }
+}

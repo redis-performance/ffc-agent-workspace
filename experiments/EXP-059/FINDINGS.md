@@ -33,3 +33,25 @@ CONCLUSION for the marshaling direction (Lemire #384): it is fast_float-specific
 fast_float HAD the inefficiency -> EXP-059 removes it in portable source (huge win,
 closes the gap to ffc). ffc was already marshaling-free. The "cross-pollinate to ffc"
 idea is therefore N/A. The direction is now thoroughly explored and concluded.
+
+# Adversarial review (4-subagent workflow, 2026-06-03): HIGH confidence, zero must-fix
+
+Independent review (equivalence / portability / adversarial-edge-cases + synthesis):
+- EQUIVALENCE: airtight, bit-identical to upstream. Both risks formally cleared —
+  (1) un-truncated mantissa on store_spans=false+>19digits is never read (caller
+  checks too_many_digits and re-parses first); (2) am.power2<0 re-parse re-runs
+  clinger but it's pure in (mantissa,exponent,negative,T) which store_spans doesn't
+  change for !too_many_digits, so a failed clinger fails again; digit_comp reproduces
+  upstream via re-materialized spans. answer.ptr/ec identical on all paths.
+- ADVERSARIAL: full 2^32 float32 sweep base-vs-patch -> BYTE-IDENTICAL FNV hashes;
+  200k boundary-weighted fuzz + >19-digit truncation triples all matched. No diverging
+  input found.
+- PORTABILITY: constexpr + __attribute__((noinline,cold)) compiles + static_asserts on
+  g++ 13.3 and clang 18.1, validated against the real basictest.cpp constexpr suite
+  (FASTFLOAT_CONSTEXPR_TESTS, ON in 4 CI jobs, routes >19-digit inputs through the cold
+  helper at constant-eval). All 4 UC types + basic_json_fmt under strict -Werror clean.
+  Runtime store_spans => no template bloat. MSVC follows __forceinline placement
+  precedent; vs17-cxx20 CI is the backstop.
+
+VERDICT: correct + portable as implemented; overall_confidence=high; must_fix=[],
+should_fix=[]. Full result: review/adversarial-review-workflow-result.json.
