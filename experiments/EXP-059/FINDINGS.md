@@ -144,3 +144,12 @@ pr/lazy-spans-coldpath; PR https://github.com/fastfloat/fast_float/pull/386 open
 (backend-bound 26%->2.2%, retiring 60->77% on Ice Lake short floats), full float
 exhaustive + 2^32 byte-identical. ff_tma.cpp + base/patch TMA captures under
 experiments/EXP-059/tma/.
+
+# PR #386 final confirmation (2026-06-03)
+- CI: 34/34 PASS (incl MSVC vs17 x64+Win32, Alpine x86/armv7/aarch64/ppc64le/riscv64,
+  MINGW64, fuzzing) — clears the MSVC __declspec(noinline) residual risk.
+- Float-exhaustive suite re-run on the EXACT PR commit (cb5d9cd, upstream/main base):
+  exhaustive32 / _64 / _midpoint / random64 all "all ok".
+- PR body updated with base->patch MB/s numbers per cell + TMA counts.
+- ffc: no #384 work (ffc already DSE-eliminates its span stores via locals in the
+  >19 recompute — parse.h:487). Outstanding ffc item: vk bugfix 88eeecd unpushed.

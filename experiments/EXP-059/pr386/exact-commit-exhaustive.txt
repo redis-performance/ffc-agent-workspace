@@ -1,0 +1,4 @@
+exhaustive32_64 exit=0 all ok
+exhaustive32 exit=0 all ok
+exhaustive32_midpoint exit=0 all ok
+random64 exit=0 all ok
