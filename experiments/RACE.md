@@ -255,3 +255,26 @@ noisy x86 laptop + ARM, not a property of the direction. Lemire then *encouraged
 **Per current /goal: experiment-only, NO PR opened** (branch `exp059-noinline-coldpath` @ `b2f0686`).
 The marshaling cost is recoverable in **portable source** after all — the key was not the
 elision but keeping the rare slow-path *out of line*.
+
+### EXP-059 head-to-head impact (2026-06-03) — fast_float closes/flips the gap vs ffc
+
+EXP-059 eliminated fast_float's parsed_number_string_t marshaling (its key
+disadvantage vs ffc, which was already marshaling-free). Effect on the
+fast_float-vs-ffc head-to-head (double, control-flat cells, ffc-lead %, base -> EXP-059;
+negative = fast_float now leads):
+
+| Node / compiler | random | canada | mesh |
+|-----------------|--------|--------|------|
+| ARM Graviton4 gcc   | ffc +76% -> **+0.4% (tied)** | ffc +82% -> +4.8% | ffc +246% -> +17% |
+| ARM Graviton4 clang | ffc +12% -> +4.1% | ffc +32% -> +22% | ffc +62% -> +46% |
+| Ice Lake gcc        | ffc +10% -> **ff +7.4%** 🔄 | ffc +14% -> **ff +2.3%** 🔄 | ffc +25% -> +6.4% |
+| Cascade Lake gcc    | ffc +2% -> **ff +13.1%** 🔄 | ffc +9% -> **ff +7.1%** 🔄 | ffc +27% -> +3.8% |
+| Cascade Lake clang  | ffc +12% -> **ff +1.0%** 🔄 | ffc +28% -> +4.0% | ffc +48% -> +27% |
+
+🔄 = lead FLIPS to fast_float. **EXP-059 flips 5 cells to fast_float leading**
+(Ice Lake gcc random+canada, Cascade Lake gcc random+canada, Cascade Lake clang random),
+brings ARM gcc from a +76–246% ffc lead to near-tied (+0.4–17%), and shrinks every
+remaining ffc lead. ARM clang and the short-float (mesh) cells are where ffc still leads
+most — clang gets a smaller marshaling win than gcc, and ffc's lean design still wins the
+tightest loops there. Net: EXP-059 is the single biggest race-mover for fast_float to date.
+(Experiment-only, no PR — per the standing goal.)
