@@ -1,0 +1,60 @@
+##### PATCH mesh TopdownL1 #####
+    23,694,687,145      TOPDOWN.SLOTS                    #      2.2 %  tma_backend_bound      
+                                                  #     15.6 %  tma_frontend_bound     
+                                                  #      4.9 %  tma_bad_speculation    
+                                                  #     77.3 %  tma_retiring           
+       1.532609074 seconds time elapsed
+##### PATCH mesh TopdownL2 #####
+    23,519,765,999      TOPDOWN.SLOTS                    #      1.6 %  tma_fetch_latency      
+                                                  #     14.5 %  tma_branch_mispredicts 
+                                                  #     10.0 %  tma_fetch_bandwidth    
+                                                  #      0.1 %  tma_machine_clears     
+                                                  #     10.1 %  tma_heavy_operations   
+                                                  #     62.5 %  tma_light_operations   
+                                                  #      1.1 %  tma_core_bound         
+                                                  #      0.1 %  tma_memory_bound         (49.85%)
+    17,238,579,487      topdown-retiring                                                        (49.85%)
+     2,770,066,371      topdown-fe-bound                                                        (49.85%)
+       226,563,787      topdown-be-bound                                                        (49.85%)
+     3,504,906,305      topdown-bad-spec                                                        (49.85%)
+    20,602,080,507      INST_RETIRED.ANY                                                        (55.46%)
+           329,573      EXE_ACTIVITY.BOUND_ON_STORES                                            (55.52%)
+         5,994,802      IDQ.MS_UOPS                                                             (55.59%)
+        11,578,713      INT_MISC.UOP_DROPPING                                                   (55.65%)
+       229,195,685      EXE_ACTIVITY.1_PORTS_UTIL                                               (55.69%)
+        11,356,904      BR_MISP_RETIRED.ALL_BRANCHES                                            (55.69%)
+        12,113,828      cpu/INT_MISC.RECOVERY_CYCLES,cmask=1,edge/                                        (55.69%)
+         3,266,921      UOPS_DECODED.DEC0                                                       (55.69%)
+     4,713,951,372      CPU_CLK_UNHALTED.THREAD                                                 (55.69%)
+         1,498,291      cpu/UOPS_DECODED.DEC0,cmask=1/                                          (44.48%)
+        80,432,326      CYCLE_ACTIVITY.STALLS_MEM_ANY                                           (44.41%)
+        78,498,658      IDQ_UOPS_NOT_DELIVERED.CYCLES_0_UOPS_DELIV.CORE                                        (44.35%)
+       530,508,751      EXE_ACTIVITY.2_PORTS_UTIL                                               (44.31%)
+       155,315,679      CYCLE_ACTIVITY.STALLS_TOTAL                                             (44.31%)
+            47,812      MACHINE_CLEARS.COUNT                                                    (44.31%)
+    19,138,737,193      UOPS_ISSUED.ANY                                                         (44.31%)
+        12,691,554      IDQ.MITE_UOPS                                                           (44.31%)
+       1.534913946 seconds time elapsed
+##### PATCH canada TopdownL1 #####
+    69,786,517,735      TOPDOWN.SLOTS                    #     13.2 %  tma_backend_bound      
+                                                  #      6.2 %  tma_frontend_bound     
+                                                  #      6.5 %  tma_bad_speculation    
+                                                  #     74.1 %  tma_retiring           
+       4.513415369 seconds time elapsed
+##### PATCH canada TopdownL2 #####
+    69,692,139,644      TOPDOWN.SLOTS                    #      1.2 %  tma_fetch_latency      
+                                                  #     12.8 %  tma_branch_mispredicts 
+                                                  #      4.2 %  tma_fetch_bandwidth    
+                                                  #      0.2 %  tma_machine_clears     
+                                                  #      6.8 %  tma_heavy_operations   
+                                                  #     63.2 %  tma_light_operations   
+                                                  #     10.3 %  tma_core_bound         
+                                                  #      1.3 %  tma_memory_bound         (49.91%)
+    49,431,437,169      topdown-retiring                                                        (49.91%)
+     3,844,861,151      topdown-fe-bound                                                        (49.91%)
+     8,049,198,287      topdown-be-bound                                                        (49.91%)
+     9,292,285,285      topdown-bad-spec                                                        (49.91%)
+    58,798,944,984      INST_RETIRED.ANY                                                        (55.47%)
+           360,238      EXE_ACTIVITY.BOUND_ON_STORES                                            (55.49%)
+        12,355,794      IDQ.MS_UOPS                                                             (55.52%)
+        30,964,632      INT_MISC.UOP_DROPPING                                                   (55.54%)

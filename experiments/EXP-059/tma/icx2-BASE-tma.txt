@@ -1,0 +1,54 @@
+Your branch is up to date with 'origin/redis-perf/optim'.
+=== build BASE ff_tma + capture TMA on icx2 ===
+##### BASE mesh TopdownL1 #####
+    37,200,260,490      TOPDOWN.SLOTS                    #     26.0 %  tma_backend_bound      
+                                                  #      9.9 %  tma_frontend_bound     
+                                                  #      3.8 %  tma_bad_speculation    
+                                                  #     60.3 %  tma_retiring           
+       2.405983706 seconds time elapsed
+##### BASE mesh TopdownL2 #####
+    27,507,099,674      TOPDOWN.SLOTS                    #      1.1 %  tma_fetch_latency      
+                                                  #     17.2 %  tma_branch_mispredicts 
+                                                  #      5.4 %  tma_fetch_bandwidth    
+                                                  #      0.4 %  tma_machine_clears     
+                                                  #     10.4 %  tma_heavy_operations   
+                                                  #     64.4 %  tma_light_operations   
+                                                  #      0.9 %  tma_core_bound         
+                                                  #      0.1 %  tma_memory_bound         (49.84%)
+    20,891,824,751      topdown-retiring                                                        (49.84%)
+     1,841,227,900      topdown-fe-bound                                                        (49.84%)
+       224,298,606      topdown-be-bound                                                        (49.84%)
+     4,962,065,038      topdown-bad-spec                                                        (49.84%)
+    25,514,214,596      INST_RETIRED.ANY                                                        (55.41%)
+           281,116      EXE_ACTIVITY.BOUND_ON_STORES                                            (55.41%)
+         8,385,168      IDQ.MS_UOPS                                                             (55.41%)
+        11,619,935      INT_MISC.UOP_DROPPING                                                   (55.46%)
+       290,815,508      EXE_ACTIVITY.1_PORTS_UTIL                                               (55.51%)
+        10,999,875      BR_MISP_RETIRED.ALL_BRANCHES                                            (55.57%)
+        11,848,177      cpu/INT_MISC.RECOVERY_CYCLES,cmask=1,edge/                                        (55.62%)
+         3,379,755      UOPS_DECODED.DEC0                                                       (55.68%)
+     5,513,710,492      CPU_CLK_UNHALTED.THREAD                                                 (55.74%)
+         1,406,864      cpu/UOPS_DECODED.DEC0,cmask=1/                                          (44.59%)
+        91,057,554      CYCLE_ACTIVITY.STALLS_MEM_ANY                                           (44.59%)
+        63,737,665      IDQ_UOPS_NOT_DELIVERED.CYCLES_0_UOPS_DELIV.CORE                                        (44.54%)
+       602,854,060      EXE_ACTIVITY.2_PORTS_UTIL                                               (44.49%)
+       149,928,840      CYCLE_ACTIVITY.STALLS_TOTAL                                             (44.43%)
+           257,321      MACHINE_CLEARS.COUNT                                                    (44.38%)
+    23,406,664,818      UOPS_ISSUED.ANY                                                         (44.32%)
+        14,198,319      IDQ.MITE_UOPS                                                           (44.26%)
+       1.794351785 seconds time elapsed
+##### BASE canada TopdownL1 #####
+    83,245,265,925      TOPDOWN.SLOTS                    #     13.1 %  tma_backend_bound      
+                                                  #      4.3 %  tma_frontend_bound     
+                                                  #      5.7 %  tma_bad_speculation    
+                                                  #     76.9 %  tma_retiring           
+       5.384208890 seconds time elapsed
+##### BASE canada TopdownL2 #####
+    83,234,856,359      TOPDOWN.SLOTS                    #      1.3 %  tma_fetch_latency      
+                                                  #     18.1 %  tma_branch_mispredicts 
+                                                  #      1.7 %  tma_fetch_bandwidth    
+                                                  #      0.4 %  tma_machine_clears     
+                                                  #      6.1 %  tma_heavy_operations   
+                                                  #     62.5 %  tma_light_operations   
+Switched to branch 'exp059-noinline-coldpath'
+No stash entries found.
