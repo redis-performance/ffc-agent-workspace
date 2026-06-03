@@ -9,6 +9,29 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-060 — 2026-06-03 — [ffc] noinline-cold slow path (EXP-059 lever) — REJECTED
+
+**Target**: ffc — `ffc_digit_comp` marked `noinline+cold` to shrink the force-inlined hot
+`from_chars` frame and cut the ~19% mesh front-end-bound seen in profiling.
+**Method**: ffc-only self-timed microbench, best-of-7, pinned core 3, on all 4 Intel runners
+(Cascade Lake / Ice Lake / Emerald Rapids / Granite Rapids).
+
+| dataset | result (base→patch) |
+|---------|---------------------|
+| mesh    | **−6% to −19%** (slower, all gens) |
+| canada  | −1% to −3% (slower) |
+
+**Decision**: **reject** (reverted). The lever that won big for fast_float (EXP-059) does NOT
+transfer: fast_float force-inlined its slow path at **3** call sites (real hot-frame bloat);
+ffc has a **single `static`** `ffc_digit_comp` the compiler already lays out well, so forcing
+`noinline+cold` pessimizes codegen/layout around the hot Clinger path — mesh (which never calls
+digit_comp) regresses 15-19%. ffc's ~19% mesh front-end-bound is a side effect of its aggressive
+force-inlining, which is net-positive. The Clinger division (~12% mesh) is inherent (fast_float
+divides identically). ffc is at its tuned ceiling on this lever; no change kept.
+**Race Δ**: none (reverted). Data + assessment: `experiments/EXP-060/`.
+
+---
+
 ## EXP-059 — 2026-06-02 — [fast_float] marshaling elision + **noinline cold slow-path** (the breakthrough)
 
 **Target**: fast_float — `float_common.h` (+`fastfloat_noinline` macro), `parse_number.h`

@@ -1,0 +1,14 @@
+#### gnr1 redis-gnr1 ####
+#### icx2 redis-icx2 ####
+#### spr sas-spr-comp ####
+#### clx1 redis-clx1 ####
+  mesh    base 0.9155s  patch 1.0505s  -14.74%
+  mesh    base 0.9258s  patch 1.1056s  -19.42%
+  mesh    base 1.4190s  patch 1.4749s  -3.94%
+  canada  base 2.8826s  patch 2.9577s  -2.61%
+  canada  base 2.9625s  patch 3.0478s  -2.88%
+  canada  base 4.6347s  patch 4.6795s  -0.97%
+[1]   Done                    ( bench $a )
+[3]-  Done                    ( bench $a )
+[4]+  Done                    ( bench $a )
+  mesh    base 7.2784s  patch 7.7112s  -5.95%

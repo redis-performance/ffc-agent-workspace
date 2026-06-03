@@ -1,0 +1,71 @@
+#### icx2 redis-icx2 ####
+#### gnr1 redis-gnr1 ####
+#### clx1 redis-clx1 ####
+-- mesh L1 --
+-- mesh hot --
+-- canada L1 --
+-- canada hot --
+-- mesh L1 --
+-- mesh L1 --
+    24,329,194,685      TOPDOWN.SLOTS                    #      2.2 %  tma_backend_bound      
+                                                  #     19.2 %  tma_frontend_bound     
+                                                  #      5.3 %  tma_bad_speculation    
+                                                  #     73.3 %  tma_retiring           
+       1.573615694 seconds time elapsed
+#### spr sas-spr-comp ####
+-- mesh L1 --
+-- mesh hot --
+    3.62 :   14f3:   cmp    %rcx,%rdx
+    3.62 :   14aa:   jbe    1538 <main+0x298>
+    3.47 :   1500:   jne    14a0 <main+0x200>
+    3.36 :   17ca:   jne    14d8 <main+0x238>
+    3.17 :   1544:   movslq %esi,%rsi
+    3.07 :   14e6:   mov    (%rax,%r15,8),%rdx
+-- mesh hot --
+   11.86 :   230b:   vdivsd (%rax,%rdi,8),%xmm1,%xmm0
+    8.81 :   17b6:   vaddsd %xmm0,%xmm1,%xmm1
+    3.27 :   1500:   jne    14a0 <main+0x200>
+    3.03 :   14e1:   mov    0x18(%rsp),%rax
+    2.99 :   187e:   vaddss %xmm0,%xmm1,%xmm2
+    2.98 :   17bf:   vmovsd %xmm1,0x78(%rsp)
+-- canada L1 --
+-- mesh hot --
+    4.29 :   162f:   jle    1890 <main+0x610>
+    3.77 :   15a7:   sub    $0x30,%edi
+    3.54 :   1544:   cmp    %rcx,%rdx
+    3.51 :   1594:   movslq %esi,%rsi
+    3.35 :   14fa:   jbe    1588 <main+0x308>
+    3.29 :   1537:   mov    (%rax,%rbx,8),%rdx
+-- canada L1 --
+-- canada L1 --
+    73,568,953,465      TOPDOWN.SLOTS                    #      5.7 %  tma_backend_bound      
+                                                  #     11.3 %  tma_frontend_bound     
+                                                  #      5.7 %  tma_bad_speculation    
+                                                  #     77.3 %  tma_retiring           
+       4.757960956 seconds time elapsed
+-- canada hot --
+    2.09 :   17b6:   vaddsd %xmm0,%xmm1,%xmm1
+    2.05 :   188a:   jp     1d50 <main+0xab0>
+    1.94 :   1b69:   je     19d3 <main+0x733>
+    1.93 :   1e4c:   lea    0x2(%r8),%rax
+    1.92 :   19d9:   jmp    15f2 <main+0x352>
+    1.92 :   1876:   vmovss 0xc8e2(%rip),%xmm0        # e160 <FFC_POWERS_OF_FIVE+0x28c0>
+[1]   Done                    ( runone $a )
+[4]+  Done                    ( runone $a )
+-- canada hot --
+    2.30 :   1f04:   jne    17e8 <main+0x568>
+    2.17 :   1537:   mov    (%rax,%rbx,8),%rdx
+    2.16 :   1efb:   or     %rsi,%rax
+    2.15 :   1eed:   mov    %r15,%rax
+    2.11 :   19e5:   jle    1eca <main+0xc4a>
+    2.08 :   1ed9:   kortestb %k0,%k0
+-- canada hot --
+    4.31 :   17b6:   vaddsd %xmm0,%xmm1,%xmm1
+    3.96 :   193f:   lea    0x3f(%rdx,%r8,1),%edx
+    3.01 :   1ade:   imul   $0x640001,%eax,%eax
+    1.90 :   1500:   jne    14a0 <main+0x200>
+    1.87 :   18ee:   mulx   (%r11,%rax,8),%rax,%rdx
+    1.77 :   1a7d:   imul   $0x5f5e100,%rsi,%rsi
+[2]-  Done                    ( runone $a )
+[3]+  Done                    ( runone $a )
+=== done ===
