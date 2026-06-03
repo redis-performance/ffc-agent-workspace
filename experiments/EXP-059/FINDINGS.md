@@ -113,3 +113,23 @@ short-float algorithm edge + the immutable benchmark harness floor) and CANNOT b
 via the marshaling direction. This independently re-confirms the direction is exhausted:
 where there was marshaling to remove (gcc), EXP-059 removed it massively; where there
 wasn't (clang), there is nothing left to gain.
+
+# ARM clang canada (the last meaningful ffc-lead cell): also harness/call-bound
+
+Profiled EXP-059 clang patch on ARM canada (ffc still leads +22% there):
+- fast_float findmax_fastfloat<char>: `add x19,#0x20` = 82% (harness iterator advance);
+  the parse is a `bl from_chars_caller::call` at only 3.5% — i.e. clang did NOT inline
+  fast_float's parse into the benchmark's findmax loop; it's an out-of-line call.
+- ffc findmax_ffc: parse is INLINED — hot instrs are real digit-scan (mul, ldrb, the
+  SWAR `add w14,w16,w14,lsr #8`), no call.
+
+=> The residual ffc lead on ARM clang canada is STRUCTURAL: ffc's parse inlines into its
+findmax (no call overhead) while fast_float's stays out-of-line in this benchmark build.
+That's a benchmark/inlining artifact + ffc's algorithm edge, NOT a parsed_number_string
+marshaling issue, and NOT addressable via the #384 direction. Both ARM clang cells
+(mesh harness-bound, canada call/harness-bound) are now explained.
+
+FINAL: the #384 marshaling direction is exhausted on EVERY cell with a mechanistic
+explanation. Where marshaling existed (gcc), EXP-059 removed it (huge wins, gap closed/
+flipped). Where it didn't (clang), the parse is already harness/call-bound and the residual
+ffc lead is structural. No further #384 headroom anywhere.

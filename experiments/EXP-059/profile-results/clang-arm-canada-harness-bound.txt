@@ -1,0 +1,24 @@
+=== clang EXP-059 patch, ARM CANADA — top hot instrs (parse-bound or harness-bound?) ===
+   81.74 :   196e0:  add     x19, x19, #0x20
+    3.48 :   196cc:  bl      3a17c <fast_float::from_chars_result_t<char> fast_float::from_chars_caller<double>::call<char>(char const*, char const*, double&, fast_float::parse_options_t<char>)>
+    3.48 :   196c0:  mov     w3, #0x5                        // #5
+    3.48 :   196b4:  ldp     x0, x8, [x19]
+    2.61 :   196ec:  cmp     x19, x20
+    1.74 :   196e8:  fcsel   d8, d8, d0, gt
+    1.74 :   196d4:  cmp     x8, x0
+    1.74 :   196d0:  ldr     x8, [x19]
+    0.00 :   19748:  bl      6720 <_Unwind_Resume@plt>
+    0.00 :   19744:  mov     x0, x20
+    0.00 :   19740:  bl      63d0 <__cxa_free_exception@plt>
+    0.00 :   1973c:  mov     x0, x19
+    0.00 :   19738:  mov     x20, x0
+    0.00 :   19734:  bl      6700 <__cxa_throw@plt>
+=== and the ffc canada hot loop for comparison ===
+   16.11 :   10f4c:  mov     w15, wzr
+   11.38 :   10f8c:  mul     w0, w16, w26
+    8.53 :   11118:  ldrb    w16, [x14]
+    3.79 :   10c4c:  cmp     x25, x8
+    3.08 :   11204:  lsl     x1, x0, x1
+    3.08 :   110ec:  ldrb    w16, [x14]
+    2.61 :   110d0:  add     x14, x25, #0x1
+    2.37 :   1126c:  add     w14, w16, w14, lsr #8
