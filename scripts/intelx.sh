@@ -9,7 +9,10 @@
 #
 # nodes: clx1 clx2 icx2 spr gnr1   (root login on all)
 set -u
-PW='REDACTED_LAB_PW'   # the shark one; literal, no shell expansion
+# Lab password (the "shark one") is read from the environment or a 0600 file
+# OUTSIDE the repo — never hardcoded/committed. Set FFC_LAB_PW or ~/.ffc-lab-pw.
+PW="${FFC_LAB_PW:-$(cat ~/.ffc-lab-pw 2>/dev/null)}"
+[ -n "$PW" ] || { echo "ERR: lab password not set (export FFC_LAB_PW or create ~/.ffc-lab-pw)" >&2; exit 4; }
 PROXY="${CLX2_PROXY:-/tmp/clx2-proxy.sh}"
 declare -A NODE=( [clx1]=192.168.2.8 [clx2]=192.168.2.10 [icx1]=192.168.2.4 \
   [icx2]=192.168.2.6 [icx3]=192.168.2.12 [spr]=192.168.2.18 [gnr1]=192.168.2.28 )

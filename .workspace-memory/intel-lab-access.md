@@ -11,10 +11,13 @@ Intel lab fleet (the "4 runners" + more) is reachable **non-interactively** via
 
 **Auth chain** (all hops automated, no manual typing):
 - gateway `guest@146.152.205.52` — key `~/.ssh/id_ssh_github` (passphraseless)
-- bastion `sdp@192.168.2.2` — **password** (the "shark one": `REDACTED_LAB_PW`),
-  injected by `/tmp/clx2-proxy.sh` (ProxyCommand; uses sshpass internally)
-- target `root@<node>` — **same shark password**, fed by a second `sshpass -e`
-  in intelx.sh with `PubkeyAuthentication=no` (targets reject the key)
+- bastion `sdp@192.168.2.2` — **password** (the "shark one"), injected by
+  `/tmp/clx2-proxy.sh` (ProxyCommand; uses sshpass internally)
+- target `root@<node>` — **same password**, fed by a second `sshpass -e` in
+  intelx.sh with `PubkeyAuthentication=no` (targets reject the key)
+
+The password is NEVER stored in the repo: `intelx.sh` reads it from `$FFC_LAB_PW`
+or `~/.ffc-lab-pw` (0600, outside the repo). Create that file once per machine.
 
 Key gotcha: `DISPLAY=:0` makes ssh spawn a GUI askpass for any password prompt
 and hang — intelx.sh sets `env -u DISPLAY SSH_ASKPASS_REQUIRE=never`. Also
