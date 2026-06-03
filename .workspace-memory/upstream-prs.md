@@ -81,3 +81,11 @@ all-ok. Branch fix/negative-digit-comp-vk-clean off origin/main (clean, +6/-2, 3
 files). PR #3 was closed (accidentally based on local main 1 commit ahead w/ unrelated
 EXP-006 DSE commit). Opened via GH_TOKEN= GITHUB_TOKEN= gh (PAT can't open PRs).
 https://github.com/redis-performance/ffc.h/pull/4
+
+## kolemannix/ffc.h#26 (2026-06-03) — SAME vk bugfix, upstreamed to the ORIGINAL repo
+The vk bug is inherited from upstream (kolemannix/ffc.h, the original C port) — verified
+identical at digit_comparison.h:460. Opened the same fix there: branch
+redis-performance:fix/negative-digit-comp-vk-upstream off kolemannix/main (clean +6/-2,
+same 4 float_cases.csv regression rows, make test green). redis-perf fork PR = #4;
+original-repo PR = https://github.com/kolemannix/ffc.h/pull/26 . (kolemannix/main and
+redis-performance/main differ only by the same 4-digit-SWAR follow-up under different SHAs.)
