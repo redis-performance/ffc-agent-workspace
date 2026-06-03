@@ -1,0 +1,21 @@
+######## clx1 Cascade Lake — FLOAT (benchmark32, EXP-059) ########
+######## ARM Graviton4 — FLOAT (benchmark32, EXP-059) ########
+node=ip-172-31-55-171 arch=aarch64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+node=redis-clx1 arch=x86_64 pin=3
+CC    DS      | base_ff   patch_ff  dFF%    | ffc(base/patch)
+gcc   random  | 1112.84   1913.83   +71.98  | 1584.65/1609.39
+gcc   canada  | 946.06    1615.55   +70.77  | 1374.01/1377.21
+gcc   random  | 658.76    727.85    +10.49  | 500.07/494.60
+gcc   mesh    | 468.79    1276.77   +172.35 | 966.90/975.38
+clang random  | 1376.99   1451.92   +5.44   | 1242.41/1245.63
+gcc   canada  | 564.48    704.02    +24.72  | 471.08/466.53
+clang canada  | 1069.15   1131.71   +5.85   | 1154.64/1152.62
+clang mesh    | 756.14    832.66    +10.12  | 779.97/798.59
+gcc   mesh    | 368.77    484.10    +31.27  | 297.94/293.19
+clang random  | 527.42    554.90    +5.21   | 538.85/538.57
+clang canada  | 446.12    517.37    +15.97  | 510.37/468.90
+clang mesh    | 280.43    312.47    +11.43  | 318.24/285.49
+[1]-  Done                    ( echo "######## clx1 Cascade Lake — FLOAT (benchmark32, EXP-059) ########"; $RSH clx1 "BP=bench32 CCS='gcc clang' PIN=3 bash ~/ffc-race/interleave.sh" 2>&1 )
+[2]+  Done                    ( echo "######## ARM Graviton4 — FLOAT (benchmark32, EXP-059) ########"; $ARM ubuntu@3.92.205.222 "BP=bench32 CCS='gcc clang' PIN=3 bash ~/ffc-race/interleave.sh" 2>&1 )
+=== float interleave done ===

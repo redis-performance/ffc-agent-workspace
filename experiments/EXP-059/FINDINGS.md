@@ -81,3 +81,17 @@ VERDICT: EXP-059 wins on all 4 Intel gens directionally; CERTIFIED clean on Casc
 Lake + Ice Lake (+17-22%) and ARM. GNR/EMR positive but alignment-confounded (would
 need alignment-robust measurement — e.g. per-function perf counters or LBR — to
 certify, which the immutable two-binary benchmark harness doesn't support).
+
+# Float benchmark (benchmark32) — EXP-059 wins float too, not just double
+
+Until now all numbers were the DOUBLE benchmark (benchmark.cpp). Measured the FLOAT
+benchmark (benchmark32.cpp) base-vs-patch on the two alignment-stable nodes; both
+share the templated from_chars_float_advanced so the win should transfer:
+
+FLOAT (benchmark32), interleaved, ffc-control flat:
+- ARM Graviton4: gcc +72/+71/+172% (random/canada/mesh), clang +5/+6/+10%
+- Cascade Lake (clx1): gcc +10/+25/+31%, clang +5/+16/+11%
+
+Mirrors the double result (ARM gcc double was +75/+73/+196%). EXP-059 improves BOTH
+float and double parsing, both arches, both compilers. Picture complete: 2 value types
+x 2 architectures x 2 compilers all confirm the marshaling-elision win.

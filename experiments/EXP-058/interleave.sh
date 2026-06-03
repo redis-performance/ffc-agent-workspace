@@ -6,6 +6,7 @@
 set -u
 D="$HOME/ffc-race/simple_fastfloat_benchmark/data"
 PIN="${PIN:-3}"
+BP="${BP:-bench}"   # binary prefix: 'bench' (double) or 'bench32' (float)
 med(){ printf '%s\n' "$@" | sort -n | awk '{a[NR]=$1} END{print a[int((NR+1)/2)]}'; }
 gf(){ echo "$1" | grep -m1 '^fastfloat' | grep -oE '[0-9]+\.[0-9]+ MB/s' | grep -oE '^[0-9.]+'; }
 gc(){ echo "$1" | grep -m1 '^ffc'       | grep -oE '[0-9]+\.[0-9]+ MB/s' | grep -oE '^[0-9.]+'; }
@@ -16,8 +17,8 @@ for cc in ${CCS:-gcc clang}; do
     arg=""; [ "$ds" = canada ] && arg="-f $D/canada.txt"; [ "$ds" = mesh ] && arg="-f $D/mesh.txt"
     bff=(); pff=(); bfc=(); pfc=()
     for i in 1 2 3 4 5; do
-      ob=$(taskset -c "$PIN" /tmp/bench-base-$cc  $arg 2>/dev/null)
-      op=$(taskset -c "$PIN" /tmp/bench-patch-$cc $arg 2>/dev/null)
+      ob=$(taskset -c "$PIN" /tmp/$BP-base-$cc  $arg 2>/dev/null)
+      op=$(taskset -c "$PIN" /tmp/$BP-patch-$cc $arg 2>/dev/null)
       bff+=( "$(gf "$ob")" ); pff+=( "$(gf "$op")" )
       bfc+=( "$(gc "$ob")" ); pfc+=( "$(gc "$op")" )
     done
