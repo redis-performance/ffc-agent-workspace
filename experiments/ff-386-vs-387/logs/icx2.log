@@ -1,0 +1,29 @@
+tar: ff_tma.cpp: time stamp 2026-06-06 02:23:58 is 449.978672398 s in the future
+tar: bench-remote.sh: time stamp 2026-06-06 02:23:58 is 449.978627103 s in the future
+tar: random.txt: time stamp 2026-06-06 02:23:58 is 449.448785248 s in the future
+tar: mesh.txt: time stamp 2026-06-06 02:23:58 is 449.439845401 s in the future
+NODE=redis-icx2 CXX=c++ (Ubuntu 11.4.0-2ubuntu1~20.04) 11.4.0
+tar: canada.txt: time stamp 2026-06-06 02:23:58 is 449.248234971 s in the future
+tar: base: time stamp 2026-06-06 02:23:24 is 415.24693315 s in the future
+tar: p386: time stamp 2026-06-06 02:23:24 is 415.245966233 s in the future
+tar: p387: time stamp 2026-06-06 02:23:24 is 415.24476147 s in the future
+RESULT std=17 ds=random v=base reps=300 sec=0.56156
+RESULT std=17 ds=random v=p386 reps=300 sec=0.50481
+RESULT std=17 ds=random v=p387 reps=300 sec=0.49417
+RESULT std=17 ds=mesh v=base reps=2000 sec=1.52191
+RESULT std=17 ds=mesh v=p386 reps=2000 sec=1.31836
+RESULT std=17 ds=mesh v=p387 reps=2000 sec=1.27639
+RESULT std=17 ds=canada v=base reps=400 sec=0.88892
+RESULT std=17 ds=canada v=p386 reps=400 sec=0.81523
+RESULT std=17 ds=canada v=p387 reps=400 sec=0.77661
+RESULT std=20 ds=random v=base reps=300 sec=0.54980
+RESULT std=20 ds=random v=p386 reps=300 sec=0.51470
+RESULT std=20 ds=random v=p387 reps=300 sec=0.50838
+RESULT std=20 ds=mesh v=base reps=2000 sec=1.40025
+RESULT std=20 ds=mesh v=p386 reps=2000 sec=1.27910
+RESULT std=20 ds=mesh v=p387 reps=2000 sec=1.25542
+RESULT std=20 ds=canada v=base reps=400 sec=0.90860
+RESULT std=20 ds=canada v=p386 reps=400 sec=0.78709
+RESULT std=20 ds=canada v=p387 reps=400 sec=0.78703
+BENCH_DONE redis-icx2
+rc=0 icx2

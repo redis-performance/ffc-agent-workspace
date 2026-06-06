@@ -1,0 +1,29 @@
+tar: ff_tma.cpp: time stamp 2026-06-06 02:23:58 is 360.7684045 s in the future
+tar: bench-remote.sh: time stamp 2026-06-06 02:23:58 is 360.768274561 s in the future
+tar: random.txt: time stamp 2026-06-06 02:23:58 is 360.410366935 s in the future
+tar: mesh.txt: time stamp 2026-06-06 02:23:58 is 360.393405568 s in the future
+tar: canada.txt: time stamp 2026-06-06 02:23:58 is 360.09753464 s in the future
+tar: base: time stamp 2026-06-06 02:23:24 is 326.092826684 s in the future
+tar: p386: time stamp 2026-06-06 02:23:24 is 326.089162718 s in the future
+tar: p387: time stamp 2026-06-06 02:23:24 is 326.084570711 s in the future
+NODE=sas-spr-comp CXX=c++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+RESULT std=17 ds=random v=base reps=300 sec=0.43107
+RESULT std=17 ds=random v=p386 reps=300 sec=0.56447
+RESULT std=17 ds=random v=p387 reps=300 sec=0.43266
+RESULT std=17 ds=mesh v=base reps=2000 sec=1.13770
+RESULT std=17 ds=mesh v=p386 reps=2000 sec=0.82202
+RESULT std=17 ds=mesh v=p387 reps=2000 sec=1.33443
+RESULT std=17 ds=canada v=base reps=400 sec=0.79862
+RESULT std=17 ds=canada v=p386 reps=400 sec=0.64305
+RESULT std=17 ds=canada v=p387 reps=400 sec=0.73273
+RESULT std=20 ds=random v=base reps=300 sec=0.44663
+RESULT std=20 ds=random v=p386 reps=300 sec=0.37354
+RESULT std=20 ds=random v=p387 reps=300 sec=0.42074
+RESULT std=20 ds=mesh v=base reps=2000 sec=1.66265
+RESULT std=20 ds=mesh v=p386 reps=2000 sec=0.79573
+RESULT std=20 ds=mesh v=p387 reps=2000 sec=0.81953
+RESULT std=20 ds=canada v=base reps=400 sec=0.61052
+RESULT std=20 ds=canada v=p386 reps=400 sec=0.50155
+RESULT std=20 ds=canada v=p387 reps=400 sec=0.49507
+BENCH_DONE sas-spr-comp
+rc=0 spr

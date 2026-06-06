@@ -1,0 +1,21 @@
+NODE=ip-172-31-55-171 CXX=Ubuntu clang version 18.1.3 (1ubuntu1)
+RESULT std=17 ds=random v=base reps=300 sec=0.42305
+RESULT std=17 ds=random v=p386 reps=300 sec=0.37363
+RESULT std=17 ds=random v=p387 reps=300 sec=0.37682
+RESULT std=17 ds=mesh v=base reps=2000 sec=1.13778
+RESULT std=17 ds=mesh v=p386 reps=2000 sec=1.03605
+RESULT std=17 ds=mesh v=p387 reps=2000 sec=1.03099
+RESULT std=17 ds=canada v=base reps=400 sec=0.66770
+RESULT std=17 ds=canada v=p386 reps=400 sec=0.59849
+RESULT std=17 ds=canada v=p387 reps=400 sec=0.59851
+RESULT std=20 ds=random v=base reps=300 sec=0.41950
+RESULT std=20 ds=random v=p386 reps=300 sec=0.37576
+RESULT std=20 ds=random v=p387 reps=300 sec=0.37022
+RESULT std=20 ds=mesh v=base reps=2000 sec=1.17128
+RESULT std=20 ds=mesh v=p386 reps=2000 sec=1.02997
+RESULT std=20 ds=mesh v=p387 reps=2000 sec=1.03276
+RESULT std=20 ds=canada v=base reps=400 sec=0.67007
+RESULT std=20 ds=canada v=p386 reps=400 sec=0.59885
+RESULT std=20 ds=canada v=p387 reps=400 sec=0.59676
+BENCH_DONE ip-172-31-55-171
+rc=0 arm

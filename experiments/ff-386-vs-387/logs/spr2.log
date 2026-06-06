@@ -1,0 +1,20 @@
+NODE=sas-spr-comp CXX=c++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+RESULT std=17 ds=random v=base reps=300 sec=0.80472
+RESULT std=17 ds=random v=p386 reps=300 sec=0.72977
+RESULT std=17 ds=random v=p387 reps=300 sec=0.35371
+RESULT std=17 ds=mesh v=base reps=2000 sec=0.92748
+RESULT std=17 ds=mesh v=p386 reps=2000 sec=0.81267
+RESULT std=17 ds=mesh v=p387 reps=2000 sec=0.82805
+RESULT std=17 ds=canada v=base reps=400 sec=0.54085
+RESULT std=17 ds=canada v=p386 reps=400 sec=0.50834
+RESULT std=17 ds=canada v=p387 reps=400 sec=0.49539
+RESULT std=20 ds=random v=base reps=300 sec=0.39203
+RESULT std=20 ds=random v=p386 reps=300 sec=0.35536
+RESULT std=20 ds=random v=p387 reps=300 sec=0.35305
+RESULT std=20 ds=mesh v=base reps=2000 sec=0.96217
+RESULT std=20 ds=mesh v=p386 reps=2000 sec=0.80256
+RESULT std=20 ds=mesh v=p387 reps=2000 sec=0.82023
+RESULT std=20 ds=canada v=base reps=400 sec=0.60495
+RESULT std=20 ds=canada v=p386 reps=400 sec=0.50106
+RESULT std=20 ds=canada v=p387 reps=400 sec=0.49533
+BENCH_DONE sas-spr-comp
