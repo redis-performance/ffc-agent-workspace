@@ -1,0 +1,23 @@
+tar: ffc_tma.cpp: time stamp 2026-06-06 12:19:41 is 481.436038747 s in the future
+tar: ffc_uncond.h: time stamp 2026-06-06 12:19:21 is 461.43441495 s in the future
+tar: random.txt: time stamp 2026-06-06 12:19:41 is 481.098323898 s in the future
+tar: mesh.txt: time stamp 2026-06-06 12:19:41 is 481.078830104 s in the future
+tar: canada.txt: time stamp 2026-06-06 12:19:41 is 480.951534095 s in the future
+tar: bench-remote.sh: time stamp 2026-06-06 12:19:41 is 480.951496385 s in the future
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-icx2 CC=cc (Ubuntu 11.4.0-2ubuntu1~20.04) 11.4.0
+RESULT ds=random v=gated reps=300 sec=0.57473
+RESULT ds=random v=uncond reps=300 sec=0.57632
+RESULT ds=mesh v=gated reps=2000 sec=1.38397
+RESULT ds=mesh v=uncond reps=2000 sec=1.43636
+RESULT ds=canada v=gated reps=400 sec=0.83079
+RESULT ds=canada v=uncond reps=400 sec=0.85043
+BENCH_DONE redis-icx2
+rc=0 icx2

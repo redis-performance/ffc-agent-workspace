@@ -1,0 +1,17 @@
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-gnr1 CC=cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+RESULT ds=random v=gated reps=300 sec=0.38245
+RESULT ds=random v=uncond reps=300 sec=0.38541
+RESULT ds=mesh v=gated reps=2000 sec=0.80486
+RESULT ds=mesh v=uncond reps=2000 sec=0.86580
+RESULT ds=canada v=gated reps=400 sec=0.48766
+RESULT ds=canada v=uncond reps=400 sec=0.51055
+BENCH_DONE redis-gnr1
+rc=0 gnr1

@@ -1,0 +1,17 @@
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-clx1 CC=cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+RESULT ds=random v=gated reps=300 sec=0.91301
+RESULT ds=random v=uncond reps=300 sec=0.96015
+RESULT ds=mesh v=gated reps=2000 sec=2.45763
+RESULT ds=mesh v=uncond reps=2000 sec=2.66203
+RESULT ds=canada v=gated reps=400 sec=1.46642
+RESULT ds=canada v=uncond reps=400 sec=1.53676
+BENCH_DONE redis-clx1
+rc=0 clx1
