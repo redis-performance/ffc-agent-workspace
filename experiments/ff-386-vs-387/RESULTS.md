@@ -23,3 +23,15 @@ box was re-run on an idle core, `logs/spr2.log`.)
 Conclusion: #387's branch-hint mechanism matches #386's function-attribute
 mechanism on speed, and is cleaner (no function-level noinline). Endorse #387;
 close #386 in its favor.
+
+---
+
+## Re-confirmation vs current #387 head (520fded, jwakely's revisions)
+
+#387 moved from b72e071 → 520fded: now uses `[[unlikely]]` under C++17 too (was
+`__builtin_expect`), with warning-suppression pragmas. Re-A/B'd base vs #387-old
+vs #387-new, same method.
+
+Result: **#387-new ≈ #387-old** — C++17 new-vs-old median -0.0% (±4% outliers are
+noise), C++20 median -0.3% (12/12 within ±3%). Both still +8..24% over `main`.
+The latest head about to merge preserves the gain. Logs in `logs-387head/`.
