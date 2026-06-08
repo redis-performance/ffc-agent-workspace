@@ -62,18 +62,22 @@ best-of-7.
 PIN=3 BENCH_REPEAT=7 bash redis-clients/bench/run_e2e_ab.sh 5000 3000
 ```
 
-Result (full round-trip = server work + transport + parse):
+Result (full round-trip = server work + transport + parse), iters/s, three-way:
 
-| dataset | strtod (iters/s) | ffc | Δ |
-|---|---:|---:|---:|
-| random | 270 | 286 | **+5.9%** |
-| mesh   | 328 | 335 | +2.1% |
-| canada | 291 | 297 | +2.1% |
+| dataset | pure-Python parser | hiredis (strtod) | hiredis (ffc) | hiredis vs py | ffc vs strtod |
+|---------|-------------------:|-----------------:|--------------:|--------------:|--------------:|
+| random | 69 | 274 | 283 | **+297%** | **+3.3%** |
+| mesh   | 76 | 326 | 341 | **+329%** | **+4.6%** |
+| canada | 72 | 279 | 289 | **+288%** | **+3.6%** |
 
-**Interpretation.** The parser itself is 2–2.7× faster (array bench above), but at
-the full redis-py round-trip that shrinks to **~2–6%**, because building the
-Python result (5000 `(member, score)` tuples + float/bytes objects) and the
-server's own work dominate the call — the double parse is a small slice. The
-`random` set (full-precision mantissas, ffc's biggest edge over strtod) shows the
-largest e2e gain, which is the expected, coherent signal. The locale-correctness
-fix from #1328 applies unconditionally regardless of throughput.
+**Interpretation — two very different levers:**
+1. **Having hiredis at all** is the dominant win for redis-py: the C parser is
+   **~4× faster** than the pure-Python `_RESP3Parser` (69→274 iters/s, random).
+2. **ffc over strtod**, on top of hiredis, is a **~+3–5%** end-to-end increment.
+   The pure parser is 2–2.7× faster (array bench above), but at the full redis-py
+   round-trip that shrinks to a few percent: building the Python result (5000
+   `(member, score)` tuples + float/bytes objects) + server work dominate the
+   call — the double parse is a small slice. `random` (full-precision mantissas,
+   ffc's biggest edge) shows the largest gain — the coherent signal.
+
+The locale-correctness fix from #1328 applies unconditionally regardless of throughput.

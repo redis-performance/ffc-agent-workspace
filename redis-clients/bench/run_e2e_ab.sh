@@ -30,10 +30,15 @@ build() { rm -rf build hiredis/*.so; CFLAGS="${2:-}" python3 setup.py build_ext 
 run() { REDIS_UNIX="$SOCK" PYTHONPATH="$HPY:$RPY" $TS python3 "$HERE/bench_redis_py_e2e.py" "$M" "$K"; }
 
 echo "############ A: ffc build (default, redis/hiredis#1328) ############"
-build ffc ""; run
+build ffc ""
+FORCE_PARSER=hiredis run
 echo
 echo "############ B: strtod build (-DHIREDIS_FLOAT_STRTOD) ############"
-build strtod "-DHIREDIS_FLOAT_STRTOD"; run
+build strtod "-DHIREDIS_FLOAT_STRTOD"
+FORCE_PARSER=hiredis run
 echo
-echo "A (ffc) vs B (strtod): end-to-end delta on ZRANGE WITHSCORES (server work + transport + parse)."
+echo "############ C: pure-Python parser (_RESP3Parser, no hiredis) ############"
+FORCE_PARSER=python run   # build-independent — context for how much the C parser matters at all
+echo
+echo "Three-way: pure-Python (C) vs hiredis-strtod (B) vs hiredis-ffc (A) on ZRANGE WITHSCORES."
 rm -rf build hiredis/*.so

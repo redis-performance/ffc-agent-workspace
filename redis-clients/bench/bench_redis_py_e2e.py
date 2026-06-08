@@ -18,15 +18,22 @@ random.seed(12345)
 
 import redis
 from redis.utils import HIREDIS_AVAILABLE
+from redis._parsers import _RESP3Parser, _HiredisParser
+
+# FORCE_PARSER=hiredis -> ffc/strtod C parser; =python -> pure-Python _RESP3Parser.
+FORCE = os.environ.get("FORCE_PARSER", "hiredis")
 
 
 def connect():
     sock = os.environ.get("REDIS_UNIX")
+    kw = dict(protocol=3, decode_responses=False)
     if sock:
-        r = redis.Redis(unix_socket_path=sock, protocol=3, decode_responses=False)
+        r = redis.Redis(unix_socket_path=sock, **kw)
     else:
-        r = redis.Redis(host="127.0.0.1", port=int(os.environ.get("REDIS_PORT", 6379)),
-                        protocol=3, decode_responses=False)
+        r = redis.Redis(host="127.0.0.1", port=int(os.environ.get("REDIS_PORT", 6379)), **kw)
+    # force the parser explicitly so the three-way comparison is unambiguous
+    pc = _HiredisParser if FORCE == "hiredis" else _RESP3Parser
+    r.connection_pool.connection_kwargs["parser_class"] = pc
     r.ping()
     return r
 

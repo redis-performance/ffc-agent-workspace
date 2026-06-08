@@ -131,15 +131,18 @@ single merged change vs main; both conservative (ffc built without
 ## 4b. redis-py end-to-end (real redis-server, sorted set) — measured
 
 `ZRANGE key 0 -1 WITHSCORES` over a 5000-member zset, RESP3, local unix socket,
-server pinned off the client core, best-of-7 (`redis-clients/bench/run_e2e_ab.sh`):
+server pinned off the client core, best-of-7 (`redis-clients/bench/run_e2e_ab.sh`).
+Three-way, iters/s:
 
-| dataset | strtod (iters/s) | ffc | Δ |
-|---------|-----------------:|----:|--:|
-| random | 270 | 286 | +5.9% |
-| mesh | 328 | 335 | +2.1% |
-| canada | 291 | 297 | +2.1% |
+| dataset | pure-Python | hiredis-strtod | hiredis-ffc | hiredis vs py | ffc vs strtod |
+|---------|------------:|---------------:|------------:|--------------:|--------------:|
+| random | 69 | 274 | 283 | +297% | +3.3% |
+| mesh | 76 | 326 | 341 | +329% | +4.6% |
+| canada | 72 | 279 | 289 | +288% | +3.6% |
 
-The pure parser is 2–2.7× faster, but the full round-trip benefit is ~2–6%:
-redis-py's Python result-building (5000 tuples + objects) + server work dominate,
-so the double parse is a small slice. Biggest gain on `random` (hardest doubles),
-the coherent signal. Locale fix inherited unconditionally.
+Two levers: (1) **having hiredis at all** is ~4× over the pure-Python parser —
+the dominant redis-py win; (2) **ffc over strtod** adds ~+3–5% on top, end-to-end.
+The pure parser is 2–2.7× faster, but redis-py's Python result-building (5000
+tuples + objects) + server work dominate the round-trip, so the double parse is a
+small slice. Biggest ffc gain on `random` (hardest doubles). Locale fix inherited
+unconditionally.
