@@ -1,0 +1,15 @@
+NODE=redis-clx2 CXX=c++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+RESULT std=17 ds=random v=base sec=0.59351
+RESULT std=17 ds=random v=main sec=0.52797
+RESULT std=17 ds=mesh v=base sec=1.73777
+RESULT std=17 ds=mesh v=main sec=1.39497
+RESULT std=17 ds=canada v=base sec=0.99890
+RESULT std=17 ds=canada v=main sec=0.83551
+RESULT std=20 ds=random v=base sec=0.59785
+RESULT std=20 ds=random v=main sec=0.50222
+RESULT std=20 ds=mesh v=base sec=1.62305
+RESULT std=20 ds=mesh v=main sec=1.43154
+RESULT std=20 ds=canada v=base sec=0.96102
+RESULT std=20 ds=canada v=main sec=0.81256
+BENCH_DONE redis-clx2
+rc=0 clx2

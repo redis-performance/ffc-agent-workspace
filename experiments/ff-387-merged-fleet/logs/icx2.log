@@ -1,0 +1,22 @@
+tar: ff_tma.cpp: time stamp 2026-06-08 07:05:43 is 485.014560291 s in the future
+tar: bench-remote.sh: time stamp 2026-06-08 07:05:43 is 485.014513709 s in the future
+tar: random.txt: time stamp 2026-06-08 07:05:43 is 484.659476449 s in the future
+tar: mesh.txt: time stamp 2026-06-08 07:05:43 is 484.635615318 s in the future
+tar: canada.txt: time stamp 2026-06-08 07:05:43 is 484.514699506 s in the future
+NODE=redis-icx2 CXX=c++ (Ubuntu 11.4.0-2ubuntu1~20.04) 11.4.0
+tar: base: time stamp 2026-06-08 07:05:17 is 458.513392592 s in the future
+tar: main: time stamp 2026-06-08 07:05:17 is 458.512352911 s in the future
+RESULT std=17 ds=random v=base sec=0.56260
+RESULT std=17 ds=random v=main sec=0.49625
+RESULT std=17 ds=mesh v=base sec=1.52199
+RESULT std=17 ds=mesh v=main sec=1.22919
+RESULT std=17 ds=canada v=base sec=0.89121
+RESULT std=17 ds=canada v=main sec=0.75351
+RESULT std=20 ds=random v=base sec=0.55055
+RESULT std=20 ds=random v=main sec=0.50889
+RESULT std=20 ds=mesh v=base sec=1.40318
+RESULT std=20 ds=mesh v=main sec=1.25440
+RESULT std=20 ds=canada v=base sec=0.90823
+RESULT std=20 ds=canada v=main sec=0.78741
+BENCH_DONE redis-icx2
+rc=0 icx2

@@ -1,0 +1,22 @@
+tar: ff_tma.cpp: time stamp 2026-06-08 07:05:43 is 393.576859178 s in the future
+tar: bench-remote.sh: time stamp 2026-06-08 07:05:43 is 393.576715225 s in the future
+tar: random.txt: time stamp 2026-06-08 07:05:43 is 393.183026097 s in the future
+tar: mesh.txt: time stamp 2026-06-08 07:05:43 is 393.162223633 s in the future
+tar: canada.txt: time stamp 2026-06-08 07:05:43 is 393.021462096 s in the future
+tar: base: time stamp 2026-06-08 07:05:17 is 367.016519449 s in the future
+NODE=sas-spr-comp CXX=c++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+tar: main: time stamp 2026-06-08 07:05:17 is 367.012584175 s in the future
+RESULT std=17 ds=random v=base sec=0.65593
+RESULT std=17 ds=random v=main sec=0.42143
+RESULT std=17 ds=mesh v=base sec=0.91944
+RESULT std=17 ds=mesh v=main sec=0.82392
+RESULT std=17 ds=canada v=base sec=0.54202
+RESULT std=17 ds=canada v=main sec=0.49682
+RESULT std=20 ds=random v=base sec=0.39545
+RESULT std=20 ds=random v=main sec=0.35070
+RESULT std=20 ds=mesh v=base sec=0.96684
+RESULT std=20 ds=mesh v=main sec=0.81566
+RESULT std=20 ds=canada v=base sec=0.61006
+RESULT std=20 ds=canada v=main sec=0.49850
+BENCH_DONE sas-spr-comp
+rc=0 spr
