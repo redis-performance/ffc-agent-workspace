@@ -31,3 +31,14 @@ the race's "no >1% regression on random/mesh/canada" bar.
 untouched (e.g. gate the SWAR call) to kill the fraction regressions; (2) ship as
 an integer-workload-targeted change/PR where the +18% justifies it. The harness
 datasets are fraction-heavy and don't reward it as-is.
+
+## Mitigation attempt (out-of-line helper) — FAILED
+
+Tried moving the integer tail to a `noinline` helper (`ffc_scan_integer_tail`) so
+the hot peel's codegen stays lean. Result: WORSE on all fronts — the call overhead
+collapsed the ints win (clx1 −6.3%, gnr1 +10.3% vs inline's +15–25%) AND the
+standard regressions deepened (clx1 random −5.7%, gnr1 mesh −7.0%). Having the
+out-of-line call present perturbs parse_number_string's register allocation
+regardless of whether it's taken. The inline form (+18% ints / −2.6% random) is
+the better of the two; neither passes the race's no-regression bar. STAYS PARKED
+(inline patch in integer-swar.patch is the best-known form).
