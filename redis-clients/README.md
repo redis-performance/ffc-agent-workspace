@@ -49,3 +49,31 @@ Takeaway: **for double-heavy commands, redis-py (via hiredis-py) parses replies
 ~2–2.7× faster** thanks to ffc; for single-value replies the effect is negligible
 because parsing isn't the bottleneck there. Either way the locale-correctness fix
 from #1328 is inherited unconditionally.
+
+## End-to-end: redis-py ↔ real redis-server (sorted set)
+
+`bench/run_e2e_ab.sh` starts a throwaway `redis-server` (unix socket, no
+persistence), builds hiredis-py both ways, and runs `bench/bench_redis_py_e2e.py`
+— `ZRANGE key 0 -1 WITHSCORES` over a 5000-member sorted set, RESP3, the
+double-heavy core-data-structure read. Server pinned off the client core,
+best-of-7.
+
+```
+PIN=3 BENCH_REPEAT=7 bash redis-clients/bench/run_e2e_ab.sh 5000 3000
+```
+
+Result (full round-trip = server work + transport + parse):
+
+| dataset | strtod (iters/s) | ffc | Δ |
+|---|---:|---:|---:|
+| random | 270 | 286 | **+5.9%** |
+| mesh   | 328 | 335 | +2.1% |
+| canada | 291 | 297 | +2.1% |
+
+**Interpretation.** The parser itself is 2–2.7× faster (array bench above), but at
+the full redis-py round-trip that shrinks to **~2–6%**, because building the
+Python result (5000 `(member, score)` tuples + float/bytes objects) and the
+server's own work dominate the call — the double parse is a small slice. The
+`random` set (full-precision mantissas, ffc's biggest edge over strtod) shows the
+largest e2e gain, which is the expected, coherent signal. The locale-correctness
+fix from #1328 applies unconditionally regardless of throughput.

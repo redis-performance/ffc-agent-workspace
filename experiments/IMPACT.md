@@ -127,3 +127,19 @@ Notes: ffc figures are cumulative PR vs plain upstream main; fast_float is the
 single merged change vs main; both conservative (ffc built without
 `FFC_ROUNDS_TO_NEAREST`). hiredis figures are strtod→ffc from the #1328 bench
 (include the copy+NUL-terminate both paths share).
+
+## 4b. redis-py end-to-end (real redis-server, sorted set) — measured
+
+`ZRANGE key 0 -1 WITHSCORES` over a 5000-member zset, RESP3, local unix socket,
+server pinned off the client core, best-of-7 (`redis-clients/bench/run_e2e_ab.sh`):
+
+| dataset | strtod (iters/s) | ffc | Δ |
+|---------|-----------------:|----:|--:|
+| random | 270 | 286 | +5.9% |
+| mesh | 328 | 335 | +2.1% |
+| canada | 291 | 297 | +2.1% |
+
+The pure parser is 2–2.7× faster, but the full round-trip benefit is ~2–6%:
+redis-py's Python result-building (5000 tuples + objects) + server work dominate,
+so the double parse is a small slice. Biggest gain on `random` (hardest doubles),
+the coherent signal. Locale fix inherited unconditionally.
