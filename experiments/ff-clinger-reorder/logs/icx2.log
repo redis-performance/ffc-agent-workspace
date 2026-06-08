@@ -1,0 +1,27 @@
+tar: ffc_tma.cpp: time stamp 2026-06-08 08:24:46 is 484.758234952 s in the future
+tar: test_exhaustive.c: time stamp 2026-06-08 08:24:46 is 484.758179126 s in the future
+tar: bench.sh: time stamp 2026-06-08 08:24:46 is 484.758155 s in the future
+tar: random.txt: time stamp 2026-06-08 08:24:46 is 484.386037968 s in the future
+tar: mesh.txt: time stamp 2026-06-08 08:24:46 is 484.20277766 s in the future
+tar: canada.txt: time stamp 2026-06-08 08:24:46 is 484.185267764 s in the future
+tar: base/ffc.h: time stamp 2026-06-08 08:24:46 is 484.18438908 s in the future
+tar: base: time stamp 2026-06-08 08:24:46 is 484.184372286 s in the future
+tar: new/ffc.h: time stamp 2026-06-08 08:24:46 is 484.18350274 s in the future
+tar: new: time stamp 2026-06-08 08:24:46 is 484.183302877 s in the future
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-icx2 CC=cc (Ubuntu 11.4.0-2ubuntu1~20.04) 11.4.0
+RESULT ds=random v=base sec=0.56829
+RESULT ds=random v=new sec=0.55822
+RESULT ds=mesh v=base sec=1.38147
+RESULT ds=mesh v=new sec=1.34420
+RESULT ds=canada v=base sec=0.83012
+RESULT ds=canada v=new sec=0.80184
+BENCH_DONE
+rc=0 icx2

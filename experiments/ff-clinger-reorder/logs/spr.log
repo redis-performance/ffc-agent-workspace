@@ -1,0 +1,27 @@
+tar: ffc_tma.cpp: time stamp 2026-06-08 08:24:46 is 393.396907452 s in the future
+tar: test_exhaustive.c: time stamp 2026-06-08 08:24:46 is 393.396717645 s in the future
+tar: bench.sh: time stamp 2026-06-08 08:24:46 is 393.396662133 s in the future
+tar: random.txt: time stamp 2026-06-08 08:24:46 is 392.171088906 s in the future
+tar: mesh.txt: time stamp 2026-06-08 08:24:46 is 391.827836899 s in the future
+tar: canada.txt: time stamp 2026-06-08 08:24:46 is 391.324988583 s in the future
+tar: base/ffc.h: time stamp 2026-06-08 08:24:46 is 391.321885827 s in the future
+tar: base: time stamp 2026-06-08 08:24:46 is 391.321777771 s in the future
+tar: new/ffc.h: time stamp 2026-06-08 08:24:46 is 391.318549242 s in the future
+tar: new: time stamp 2026-06-08 08:24:46 is 391.31777731 s in the future
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=sas-spr-comp CC=cc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+RESULT ds=random v=base sec=0.39341
+RESULT ds=random v=new sec=0.38711
+RESULT ds=mesh v=base sec=0.80351
+RESULT ds=mesh v=new sec=0.83328
+RESULT ds=canada v=base sec=0.49343
+RESULT ds=canada v=new sec=0.50827
+BENCH_DONE
+rc=0 spr
