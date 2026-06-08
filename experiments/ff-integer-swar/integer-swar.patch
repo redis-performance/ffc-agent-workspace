@@ -1,0 +1,16 @@
+diff --git a/src/parse.h b/src/parse.h
+index 47fa73c..31fc17d 100644
+--- a/src/parse.h
++++ b/src/parse.h
+@@ -336,6 +336,11 @@ ffc_parsed ffc_parse_number_string(
+           i = FFC_DIGIT_ACC10(i, *p++ - '0');
+           if ((p != pend) && ffc_is_integer(*p)) {
+             i = FFC_DIGIT_ACC10(i, *p++ - '0');
++            // 6+ digit integer part: consume 8 digits at a time via SWAR (same
++            // helper the fraction loop uses) before the byte-by-byte tail.
++            // Overflow during this fast scan is fine — the too_many_digits path
++            // re-scans with a cap. Short (<=5 digit) integers never reach here.
++            ffc_loop_parse_if_eight_digits(&p, pend, &i);
+             while ((p != pend) && ffc_is_integer(*p)) {
+               i = FFC_DIGIT_ACC10(i, *p - '0'); // might overflow, handled later
+               ++p;

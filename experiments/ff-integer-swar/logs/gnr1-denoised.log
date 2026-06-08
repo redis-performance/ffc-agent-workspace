@@ -1,0 +1,19 @@
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-gnr1
+RESULT ds=random v=base sec=0.38192
+RESULT ds=random v=new sec=0.38044
+RESULT ds=mesh v=base sec=0.81227
+RESULT ds=mesh v=new sec=0.83496
+RESULT ds=canada v=base sec=0.48676
+RESULT ds=canada v=new sec=0.48464
+RESULT ds=ints v=base sec=0.80873
+RESULT ds=ints v=new sec=0.64851
+DONE
+rc=0 gnr1
