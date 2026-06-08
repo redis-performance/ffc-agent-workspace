@@ -1,0 +1,47 @@
+tar: ffc_tma.cpp: time stamp 2026-06-08 10:18:08 is 485.684485166 s in the future
+tar: test_exhaustive.c: time stamp 2026-06-08 10:18:08 is 485.684427272 s in the future
+tar: run.sh: time stamp 2026-06-08 10:18:08 is 485.684403101 s in the future
+tar: random.txt: time stamp 2026-06-08 10:18:08 is 484.777118809 s in the future
+tar: mesh.txt: time stamp 2026-06-08 10:18:08 is 484.481266282 s in the future
+tar: canada.txt: time stamp 2026-06-08 10:18:08 is 484.150983552 s in the future
+tar: base/ffc.h: time stamp 2026-06-08 10:18:08 is 484.150113417 s in the future
+tar: base: time stamp 2026-06-08 10:18:08 is 484.150097093 s in the future
+tar: new/ffc.h: time stamp 2026-06-08 10:18:08 is 484.149215832 s in the future
+tar: new: time stamp 2026-06-08 10:18:08 is 484.149019025 s in the future
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-icx2
+RESULT ds=random v=base sec=0.56783
+RESULT ds=random v=new sec=0.55137
+RESULT ds=mesh v=base sec=1.38013
+RESULT ds=mesh v=new sec=1.27650
+RESULT ds=canada v=base sec=0.83051
+RESULT ds=canada v=new sec=0.76004
+TMA mesh base:
+    53,759,740,895      TOPDOWN.SLOTS                    #      1.0 %  tma_backend_bound      
+                                                  #     13.3 %  tma_frontend_bound     
+                                                  #     79.6 %  tma_retiring           
+    42,796,970,202      topdown-retiring                                                      
+TMA mesh new:
+    49,903,287,460      TOPDOWN.SLOTS                    #      1.1 %  tma_backend_bound      
+                                                  #     10.9 %  tma_frontend_bound     
+                                                  #     81.9 %  tma_retiring           
+    40,901,125,800      topdown-retiring                                                      
+TMA random base:
+   147,114,318,050      TOPDOWN.SLOTS                    #      3.5 %  tma_backend_bound      
+                                                  #     17.8 %  tma_frontend_bound     
+                                                  #     58.0 %  tma_retiring           
+    85,383,996,358      topdown-retiring                                                      
+TMA random new:
+   143,002,826,410      TOPDOWN.SLOTS                    #      3.5 %  tma_backend_bound      
+                                                  #     18.7 %  tma_frontend_bound     
+                                                  #     57.5 %  tma_retiring           
+    82,436,923,459      topdown-retiring                                                      
+DONE
+rc=0 icx2

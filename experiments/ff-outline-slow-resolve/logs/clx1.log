@@ -1,0 +1,40 @@
+### GCC ###
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-clx1 CC=cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+RESULT ds=random v=base sec=0.91224
+RESULT ds=random v=new sec=0.87504
+RESULT ds=mesh v=base sec=2.45218
+RESULT ds=mesh v=new sec=2.13103
+RESULT ds=canada v=base sec=1.46411
+RESULT ds=canada v=new sec=1.33662
+DONE
+### CLANG ###
+ffc_tma.cpp:12:9: warning: 'FFC_IMPL' macro redefined [-Wmacro-redefined]
+#define FFC_IMPL
+        ^
+<command line>:1:9: note: previous definition is here
+#define FFC_IMPL 1
+        ^
+1 warning generated.
+ffc_tma.cpp:12:9: warning: 'FFC_IMPL' macro redefined [-Wmacro-redefined]
+#define FFC_IMPL
+        ^
+<command line>:1:9: note: previous definition is here
+#define FFC_IMPL 1
+        ^
+1 warning generated.
+NODE=redis-clx1 CC=Ubuntu clang version 14.0.0-1ubuntu1.1
+RESULT ds=random v=base sec=0.91494
+RESULT ds=random v=new sec=0.91474
+RESULT ds=mesh v=base sec=2.36871
+RESULT ds=mesh v=new sec=2.36957
+RESULT ds=canada v=base sec=1.40279
+RESULT ds=canada v=new sec=1.40296
+DONE

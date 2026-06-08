@@ -1,0 +1,18 @@
+tar: run2.sh: time stamp 2026-06-08 10:27:07 is 25.455054218 s in the future
+tar: new/ffc.h: time stamp 2026-06-08 10:34:47 is 483.354037735 s in the future
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=redis-icx2 CC=cc (Ubuntu 11.4.0-2ubuntu1~20.04) 11.4.0
+RESULT ds=random v=base sec=0.56848
+RESULT ds=random v=new sec=0.55191
+RESULT ds=mesh v=base sec=1.38483
+RESULT ds=mesh v=new sec=1.29946
+RESULT ds=canada v=base sec=0.83159
+RESULT ds=canada v=new sec=0.76041
+DONE

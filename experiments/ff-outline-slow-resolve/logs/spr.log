@@ -1,0 +1,27 @@
+tar: ffc_tma.cpp: time stamp 2026-06-08 10:18:08 is 394.48829199 s in the future
+tar: test_exhaustive.c: time stamp 2026-06-08 10:18:08 is 394.488110437 s in the future
+tar: run.sh: time stamp 2026-06-08 10:18:08 is 394.488053774 s in the future
+tar: random.txt: time stamp 2026-06-08 10:18:08 is 394.127399834 s in the future
+tar: mesh.txt: time stamp 2026-06-08 10:18:08 is 394.109506647 s in the future
+tar: canada.txt: time stamp 2026-06-08 10:18:08 is 393.963382181 s in the future
+tar: base/ffc.h: time stamp 2026-06-08 10:18:08 is 393.960075211 s in the future
+tar: base: time stamp 2026-06-08 10:18:08 is 393.959960661 s in the future
+tar: new/ffc.h: time stamp 2026-06-08 10:18:08 is 393.956949808 s in the future
+tar: new: time stamp 2026-06-08 10:18:08 is 393.955928515 s in the future
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+ffc_tma.cpp:12: warning: "FFC_IMPL" redefined
+   12 | #define FFC_IMPL
+      | 
+<command-line>: note: this is the location of the previous definition
+NODE=sas-spr-comp
+RESULT ds=random v=base sec=0.44390
+RESULT ds=random v=new sec=0.38904
+RESULT ds=mesh v=base sec=0.81872
+RESULT ds=mesh v=new sec=0.81026
+RESULT ds=canada v=base sec=0.49321
+RESULT ds=canada v=new sec=0.48078
+TMA mesh base:
+rc=1 spr
