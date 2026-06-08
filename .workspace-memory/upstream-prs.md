@@ -89,3 +89,20 @@ redis-performance:fix/negative-digit-comp-vk-upstream off kolemannix/main (clean
 same 4 float_cases.csv regression rows, make test green). redis-perf fork PR = #4;
 original-repo PR = https://github.com/kolemannix/ffc.h/pull/26 . (kolemannix/main and
 redis-performance/main differ only by the same 4-digit-SWAR follow-up under different SHAs.)
+
+## fast_float#387 (2026-06-07) — MERGED (lemire-authored, carries our lazy-spans work)
+Our #386 ("Skip materializing parsed_number_string_t spans on the hot path" +
+noinline-cold) was closed in favor of lemire's #387 ("Using unlikely markers for
+PR386") after a head-to-head proved them performance-equivalent (median +0.7%,
+within noise across 5 microarchs × c++17/c++20; see experiments/ff-386-vs-387/).
+#387 keeps the lazy-spans change, swaps noinline-cold → [[unlikely]] branch hints.
+Merged 3044c9b. Flagged by jwakely (libstdc++) for GCC std::from_chars adoption.
+
+## Cross-repo merged ledger (NOT just fast_float — keep README "Upstream PRs merged" in sync)
+- fastfloat/fast_float: #381, #382, #383, + #387 (lemire's variant of our #386) = 4
+- kolemannix/ffc.h (ffc UPSTREAM): #23 (4-digit SWAR follow-up) MERGED 2026-05-27;
+  #24/#25/#26 OPEN. NOTE: #23 is easy to miss — it's the b1894aa "upstream advanced"
+  commit, but it's OUR merged PR.
+- redis/hiredis: #1328 (ffc as RESP3 double parser) MERGED 2026-06-02.
+- redis-performance/ffc.h (fork): #4 CLOSED (redundant w/ kolemannix#26).
+Total ours-merged = 6. README.md table + experiments/IMPACT.md reflect this.

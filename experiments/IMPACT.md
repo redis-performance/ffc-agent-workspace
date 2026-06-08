@@ -27,13 +27,15 @@ Before (`main` `6258cbc`) → after (merged #387), MB/s, C++20:
 
 ---
 
-## 2. ffc (C99 single-header) — PR open, validated
+## 2. ffc (C99 single-header) — 1 merged upstream, 3 open
 
-PR **kolemannix/ffc.h#24** (nine profiled micro-optimizations) — open,
-benchmark-validated, both reviewer requests answered with data-backed pushbacks.
-PR **#26** — correctness fix for the `vk` value-kind bug (mis-rounded ~1.07e9
-binary32 midpoints by 1 ULP on the float slow path). Exhaustively validated
-(all 2^32 binary32) on 5 microarchitectures.
+Upstream is **kolemannix/ffc.h**. PR **#23** (4-digit SWAR follow-up in
+`ffc_loop_parse_if_eight_digits`) — ✅ **MERGED** 2026-05-27. Still open:
+**#24** (nine profiled micro-optimizations; benchmark-validated, both reviewer
+requests answered with data-backed pushbacks), **#25** (AArch64/Clang shift-add
++ 2× SWAR unroll), **#26** (correctness fix for the `vk` value-kind bug that
+mis-rounded ~1.07e9 binary32 midpoints by 1 ULP on the float slow path).
+Exhaustively validated (all 2^32 binary32) on 5 microarchitectures.
 
 Changes: force-inline at call sites, `exponent==0` early-exit, straight-line
 integer/fraction unrolls, AArch64/Clang shift-add accumulator + 2× SWAR unroll,
@@ -119,7 +121,7 @@ fast_float #387 (MERGED upstream) — lazy-spans opt; flagged for GCC std::from_
 | Project | Status | Perf | Correctness |
 |---------|--------|------|-------------|
 | fast_float | ✅ merged upstream (#387) | +8–18% short strings | — |
-| ffc | PR #24 + #26 open, validated | +21–68% (mesh biggest) | vk 1-ULP bug fixed |
+| ffc (kolemannix/ffc.h) | #23 merged; #24/#25/#26 open, validated | +21–68% (mesh biggest) | vk 1-ULP bug fixed (#26) |
 | hiredis | ✅ merged (#1328) | +250–411% RESP3 doubles | locale bug fixed |
 | hiredis-py / redis-py | ✅ inherits (measured) | ~2–2.7× double-heavy array replies (flat on single doubles) | locale fix (transitive) |
 
