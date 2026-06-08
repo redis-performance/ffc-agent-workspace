@@ -11,3 +11,12 @@
 [submodule "hiredis"]
 	path = hiredis
 	url = git@github.com:fcostaoliveira/hiredis.git
+[submodule "redis-clients/hiredis"]
+	path = redis-clients/hiredis
+	url = https://github.com/redis/hiredis
+[submodule "redis-clients/hiredis-py"]
+	path = redis-clients/hiredis-py
+	url = https://github.com/redis/hiredis-py
+[submodule "redis-clients/redis-py"]
+	path = redis-clients/redis-py
+	url = https://github.com/redis/redis-py

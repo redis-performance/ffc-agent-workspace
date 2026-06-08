@@ -78,12 +78,30 @@ over a 3,000,000-value sweep. Double-heavy streams benefit most: `TS.RANGE`/
 
 ---
 
-## 4. hiredis-py (Python parser, used by redis-py) — ✅ INHERITS IT
+## 4. hiredis-py / redis-py (Python) — ✅ INHERITS IT (measured)
 
-hiredis-py vendors hiredis as a submodule, currently pinned at `67c88a05`
-(2026-06-03) — after #1328, and its `read.c` already contains the ffc
-integration. So Python/redis-py clients transitively get the same ~3–5× RESP3
-double-parse speedup + locale fix. No separate PR needed.
+hiredis-py vendors hiredis as a submodule, pinned at `67c88a05` (2026-06-03) —
+after #1328, its `read.c` already contains the ffc integration. redis-py uses
+`hiredis.Reader` (`_HiredisParser`) whenever the `hiredis` module is installed,
+so Python/redis-py clients inherit it with no separate PR.
+
+**Measured** A/B (build hiredis-py's extension from the vendored source twice —
+default=ffc vs `-DHIREDIS_FLOAT_STRTOD` — and drive `hiredis.Reader`; see
+`redis-clients/`). Single-core, best-of-9:
+
+Array replies (TS.MRANGE / ZRANGE·FT.SEARCH WITHSCORES / vector distances —
+the double-heavy, parse-bound shape), M doubles/s:
+
+| dataset | strtod | ffc | speedup |
+|---------|-------:|----:|--------:|
+| random | 6.67 | 14.01 | +110% |
+| mesh | 10.46 | 28.04 | +168% |
+| canada | 6.74 | 13.56 | +101% |
+
+Single-double replies (GEODIST shape): ffc ≈ strtod (≈8 MB/s, within noise) —
+Python per-call + float-object overhead dominates, so the parser speed doesn't
+show. **Net: redis-py parses double-heavy replies ~2–2.7× faster; single-value
+replies unchanged; locale fix inherited unconditionally.**
 
 ---
 
@@ -103,7 +121,7 @@ fast_float #387 (MERGED upstream) — lazy-spans opt; flagged for GCC std::from_
 | fast_float | ✅ merged upstream (#387) | +8–18% short strings | — |
 | ffc | PR #24 + #26 open, validated | +21–68% (mesh biggest) | vk 1-ULP bug fixed |
 | hiredis | ✅ merged (#1328) | +250–411% RESP3 doubles | locale bug fixed |
-| hiredis-py | ✅ inherits via pin | ~3–5× (transitive) | locale fix (transitive) |
+| hiredis-py / redis-py | ✅ inherits (measured) | ~2–2.7× double-heavy array replies (flat on single doubles) | locale fix (transitive) |
 
 Notes: ffc figures are cumulative PR vs plain upstream main; fast_float is the
 single merged change vs main; both conservative (ffc built without
