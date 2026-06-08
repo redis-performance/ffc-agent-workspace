@@ -1,0 +1,32 @@
+tar: ff_tma.cpp: time stamp 2026-06-08 07:18:32 is 483.54723078 s in the future
+tar: bench-remote.sh: time stamp 2026-06-08 07:18:32 is 483.547185316 s in the future
+tar: random.txt: time stamp 2026-06-08 07:18:32 is 479.654512114 s in the future
+tar: mesh.txt: time stamp 2026-06-08 07:18:32 is 478.831703779 s in the future
+NODE=redis-icx2 CXX=c++ (Ubuntu 11.4.0-2ubuntu1~20.04) 11.4.0
+tar: canada.txt: time stamp 2026-06-08 07:18:32 is 478.115188627 s in the future
+tar: ff/include/fast_float/fast_table.h: time stamp 2026-06-08 07:18:32 is 478.114920875 s in the future
+tar: ff/include/fast_float/digit_comparison.h: time stamp 2026-06-08 07:18:32 is 478.114742482 s in the future
+tar: ff/include/fast_float/fast_float.h: time stamp 2026-06-08 07:18:32 is 478.114718221 s in the future
+tar: ff/include/fast_float/ascii_number.h: time stamp 2026-06-08 07:18:32 is 478.114565271 s in the future
+tar: ff/include/fast_float/parse_number.h: time stamp 2026-06-08 07:18:32 is 478.114532213 s in the future
+tar: ff/include/fast_float/bigint.h: time stamp 2026-06-08 07:18:32 is 478.114358346 s in the future
+tar: ff/include/fast_float/decimal_to_binary.h: time stamp 2026-06-08 07:18:32 is 478.114331989 s in the future
+tar: ff/include/fast_float/float_common.h: time stamp 2026-06-08 07:18:32 is 478.11413813 s in the future
+tar: ff/include/fast_float/constexpr_feature_detect.h: time stamp 2026-06-08 07:18:32 is 478.114116512 s in the future
+tar: ff/include/fast_float: time stamp 2026-06-08 07:18:32 is 478.113947675 s in the future
+tar: ff/include: time stamp 2026-06-08 07:18:32 is 478.113922586 s in the future
+tar: ff: time stamp 2026-06-08 07:18:32 is 478.113910986 s in the future
+RESULT std=17 ds=random v=off sec=0.49535
+RESULT std=17 ds=random v=on sec=0.49205
+RESULT std=17 ds=mesh v=off sec=1.22957
+RESULT std=17 ds=mesh v=on sec=1.26198
+RESULT std=17 ds=canada v=off sec=0.75259
+RESULT std=17 ds=canada v=on sec=0.74630
+RESULT std=20 ds=random v=off sec=0.50955
+RESULT std=20 ds=random v=on sec=0.50264
+RESULT std=20 ds=mesh v=off sec=1.25102
+RESULT std=20 ds=mesh v=on sec=1.19822
+RESULT std=20 ds=canada v=off sec=0.78823
+RESULT std=20 ds=canada v=on sec=0.77344
+BENCH_DONE redis-icx2
+rc=0 icx2

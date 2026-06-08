@@ -1,0 +1,15 @@
+NODE=redis-gnr1 CXX=c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+RESULT std=17 ds=random v=off sec=0.34346
+RESULT std=17 ds=random v=on sec=0.34119
+RESULT std=17 ds=mesh v=off sec=0.84871
+RESULT std=17 ds=mesh v=on sec=0.81237
+RESULT std=17 ds=canada v=off sec=0.47468
+RESULT std=17 ds=canada v=on sec=0.46291
+RESULT std=20 ds=random v=off sec=0.34614
+RESULT std=20 ds=random v=on sec=0.34941
+RESULT std=20 ds=mesh v=off sec=0.83875
+RESULT std=20 ds=mesh v=on sec=0.81332
+RESULT std=20 ds=canada v=off sec=0.47737
+RESULT std=20 ds=canada v=on sec=0.47007
+BENCH_DONE redis-gnr1
+rc=0 gnr1

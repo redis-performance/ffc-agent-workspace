@@ -1,0 +1,32 @@
+tar: ff_tma.cpp: time stamp 2026-06-08 07:18:32 is 394.153015563 s in the future
+tar: bench-remote.sh: time stamp 2026-06-08 07:18:32 is 394.152844185 s in the future
+tar: random.txt: time stamp 2026-06-08 07:18:32 is 393.814942497 s in the future
+tar: mesh.txt: time stamp 2026-06-08 07:18:32 is 393.797278675 s in the future
+tar: canada.txt: time stamp 2026-06-08 07:18:32 is 393.669828224 s in the future
+tar: ff/include/fast_float/fast_table.h: time stamp 2026-06-08 07:18:32 is 393.66910076 s in the future
+tar: ff/include/fast_float/digit_comparison.h: time stamp 2026-06-08 07:18:32 is 393.668496939 s in the future
+tar: ff/include/fast_float/fast_float.h: time stamp 2026-06-08 07:18:32 is 393.668425328 s in the future
+tar: ff/include/fast_float/ascii_number.h: time stamp 2026-06-08 07:18:32 is 393.667693449 s in the future
+tar: ff/include/fast_float/parse_number.h: time stamp 2026-06-08 07:18:32 is 393.667460264 s in the future
+tar: ff/include/fast_float/bigint.h: time stamp 2026-06-08 07:18:32 is 393.667226308 s in the future
+tar: ff/include/fast_float/decimal_to_binary.h: time stamp 2026-06-08 07:18:32 is 393.667152096 s in the future
+tar: ff/include/fast_float/float_common.h: time stamp 2026-06-08 07:18:32 is 393.666509184 s in the future
+tar: ff/include/fast_float/constexpr_feature_detect.h: time stamp 2026-06-08 07:18:32 is 393.66645431 s in the future
+NODE=sas-spr-comp CXX=c++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+tar: ff/include/fast_float: time stamp 2026-06-08 07:18:32 is 393.665707232 s in the future
+tar: ff/include: time stamp 2026-06-08 07:18:32 is 393.665621321 s in the future
+tar: ff: time stamp 2026-06-08 07:18:32 is 393.665587112 s in the future
+RESULT std=17 ds=random v=off sec=0.43400
+RESULT std=17 ds=random v=on sec=0.35834
+RESULT std=17 ds=mesh v=off sec=0.83013
+RESULT std=17 ds=mesh v=on sec=0.77600
+RESULT std=17 ds=canada v=off sec=0.49551
+RESULT std=17 ds=canada v=on sec=0.49283
+RESULT std=20 ds=random v=off sec=0.35423
+RESULT std=20 ds=random v=on sec=0.35787
+RESULT std=20 ds=mesh v=off sec=0.81234
+RESULT std=20 ds=mesh v=on sec=0.79631
+RESULT std=20 ds=canada v=off sec=0.49671
+RESULT std=20 ds=canada v=on sec=0.49030
+BENCH_DONE sas-spr-comp
+rc=0 spr
