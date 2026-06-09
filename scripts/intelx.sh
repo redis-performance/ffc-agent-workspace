@@ -19,7 +19,23 @@ declare -A NODE=( [clx1]=192.168.2.8 [clx2]=192.168.2.10 [icx1]=192.168.2.4 \
 
 node="${1:?usage: intelx.sh <node> <cmd>}"; shift
 ip="${NODE[$node]:-$node}"   # allow raw IP too
-[ -x "$PROXY" ] || { echo "ERR: bastion proxy $PROXY missing/!exec" >&2; exit 3; }
+
+# Self-heal: the bastion proxy lives in /tmp (cleared on reboot), so recreate it
+# if missing. gateway guest@146.152.205.52 (id_ssh_github key) -> bastion
+# sdp@192.168.2.2 (shark pw from ~/.ffc-lab-pw) -> -W to target.
+if [ ! -x "$PROXY" ]; then
+  cat > "$PROXY" <<PROXYEOF
+#!/bin/bash
+unset SSH_ASKPASS DISPLAY
+exec sshpass -p "\$(cat "\$HOME/.ffc-lab-pw")" ssh \\
+  -o PreferredAuthentications=password,keyboard-interactive \\
+  -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 \\
+  -o StrictHostKeyChecking=accept-new \\
+  -o ProxyCommand="ssh -o IdentitiesOnly=yes -i \$HOME/.ssh/id_ssh_github -o StrictHostKeyChecking=accept-new -W 192.168.2.2:22 guest@146.152.205.52" \\
+  -W "\$1:\$2" sdp@192.168.2.2
+PROXYEOF
+  chmod +x "$PROXY"
+fi
 
 exec env -u DISPLAY SSH_ASKPASS_REQUIRE=never SSHPASS="$PW" \
   sshpass -e ssh -o ConnectTimeout=15 \

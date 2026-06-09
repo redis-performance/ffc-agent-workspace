@@ -41,3 +41,22 @@ variance (clang uses the unchanged baseline form); no regression on any cell.
 regressions), Clang exactly neutral. Portable, paper-grounded (Mushtak-Lemire),
 cross-pollinated from fast_float. Strong standalone ffc PR candidate — and the
 inverse (ffc already hoists; this confirms the design) means nothing to port back.
+
+## UPDATE — main-baseline re-measurement (PR base reality check)
+
+Re-measured against bare `kolemannix/main` (b1894aa) on branch
+`perf/outline-slow-resolve-clean` (the would-be standalone PR base). Hot frame
+ffc_from_chars_double_options shrinks 4365->3305 B (-24%); bit-identical
+(gcc+clang) + exhaustive all-ok. BUT throughput (best-of-25, gcc):
+  Cascade Lake: random +3.6%  mesh +4.7%  canada -2.9%
+  Ice Lake:     random +5.0%  mesh +7.7%  canada -2.9%
+  Clang (x86/ARM): exactly neutral.
+
+So vs BARE MAIN it REGRESSES canada -2.9% (consistent, not noise) — fails the
+no-regression bar. It is a CLEAN win only STACKED ON #24 (whose exp==0 early-exit
+makes canada exit before the restructured code, so the perturbation never hits
+canada there: on the #24 branch canada was +9%). Standalone PR therefore HELD.
+
+STATUS: accepted-on-#24-branch (perf/outline-slow-resolve @ ead51af), but NOT a
+clean standalone vs main. Open only after #24 lands (rebase on new main), or fix
+the canada fast-path codegen perturbation first.
