@@ -16,10 +16,10 @@ Wins from this workspace that landed upstream, by project:
 | Project | Merged PRs | What |
 |---------|:----------:|------|
 | [fastfloat/fast_float](https://github.com/fastfloat/fast_float) | **4** | [#381](https://github.com/fastfloat/fast_float/pull/381) integer-scan unroll · [#382](https://github.com/fastfloat/fast_float/pull/382) 4-digit SWAR follow-up · [#383](https://github.com/fastfloat/fast_float/pull/383) parallel exhaustive sweeps (~75–88×) · [#387](https://github.com/fastfloat/fast_float/pull/387) lazy-spans hot path (landed via the maintainer's `[[unlikely]]` variant of our [#386](https://github.com/fastfloat/fast_float/pull/386)) |
-| [kolemannix/ffc.h](https://github.com/kolemannix/ffc.h) (ffc upstream) | **1** | [#23](https://github.com/kolemannix/ffc.h/pull/23) 4-digit SWAR follow-up in `ffc_loop_parse_if_eight_digits` · open: [#24](https://github.com/kolemannix/ffc.h/pull/24) nine micro-opts, [#25](https://github.com/kolemannix/ffc.h/pull/25) AArch64 shift-add+2× unroll, [#26](https://github.com/kolemannix/ffc.h/pull/26) vk float-slow-path fix |
+| [kolemannix/ffc.h](https://github.com/kolemannix/ffc.h) (ffc upstream) | **3** | [#23](https://github.com/kolemannix/ffc.h/pull/23) 4-digit SWAR follow-up in `ffc_loop_parse_if_eight_digits` · [#25](https://github.com/kolemannix/ffc.h/pull/25) AArch64 shift-add+2× unroll · [#26](https://github.com/kolemannix/ffc.h/pull/26) vk float-slow-path fix · open: [#24](https://github.com/kolemannix/ffc.h/pull/24) nine micro-opts (mergeable, awaiting re-review) |
 | [redis/hiredis](https://github.com/redis/hiredis) | **1** | [#1328](https://github.com/redis/hiredis/pull/1328) ffc as the RESP3 double parser (locale-correct, ~4× faster) — inherited transitively by hiredis-py / redis-py |
 
-**Total: 6 merged PRs** (5 authored from this workspace + fast_float #387, the maintainer's reimplementation of our #386). 3 ffc PRs (#24/#25/#26) still open. (fast_float [#384](https://github.com/fastfloat/fast_float/issues/384) is an open *issue* — the GCC short-float marshaling discussion — not a PR.)
+**Total: 8 merged PRs** (7 authored from this workspace + fast_float #387, the maintainer's reimplementation of our #386). 1 ffc PR ([#24](https://github.com/kolemannix/ffc.h/pull/24)) still open. (fast_float [#384](https://github.com/fastfloat/fast_float/issues/384) is an open *issue* — the GCC short-float marshaling discussion — not a PR.)
 
 ---
 
