@@ -101,8 +101,22 @@ Merged 3044c9b. Flagged by jwakely (libstdc++) for GCC std::from_chars adoption.
 ## Cross-repo merged ledger (NOT just fast_float — keep README "Upstream PRs merged" in sync)
 - fastfloat/fast_float: #381, #382, #383, + #387 (lemire's variant of our #386) = 4
 - kolemannix/ffc.h (ffc UPSTREAM): #23 (4-digit SWAR follow-up) MERGED 2026-05-27;
-  #24/#25/#26 OPEN. NOTE: #23 is easy to miss — it's the b1894aa "upstream advanced"
+  **#25 MERGED 2026-05-27, #26 MERGED 2026-06-03**; **#24 still OPEN** (mergeable,
+  awaiting re-review). NOTE: #23 is easy to miss — it's the b1894aa "upstream advanced"
   commit, but it's OUR merged PR.
 - redis/hiredis: #1328 (ffc as RESP3 double parser) MERGED 2026-06-02.
 - redis-performance/ffc.h (fork): #4 CLOSED (redundant w/ kolemannix#26).
-Total ours-merged = 6. README.md table + experiments/IMPACT.md reflect this.
+**Total ours-merged = 8** (authored 7 + lemire's #387). README.md "Upstream PRs merged"
+table fixed 2026-06-16 (was stale at 6, ffc count 1→3); keep experiments/IMPACT.md in sync.
+
+## #24 conflict resolution (2026-06-16)
+upstream/main advanced (squash-merges of #25 `7ddab8d` + #26 `38a6c65` + 4 new
+float_cases.csv rows); #24 went CONFLICTING. Merged upstream/main into
+`perf/force-inline-ffc-impl`: conflicts in src/parse.h (integer-scan unroll +
+1-3 digit fraction unroll = KEEP ours; acc10 comment = trivial) and generated ffc.h
+(regenerated via `make ffc.h`). Net result is BYTE-IDENTICAL to the prior reviewed
+tip + the 4 test rows — no logic change, so Stage-3 exhaustive not re-run (tip already
+passed 2^32 on 5 boxes). Stage 1+2 green. Merge commit `c901d3e`, pushed. PR back to
+MERGEABLE, CI all green; reviewDecision still CHANGES_REQUESTED (stale) — pinged
+@kolemannix that conflicts are resolved. Workspace repo: ffc submodule pointer bumped
+(`88d371c`) + README tally fix (`b090424`), both pushed to origin/main.
