@@ -1,0 +1,28 @@
+# Version-evolution sweeps — gnr1 (Granite Rapids Xeon 6972P), taskset -c 3,
+# -march=native -DFFC_ROUNDS_TO_NEAREST.  Method: vary ONE parser, pin the other;
+# back-to-back double sweep so all builds share machine state.
+# Builds:
+#   race-ffc_old : ffc@v26.04.01(ba6031a) + ff@e0b53ea(v8.2.7)     -> ffc-evolution "before"
+#   race-cur_pin : ffc@ff899f5            + ff@e0b53ea(v8.2.7)     -> shared "current" anchor
+#   race-ff_pre  : ffc@ff899f5 + ff@7790aa6(v8.2.5, pre our PRs)
+#   race-ff_ours : ffc@ff899f5 + ff@ed86132(v8.2.5 + PR#381 + PR#382)
+# Canonical = first 'fastfloat' (char from_chars->double) and the 'ffc' row, MB/s.
+#
+# --- GCC double sweep (NOTE: gcc layout-sensitive; cur_pin both rows ~+18% inflated
+#     by lucky alignment -> only compare pairs whose CONTROL row matches) ---
+p1 race-ffc_old  random ff=2439.47 ffc=1710.10 ; canada ff=1646.06 ffc=1276.15 ; mesh ff=1244.56 ffc=917.78
+p2 race-ffc_old  random ff=2433.06 ffc=1705.52 ; canada ff=1646.91 ffc=1278.34 ; mesh ff=1242.71 ffc=921.80
+p1 race-ff_pre   random ff=2022.15 ffc=1794.14 ; canada ff=1336.52 ffc=1665.91 ; mesh ff=1060.66 ffc=1485.93
+p2 race-ff_pre   random ff=2021.59 ffc=1787.14 ; canada ff=1367.36 ffc=1753.77 ; mesh ff=1087.12 ffc=1484.54
+p1 race-ff_ours  random ff=2020.12 ffc=1833.45 ; canada ff=1465.27 ffc=1745.70 ; mesh ff=1124.84 ffc=1523.21
+p2 race-ff_ours  random ff=2031.44 ffc=1795.25 ; canada ff=1475.14 ffc=1731.94 ; mesh ff=1078.14 ffc=1482.07
+p1 race-cur_pin  random ff=2432.71 ffc=2145.47 ; canada ff=1621.09 ffc=1867.98 ; mesh ff=1176.27 ffc=1526.27
+p2 race-cur_pin  random ff=2431.08 ffc=2150.96 ; canada ff=1624.59 ffc=1850.47 ; mesh ff=1141.19 ffc=1524.97
+#
+# --- CLANG double sweep (RIGOROUS: ffc control identical across builds; ff control
+#     matches between ffc_old and cur_pin -> all cross-build deltas trustworthy) ---
+p1 race-ffc_old  random ff=1577.20 ffc=1337.92 ; canada ff=1461.65 ffc=1098.75 ; mesh ff=1101.38 ffc=892.04
+p2 race-ffc_old  random ff=1571.85 ffc=1338.07 ; canada ff=1460.43 ffc=1100.32 ; mesh ff=1086.02 ffc=894.85
+p1 race-ff_pre   random ff=1445.49 ffc=1541.76 ; canada ff=1161.93 ffc=1481.04 ; mesh ff=841.89  ffc=1405.32
+p1 race-ff_ours  random ff=1470.81 ffc=1541.76 ; canada ff=1260.60 ffc=1480.02 ; mesh ff=895.10  ffc=1402.55
+p1 race-cur_pin  random ff=1576.87 ffc=1541.68 ; canada ff=1462.98 ffc=1480.41 ; mesh ff=1110.71 ffc=1406.18
