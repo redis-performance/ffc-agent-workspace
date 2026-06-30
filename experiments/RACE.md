@@ -88,6 +88,50 @@ Clang 1267/1023/842. Files: `experiments/EXP-049/bench-results/`.
 
 ---
 
+### x86 — Intel lab fleet (2026-06-30 refresh) ✅ SCORED
+
+Real Intel server metal, `taskset -c 3`, `-march=native -DFFC_ROUNDS_TO_NEAREST`.
+ffc `ff899f5` (v26.04.01-22) vs fast_float `e0b53ea` (**v8.2.7** = upstream/main;
+the checked-out `e00a790` parked `ASSUME_ROUNDS_TO_NEAREST` patch is `#ifdef`
+default-off, so the compiled binary == upstream). Canonical MB/s, leader = higher.
+Files: `experiments/RACE-2026-06-30/bench-results/`.
+
+**clx1 — Cascade Lake (Xeon Gold 6248, 2.5 GHz)** — noisy (±5–8% on random)
+| CC | Dataset | ffc | fast_float | Leader | Gap |
+|----|---------|----:|-----------:|--------|----:|
+| GCC   | random | 1114.1 | 1309.7 | **fast_float** | +17.6% |
+| GCC   | canada | 1052.7 | 1072.1 | **fast_float** | +1.8% |
+| GCC   | mesh   |  893.3 |  804.6 | **ffc** | +11.0% |
+| Clang | random |  956.7 |  944.6 | **ffc** | +1.3% |
+| Clang | canada |  891.9 |  863.0 | **ffc** | +3.4% |
+| Clang | mesh   |  750.2 |  636.2 | **ffc** | +17.9% |
+
+**icx2 — Ice Lake (Xeon Platinum 8360Y, 2.4 GHz)** — stable (±0.5–3%); no clang on node
+| CC | Dataset | ffc | fast_float | Leader | Gap |
+|----|---------|----:|-----------:|--------|----:|
+| GCC   | random | 1285.8 | 1365.2 | **fast_float** | +6.2% |
+| GCC   | canada | 1121.8 |  990.8 | **ffc** | +13.2% |
+| GCC   | mesh   | 1034.4 |  810.6 | **ffc** | +27.6% |
+
+**gnr1 — Granite Rapids (Xeon 6972P, 3.9 GHz)** — fastest box
+| CC | Dataset | ffc | fast_float | Leader | Gap |
+|----|---------|----:|-----------:|--------|----:|
+| GCC   | random | 2148.3 | 2428.8 | **fast_float** | +13.1% |
+| GCC   | canada | 1858.9 | 1619.6 | **ffc** | +14.8% |
+| GCC   | mesh   | 1561.8 | 1166.7 | **ffc** | +33.9% |
+| Clang | random | 1542.0 | 1579.0 | **fast_float** | +2.4% |
+| Clang | canada | 1480.6 | 1461.7 | **ffc** | +1.3% |
+| Clang | mesh   | 1399.0 | 1106.5 | **ffc** | +26.4% |
+
+**Headline:** on real Intel server metal, **fast_float now takes GCC/random on all
+three µarchs (+6 to +18%)** — its first clean x86 cell wins, driven by upstream
+advancing to v8.2.7. **ffc still owns canada and mesh everywhere** (mesh by +11 to
++34%), and clang/random is a near-tie (within ±2.4%). The compiler split holds: GCC
+favors fast_float on random; Clang keeps ffc ahead or even. This supersedes the
+earlier local-laptop reads where ffc led random — that gap has flipped on metal.
+
+---
+
 ## Provisional reference — local laptop (NOT scored)
 
 Host `fco-tp`, Intel Core Ultra 7 155U. High variance (±5–26%, thermal/turbo),
