@@ -88,6 +88,46 @@ Clang 1267/1023/842. Files: `experiments/EXP-049/bench-results/`.
 
 ---
 
+### x86 — Intel lab fleet (2026-07-03, post EXP-062/063) ✅ SCORED — **canada FLIPS to fast_float**
+
+fast_float advanced to `redis-perf/optim` `46b2fba` = upstream 8.2.7 + EXP-062 (4-digit
+SWAR ungated on gcc) + EXP-063 (Clinger gate reorder). ffc unchanged at `ff899f5`
+(EXP-064 outline revival rejected). Scored from the combo interleave (median of 7,
+pin 3, fast_float = patch side, ffc = base side; `experiments/EXP-062/bench-results/`
++ scratch combo files).
+
+| Node | CC | Dataset | ffc | fast_float | Leader | Gap | (was 06-30) |
+|------|----|---------|----:|-----------:|--------|----:|------------|
+| icx2 | GCC | random | 1290.8 | 1398.1 | **fast_float** | +8.3% | ff +6.2% |
+| icx2 | GCC | canada | 1123.4 | 1140.7 | **fast_float** | **+1.5% FLIP** | ffc +13.2% |
+| icx2 | GCC | mesh   | 1023.6 |  917.1 | **ffc** | +11.6% | ffc +27.6% |
+| gnr1 | GCC | random | 2146.0 | 2433.4 | **fast_float** | +13.4% | ff +13.1% |
+| gnr1 | GCC | canada | 1862.3 | 1955.9 | **fast_float** | **+5.0% FLIP** | ffc +14.8% |
+| gnr1 | GCC | mesh   | 1547.5 | 1427.0 | **ffc** | +8.4% | ffc +33.9% |
+| gnr1 | Clang | random | 1542.1 | 1581.8 | **fast_float** | +2.6% | ff +2.4% |
+| gnr1 | Clang | canada | 1480.5 | 1486.1 | **fast_float** | **+0.4% FLIP** | ffc +1.3% |
+| gnr1 | Clang | mesh   | 1406.7 | 1094.3 | **ffc** | +28.5% | ffc +26.4% |
+| clx1 | GCC | random | 1127.7 | 1392.3 | **fast_float** | +23.5% | ff +17.6% |
+| clx1 | GCC | canada | 1064.5 | 1226.5 | **fast_float** | **+15.2% FLIP** | ff +1.8%* |
+| clx1 | GCC | mesh   |  893.5 |  837.0 | **ffc** | +6.8% | ffc +11.0% |
+| clx1 | Clang | random | 882.8 | 882.9 | tie | 0.0% | ffc +1.3% |
+| clx1 | Clang | canada | 823.9 | 852.7 | **fast_float** | **+3.5% FLIP** | ffc +3.4% |
+| clx1 | Clang | mesh   | 710.9 | 592.7 | **ffc** | +19.9% | ffc +17.9% |
+
+(*clx1 06-30 canada was already ff-leaning within noise. clx1 clang absolutes are lower
+than 06-30 — box thermal state; within-pair deltas remain valid.)
+
+**Round headline**: EXP-062+063 (this workspace) flip **canada to fast_float on 5 of 6
+Intel cells** and halve the gcc mesh gap. ffc's remaining x86 strongholds: **mesh (all 6
+cells)** and clang mesh by 20-29%. ffc's attack surface: the GCC/random deficit (root
+cause = ffc_parsed SRA-block, see IDEATION-2026-07-03.md survivor #2 span-elision — the
+remaining unimplemented top proposal) and reclaiming canada.
+Rejected this round: EXP-061 (do-while, -1.5..-2.3% gcc), EXP-064 (ffc outline revival —
+post-#24 tip flipped it to a loss). EXP-052's 2x unroll was dropped from redis-perf/optim
+during reconciliation (never upstreamed, pre-#387 provenance) — needs revalidation.
+
+---
+
 ### x86 — Intel lab fleet (2026-06-30 refresh) ✅ SCORED
 
 Real Intel server metal, `taskset -c 3`, `-march=native -DFFC_ROUNDS_TO_NEAREST`.

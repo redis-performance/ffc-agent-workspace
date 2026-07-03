@@ -9,6 +9,78 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-063 — 2026-07-03 — [fast_float] Clinger gate reorder: mantissa bound before rounds_to_nearest probe — ACCEPTED
+
+**Target**: fast_float — `parse_number.h` `clinger_fast_path_impl`: hoist the
+mode-independent `mantissa <= max_mantissa_fast_path()` test above the
+`detail::rounds_to_nearest()` volatile-float probe. Legal & bit-identical:
+`max_mantissa_fast_path(exponent) = bound/5^exp <= bound` for every T, so the hoisted
+check never excludes anything either branch would have accepted; long-mantissa inputs
+(canada 15-17 digits, random 17 — 100% > 2^53) skip the 6-7-instruction probe entirely.
+**Hypothesis**: >=1.5-3% on canada/random, mesh unchanged (short mantissas still probe).
+**Correctness**: core+supplemental PASS gcc+clang (-Werror set); bit-identical by case
+analysis (mantissa>bound => both branches return false in base).
+
+### Solo benchmark (interleaved, median of 5, pin 3)
+| Node | CC | random | canada | mesh |
+|------|----|-------:|-------:|-----:|
+| icx2 | gcc | +2.89% | +1.37% | +1.80% |
+| gnr1 | gcc | +1.77% | +2.17% | (+9.76%, ctrl -1.0%) |
+| gnr1 | clang | +0.62% | +1.59% | -1.24% |
+| clx1 | clang | +1.47% | +4.18% | -1.78% |
+(clx1 gcc random -4.5% discounted: identical shift appears in EXP-064's untouched
+fast_float control => clx1-gcc random is bimodal under ANY binary perturbation.)
+
+**Decision**: **accept** (branch `exp063-clinger-reorder`, merged via combo — see EXP-062
+entry for stacked validation). Only recurring cost: clang mesh ~-1..-1.8%, on a cell ffc
+leads by 20-28% regardless.
+**Race Delta**: contributes to the canada cell flips (see EXP-062 combo table).
+Note: distinct from non-starters EXP-055/056 (which ADDED pre-dispatch checks) and
+EXP-051 (compile-time probe removal) — this is a pure reorder of existing checks inside
+the impl; the probe still runs for short-mantissa inputs.
+
+---
+
+## EXP-062 — 2026-07-03 — [fast_float] enable 4-digit SWAR fraction follow-up on GCC — ACCEPTED
+
+**Target**: fast_float — `ascii_number.h` `loop_parse_if_eight_digits(char)`: remove the
+`#if defined(__clang__)` gate on the 4-digit SWAR step (our #382 was clang-gated after a
+pre-#387 gcc regression; the #387 span-elision restructure changed the landscape).
+**Hypothesis**: post-#387, the 4-digit step wins >=5% canada on GCC/x86 at <=2% random cost.
+**Correctness**: core+supplemental PASS gcc+clang; **EXHAUSTIVE PASS under gcc** (newly
+enabled path); clang binary byte-identical (gate removal only).
+
+### Solo benchmark (interleaved, median of 5, pin 3) — gcc (clang = byte-identical, flat)
+| Node | random | canada | mesh |
+|------|-------:|-------:|-----:|
+| icx2 | -2.44% | **+15.49%** | **+17.01%** |
+| gnr1 | -1.38% | **+16.64%** | +8.30% |
+| clx1 | (-4.56%*) | **+8.54%** | +5.62% |
+(*clx1-gcc random bimodal, see EXP-063 note. Variant EXP-062b — first-byte `is_integer`
+guard before the 4-byte probe — halves the random cost (-1.31%) but gives back mesh
+(+17.0% -> +10.4%) and canada (+15.5% -> +13.2%) on icx2; unguarded form kept, 062b
+branch `exp062b-ungate-guarded` retained as the measured alternative for upstream.)
+
+### STACKED (EXP-062+063 combo = new redis-perf/optim) — interleaved, median of 7, pin 3
+| Node | CC | random | canada | mesh | controls |
+|------|----|-------:|-------:|-----:|----------|
+| icx2 | gcc | **+2.42%** | **+15.09%** | **+11.61%** | flat |
+| gnr1 | gcc | +0.14% | **+20.24%** | **+21.74%** | ffc ctrl moved (co-compile layout) |
+| gnr1 | clang | +0.26% | +1.61% | -1.08% | flat |
+| clx1 | gcc | **+6.25%** | **+14.43%** | +3.99% | ~flat |
+| clx1 | clang | +1.28% | **+5.62%** | -0.62% | drifted +2% |
+The stack is better than the parts on random: EXP-063's probe skip pays for EXP-062's
+extra failing probe on random's 0-1-digit remainders (which fall on 'e-06' tails).
+
+**Decision**: **accept both, as the combo** — merged to `redis-perf/optim` (`46b2fba`,
+pushed). No gcc regression on any node in the stacked form; only cost is <=1.1% clang mesh.
+**Race Delta (HEADLINE)**: **fast_float takes the gcc canada cell on all three Intel
+uarchs** (icx2 +1.5%, gnr1 +5.0%, clx1 +15.2% vs base-side ffc) **and the clang canada
+cell flips on gnr1 (+0.4%) and clx1 (+3.5%)**. gcc mesh gap halves (icx2 27.6% -> 11.5%).
+ffc keeps mesh everywhere and clang mesh massively.
+
+---
+
 ## EXP-064 — 2026-07-03 — [ffc] revive outline-slow-resolve (ead51af) on tip — REJECTED
 
 **Target**: ffc — cherry-pick `ead51af` (GCC-gated `noinline` `ffc_resolve_slow` for the
