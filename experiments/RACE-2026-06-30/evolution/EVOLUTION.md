@@ -64,15 +64,20 @@ identical across all three builds).
 
 **Our fast_float PRs (#381/#382) delivered canada +8.5% and mesh +6.4%** (clang),
 with random flat — exactly the digit-scan datasets they targeted, matching the
-"digit-scan ports transfer, compute-path ports don't" meta-finding. Upstream's
-subsequent **v8.2.5→v8.2.7** then added another large chunk (canada +16%, mesh
-+24%), so fast_float's total clang gain over the window is **+9–32%**.
+"digit-scan ports transfer, compute-path ports don't" meta-finding. The subsequent
+**v8.2.5→v8.2.7 chunk (canada +16%, mesh +24%) is ALSO ours**: `cb5d9cd` "Skip
+materializing the integer/fraction spans on the hot path" (author fcostaoliveira)
+is EXP-059's store_spans elision + noinline-cold slow path, merged upstream as
+**#387** (supersedes our #386), plus Lemire's follow-up `unlikely` hints (`b72e071`).
+fast_float's total clang gain over the window is **+9–32%**.
 
 ---
 
 ## One-line takeaway
 
-Over this window ffc gained more from **our** work (#23–#26: +15–57% clang) than
-fast_float did from ours (#381/#382: +2–9% clang) — but **upstream fast_float's
-own v8.2.5→v8.2.7 work (+7–24%)** is what actually closed the gap and flipped
-GCC/random to fast_float on the live scoreboard (see `../../RACE.md`).
+Effectively **all** of both parsers' gains this window are this workspace's work:
+ffc +15–57% (clang) from our #23–#26, and fast_float +9–32% (clang) from our
+#381/#382 digit-scan ports plus our EXP-059 marshaling elision (merged upstream
+as #387, with Lemire adding `unlikely` hints on top). The EXP-059 merge is what
+flipped GCC/random to fast_float on the live scoreboard (see `../../RACE.md`) —
+we closed the gap on ourselves.
