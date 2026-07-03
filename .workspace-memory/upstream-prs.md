@@ -120,3 +120,15 @@ passed 2^32 on 5 boxes). Stage 1+2 green. Merge commit `c901d3e`, pushed. PR bac
 MERGEABLE, CI all green; reviewDecision still CHANGES_REQUESTED (stale) — pinged
 @kolemannix that conflicts are resolved. Workspace repo: ffc submodule pointer bumped
 (`88d371c`) + README tally fix (`b090424`), both pushed to origin/main.
+
+## fastfloat/fast_float#398 (2026-07-03) — 4-digit SWAR on GCC + Clinger probe reorder
+
+EXP-062 (remove the #382 __clang__ gate on the 4-digit SWAR follow-up; post-#387
+the gcc regression is gone) + EXP-063 (test mantissa <= max_mantissa_fast_path()
+before the rounds_to_nearest() volatile probe — bit-identical reorder, long
+mantissas skip the probe). Head `redis-performance:exp062-063-combo` (e0b53ea + 2).
+Combined on Intel fleet: gcc canada +14.4..+20.2%, gcc mesh +4.0..+21.7%, gcc
+random +0.1..+6.3%, no gcc regressions; clang canada +1.6..+5.6%, clang mesh
+<= -1.1%. Guarded alternative measured on branch exp062b-ungate-guarded (offered
+in PR text). Exhaustive PASS under gcc. STATUS: OPEN.
+https://github.com/fastfloat/fast_float/pull/398
