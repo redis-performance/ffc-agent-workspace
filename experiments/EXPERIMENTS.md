@@ -9,6 +9,39 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-061 — 2026-07-03 — [fast_float] exponent-digit loop do-while — REJECTED
+
+**Target**: fast_float — `ascii_number.h` `parse_number_string`: the explicit-exponent
+digit loop's first `(p != pend) && is_integer(*p)` test is dominated by the guard on
+line 476, so enter via `do-while`. From ideation round 2026-07-03 (proposal #3, verified
+"promising/strong"); proposer's local scratch-harness measurement claimed random gcc +11.5%.
+**Hypothesis**: removing the redundant loop-entry test gains >=2% on random (the only
+dataset with exponents) under GCC.
+
+### Step 1: Benchmark — interleaved base<->patch, ffc-control sentinel, median of 5, pinned core 3
+
+| Node | CC | random | canada | mesh | ctrl drift |
+|------|----|-------:|-------:|-----:|-----------|
+| icx2 Ice Lake | gcc | **-2.28%** | -1.31% | -0.99% | flat (<=0.7%) |
+| clx1 Cascade Lake | gcc | **-1.54%** | -1.59% | +0.95% | flat (<=0.5%) |
+| gnr1 Granite Rapids | gcc | +0.82% | +0.97% | (+10.66%)* | *ctrl +1.4%, artifact |
+| clx1/gnr1 | clang | -0.1/-0.1% | 0.0/0.0% | +0.1/-0.6% | flat |
+
+*gnr1 gcc mesh +10.66% is mechanistically impossible (mesh has no exponents), its control
+moved +1.43%, and no other uarch reproduces it — the ledger's layout-artifact tell.
+
+Correctness: core+supplemental PASS (gcc+clang, -Werror set) before benchmarking.
+
+**Decision**: **reject** (branch `exp061-expdo` kept unmerged). Consistent ~1.5-2.3%
+GCC regression on the two stable uarchs; clang exactly neutral. The do-while saves the
+duplicated guard test but worsens GCC's block layout downstream.
+**Lesson**: a scratch-harness rebuild is NOT a valid referee for <=3-instruction diffs —
+the ideation +11.5% was co-compilation layout luck; only same-binary-pair interleaved
+runs with a flat ffc-control sentinel count.
+**Race Delta**: none (rejected).
+
+---
+
 ## EXP-060 — 2026-06-03 — [ffc] noinline-cold slow path (EXP-059 lever) — REJECTED
 
 **Target**: ffc — `ffc_digit_comp` marked `noinline+cold` to shrink the force-inlined hot
