@@ -9,6 +9,37 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-064 — 2026-07-03 — [ffc] revive outline-slow-resolve (ead51af) on tip — REJECTED
+
+**Target**: ffc — cherry-pick `ead51af` (GCC-gated `noinline` `ffc_resolve_slow` for the
+rare too_many_digits/power2<0 disambiguation) onto tip `ff899f5` (post-#24).
+**Hypothesis**: with prerequisite #24 now merged, the previously-accepted +3-15% GCC/x86
+gains reproduce without the -2.9% canada regression seen on bare pre-#24 main.
+**Correctness**: amalgam regen clean; `make test` + `supplemental_tests` PASS.
+
+### Step 1: Benchmark — interleaved base<->patch, fast_float control, median of 5, pin 3
+
+ffc (target) deltas, gcc:
+| Node | random | canada | mesh | ff-control |
+|------|-------:|-------:|-----:|-----------|
+| icx2 Ice Lake | **-6.99%** | **-4.42%** | -0.55% | flat |
+| clx1 Cascade Lake | **-6.32%** | **-10.76%** | -3.54% | moved (co-compile layout) |
+| gnr1 Granite Rapids | +7.13% | -0.40% | **-9.22%** | moved |
+clang: byte-identical (GCC gate), all cells flat — confirms measurement sanity.
+
+**Decision**: **reject** (branch `exp064-outline-slow-resolve` kept unmerged; submodule
+restored to `ff899f5`). Hypothesis falsified — the interaction with #24 went the WRONG
+way: on the post-#24 hot path the outline hurts broadly (icx2/clx1 -4..-11% on
+random/canada), and the lone gnr1 random +7% comes with mesh -9% and swinging controls.
+The original acceptance data (+3-15%) was measured pre-#24 with a self-timed microbench;
+on the current tip the outline is a frontend-layout lottery, not a portable win.
+**Lesson**: an ACCEPTED-then-parked patch must be fully re-validated after its
+surroundings change; merged upstream work invalidates old acceptance records in both
+directions (here: #24 flipped ead51af from win to loss).
+**Race Delta**: none (rejected).
+
+---
+
 ## EXP-061 — 2026-07-03 — [fast_float] exponent-digit loop do-while — REJECTED
 
 **Target**: fast_float — `ascii_number.h` `parse_number_string`: the explicit-exponent
