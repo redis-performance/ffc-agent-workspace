@@ -1,0 +1,45 @@
+Target samples: 4996; total sample weight: 4.996 s
+Percentages are sampled time, not hardware stall percentages.
+
+Self: percent | module | symbol
+  44.10% | ffc-profile-float | ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool)
+  11.67% | ffc-profile-float | ffc_from_chars_float_options
+   9.75% | ffc-profile-float | ffc_compute_float(long long, unsigned long long, unsigned char)
+   5.94% | ffc-profile-float | ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char)
+   5.24% | ffc-profile-float | profile_ffc(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+   4.32% | ffc-profile-float | ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long long*)
+   2.56% | ffc-profile-float | ffc_mul_u64(unsigned long long, unsigned long long)
+   2.54% | ffc-profile-float | ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char)
+   2.00% | ffc-profile-float | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::__is_long[abi:nqe220106]() const
+   1.86% | ffc-profile-float | ffc_is_integer(char)
+   1.80% | ffc-profile-float | ffc_clinger_fast_path_impl(unsigned long long, long long, bool, ffc_value*, unsigned char)
+   1.60% | ffc-profile-float | ffc_is_made_of_four_digits_fast(unsigned int)
+   1.58% | ffc-profile-float | ffc_digit_acc10(unsigned long long, unsigned long long)
+   1.50% | ffc-profile-float | ffc_parse_four_digits_unrolled(unsigned int)
+   0.90% | ffc-profile-float | ffc_read4_to_u32(char const*)
+
+Inclusive (overlapping): percent | module | symbol
+ 100.00% | dyld | start
+  99.94% | ffc-profile-float | main
+  95.38% | ffc-profile-float | profile_ffc(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+  92.35% | ffc-profile-float | ffc_from_chars_float_options
+  87.93% | ffc-profile-float | ffc_from_chars_float
+  80.68% | ffc-profile-float | ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char)
+  57.21% | ffc-profile-float | ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool)
+  20.94% | ffc-profile-float | ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char)
+  12.31% | ffc-profile-float | ffc_compute_float(long long, unsigned long long, unsigned char)
+   9.67% | ffc-profile-float | ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long long*)
+   2.56% | ffc-profile-float | ffc_mul_u64(unsigned long long, unsigned long long)
+   2.56% | ffc-profile-float | ffc_compute_product_approximation(long long, unsigned long long, unsigned char)
+   2.20% | ffc-profile-float | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::__get_pointer[abi:nqe220106]() const
+   2.20% | ffc-profile-float | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::data[abi:nqe220106]() const
+   2.00% | ffc-profile-float | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::__is_long[abi:nqe220106]() const
+
+Observed cores: percent | core
+  50.06% | CPU 7 (S Core)
+  49.38% | CPU 6 (S Core)
+   0.42% | CPU 8 (P Core)
+   0.08% | CPU 9 (P Core)
+   0.02% | CPU 0 (E Core)
+   0.02% | CPU 3 (E Core)
+   0.02% | CPU 10 (P Core)

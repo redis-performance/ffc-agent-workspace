@@ -10,6 +10,8 @@ target. The `Target` column below denotes the dataset/arch/compiler focus, not t
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-066 | `[ffc]` native digit accumulation on Apple Clang | Apple M6, Clang 21, float+double | double canada +10.10%, random +3.34%, mesh -0.95% unresolved; candidate reverted, profile captured | **Parked** | 2026-09-29 |
+| EXP-065 | `[ffc]` compiler target sweep and macOS baseline | Apple M6, Clang 21, float+double | explicit apple-m6: double mesh +2.13%, float mesh +4.02% with spread, double canada -0.64%; default unchanged | **Parked** | 2026-09-29 |
 | EXP-064 | `[ffc]` revive outline-slow-resolve (ead51af) on post-#24 tip | gcc-x86 | icx2 -7.0% random/-4.4% canada, clx1 -6.3/-10.8/-3.5; clang byte-identical flat. #24 flipped the outline from win to loss | **Rejected** | 2026-07-03 |
 | EXP-063 | `[fast_float]` Clinger gate reorder: mantissa bound before rounds_to_nearest probe | gcc+clang x86 | solo icx2 +2.9/+1.4/+1.8 (r/c/m); accepted stacked with EXP-062 (see combo) | **Accepted** | 2026-07-03 |
 | EXP-062 | `[fast_float]` ungate 4-digit SWAR follow-up on GCC (drop __clang__ gate) | gcc-x86 | solo: canada +8.5..+16.6%, mesh +5.6..+17.0% across 3 uarchs; **combo w/ EXP-063: icx2 +2.4/+15.1/+11.6, no gcc regressions — gcc canada cell FLIPS to fast_float on all 3 uarchs**; exhaustive PASS | **Accepted** | 2026-07-03 |

@@ -1,0 +1,50 @@
+[
+  {
+    "dataset": "double / canada.txt",
+    "baseline_mb_s": 2751.68,
+    "candidate_mb_s": 3029.56,
+    "baseline_mfloat_s": 158.13,
+    "candidate_mfloat_s": 174.1,
+    "delta_pct": 10.098557971857192
+  },
+  {
+    "dataset": "double / mesh.txt",
+    "baseline_mb_s": 2943.08,
+    "candidate_mb_s": 2915.07,
+    "baseline_mfloat_s": 400.93,
+    "candidate_mfloat_s": 397.11,
+    "delta_pct": -0.9517240441985875
+  },
+  {
+    "dataset": "double / random [0,1]",
+    "baseline_mb_s": 3485.19,
+    "candidate_mb_s": 3601.6,
+    "baseline_mfloat_s": 166.11,
+    "candidate_mfloat_s": 171.66,
+    "delta_pct": 3.34013353647864
+  },
+  {
+    "dataset": "float / canada.txt",
+    "baseline_mb_s": 2468.48,
+    "candidate_mb_s": 2505.66,
+    "baseline_mfloat_s": 141.86,
+    "candidate_mfloat_s": 143.99,
+    "delta_pct": 1.506190044075706
+  },
+  {
+    "dataset": "float / mesh.txt",
+    "baseline_mb_s": 1725.82,
+    "candidate_mb_s": 1744.77,
+    "baseline_mfloat_s": 235.1,
+    "candidate_mfloat_s": 237.69,
+    "delta_pct": 1.098028763138692
+  },
+  {
+    "dataset": "float / random [0,1]",
+    "baseline_mb_s": 3145.95,
+    "candidate_mb_s": 3142.02,
+    "baseline_mfloat_s": 149.94,
+    "candidate_mfloat_s": 149.76,
+    "delta_pct": -0.12492251942973764
+  }
+]

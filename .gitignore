@@ -12,3 +12,8 @@ approaches/profile-results/*.data
 .vscode/
 *.swp
 *.data
+
+# Instruments recordings and raw exports; keep text summaries/provenance.
+*.trace/
+experiments/*/profile-results/*-samples.xml
+experiments/*/profile-results/*-toc.xml

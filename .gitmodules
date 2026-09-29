@@ -1,16 +1,19 @@
 [submodule "ffc"]
 	path = ffc
-	url = git@github.com:redis-performance/ffc.h.git
+	url = https://github.com/kolemannix/ffc.h.git
+	branch = main
 [submodule "simple_fastfloat_benchmark"]
 	path = simple_fastfloat_benchmark
-	url = git@github.com:filipecosta90/simple_fastfloat_benchmark.git
+	url = https://github.com/lemire/simple_fastfloat_benchmark.git
+	branch = master
 [submodule "fast_float"]
 	path = fast_float
-	url = git@github.com:redis-performance/fast_float.git
-	branch = redis-perf/optim
+	url = https://github.com/fastfloat/fast_float.git
+	branch = main
 [submodule "hiredis"]
 	path = hiredis
-	url = git@github.com:fcostaoliveira/hiredis.git
+	url = https://github.com/redis/hiredis.git
+	branch = master
 [submodule "redis-clients/hiredis"]
 	path = redis-clients/hiredis
 	url = https://github.com/redis/hiredis

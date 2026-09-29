@@ -21,10 +21,11 @@ WORKSPACE="$(cd "$(dirname "$0")/.." && pwd)"
 FF_DIR="$WORKSPACE/fast_float"
 
 COMPILER="${COMPILER:-}"
+JOBS="${JOBS:-2}"
 # Under build/ so it matches fast_float's ignored `build/*` (keeps the fork clean).
 BUILD_DIR="$FF_DIR/build/tests${COMPILER:+-$COMPILER}"
 
-CC_ARGS=()
+CC_ARGS=(-DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
 case "$COMPILER" in
   gcc)   CC_ARGS=(-DCMAKE_C_COMPILER=gcc   -DCMAKE_CXX_COMPILER=g++) ;;
   clang) CC_ARGS=(-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++) ;;
@@ -51,8 +52,8 @@ cmake -B "$BUILD_DIR" -S "$FF_DIR" \
   2>&1 | tail -4
 
 echo "==> Building tests..."
-cmake --build "$BUILD_DIR" -j"$(nproc)" 2>&1 | tail -4
+cmake --build "$BUILD_DIR" -j"$JOBS" 2>&1 | tail -4
 
 echo "==> Running ctest..."
-ctest --test-dir "$BUILD_DIR" --output-on-failure -j"$(nproc)"
+ctest --test-dir "$BUILD_DIR" --output-on-failure -j"$JOBS"
 echo "==> fast_float gate PASSED ($TIER)"

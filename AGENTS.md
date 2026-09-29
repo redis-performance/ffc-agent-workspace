@@ -24,6 +24,11 @@ Every code change must pass both steps before being accepted:
    - Confirm the expected bottleneck shifted
    - Capture key `perf report` lines (symbol, %, module)
 
+   On macOS, the equivalent is an Instruments trace plus exported symbol,
+   sampled-time percentage, module, and observed core type. Keep hardware-counter
+   measurements distinct from time samples; a CPU Counters template alone does
+   not prove that hardware-counter data was collected.
+
 An approach that improves benchmark numbers but reveals a new surprising bottleneck
 is a **partial win** — document the new bottleneck and continue.
 
@@ -73,6 +78,8 @@ This workspace runs entirely locally — no remote runners required.
 - `clang` / `gcc`, `make`, `cmake` ≥ 3.15
 - `python3` ≥ 3.10 (for `ffc/amalgamate.py`)
 - `perf` (Linux kernel tools) — `sudo apt install linux-tools-generic`
+- macOS: Xcode Instruments / `xcrun xctrace` replaces Linux `perf`; scripts use
+  `sysctl` for CPU metadata and default to two build jobs (`JOBS` overrides).
 - `claude` CLI — `npm i -g @anthropic-ai/claude-code`
 
 For perf counter access (branch mispredicts, cache misses):
@@ -96,3 +103,6 @@ Set `ANTHROPIC_API_KEY` or use `CLAUDE_CODE_OAUTH_TOKEN` for the claude CLI.
 - `sudo` is needed for `perf` hardware counter access (branch misses, IPC)
 - `benchmark32` tests float (32-bit) parsing; `benchmark` tests double (64-bit)
 - The benchmark runs 100 repetitions per dataset by default — sufficient for stable numbers
+- For Apple silicon experiments, record explicit `ARCH_FLAGS` and separate
+  `BUILD_DIR` values. Do not assume `-mcpu=native` selects the newest CPU model.
+- `PRECISION=both scripts/run-bench.sh` runs double and float sequentially.

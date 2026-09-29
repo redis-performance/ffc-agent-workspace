@@ -1,0 +1,38 @@
+==> Regenerating ffc.h amalgam...
+make: `ffc.h' is up to date.
+==> Configuring benchmark (COMPILER=clang)
+    FFC_DIR=/Users/oly/redislabs/ffc-agent-workspace/ffc
+    fast_float (mutable) <- /Users/oly/redislabs/ffc-agent-workspace/fast_float
+The --no-warn-unused-cli option is deprecated.  Use -Wno-unused-cli instead.
+The no-dev option is deprecated.  Use -Wno-author instead.
+-- Tests are disabled. Set FASTFLOAT_TEST to ON to run tests.
+-- Benchmarks are disabled. Set FASTFLOAT_BENCHMARKS to ON to build benchmarks (assumes C++17).
+-- Retrieving test files.
+-- Supplemental test files retrieved.
+-- Configuring done (1.5s)
+-- Generating done (0.2s)
+-- Build files have been written to: /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/apple-m6
+==> Building...
+[  7%] Built target spinlock_wait
+[ 15%] Built target log_severity
+[ 15%] Built target raw_logging_internal
+[ 15%] Built target throw_delegate
+[ 30%] Built target base
+[ 30%] Built target int128
+[ 46%] Built target strings_internal
+[ 53%] Built target string_view
+[ 92%] Built target strings
+[100%] Built target benchmark
+[  7%] Built target spinlock_wait
+[ 15%] Built target log_severity
+[ 15%] Built target raw_logging_internal
+[ 15%] Built target throw_delegate
+[ 30%] Built target base
+[ 30%] Built target int128
+[ 46%] Built target strings_internal
+[ 53%] Built target string_view
+[ 92%] Built target strings
+[100%] Built target benchmark32
+==> Done. Binaries:
+    /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/apple-m6/benchmarks/benchmark
+    /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/apple-m6/benchmarks/benchmark32

@@ -1,6 +1,6 @@
 # ffc-agent-workspace
 
-Performance optimization workspace for [ffc.h](https://github.com/redis-performance/ffc.h) —
+Performance optimization workspace for [ffc.h](https://github.com/kolemannix/ffc.h) —
 a C99 single-header port of Daniel Lemire's fast_float library.
 
 Goal: push parsing throughput beyond the current baseline through profiled,
@@ -101,7 +101,18 @@ win — document it and keep going.
 
 ---
 
-## Current State (post EXP-042, 2026-05-27)
+## Apple M6 readiness (2026-09-29)
+
+Dependencies are refreshed to canonical upstreams, with macOS build, benchmark,
+and Instruments support. Python 3.13, CMake 4.4, and Ninja are installed locally.
+ffc correctness/supplemental tests and all 15 fast_float tests pass.
+See [setup and commands](experiments/APPLE-M6-SETUP.md) and the
+[M6 baseline](experiments/EXP-065/README.md).
+
+EXP-065 compiler targeting and EXP-066 native digit accumulation are parked;
+neither established a no-regression result. The parser source remains upstream.
+
+## Historical Linux State (post EXP-042, 2026-05-27)
 
 Dedicated bare-metal servers, GCC 13 `-march=native -O3 -DFFC_ROUNDS_TO_NEAREST`.
 
@@ -146,13 +157,14 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 
 | Status | Count |
 |--------|-------|
-| Accepted | 15 |
-| Rejected | 37 |
-| Parked | 1 |
+| Accepted | 19 |
+| Rejected | 42 |
+| Parked | 4 |
 | In Progress | 0 |
 
-The workspace is now a **race** between two mutable parsers, `ffc` and `fast_float`
-(forked at `redis-performance/fast_float`, live-tracking upstream main). See
+The workspace is a **race** between two mutable parsers, `ffc` and `fast_float`.
+The current baseline pins canonical upstream revisions; historical optimization
+branches remain in the Redis performance forks. See
 [`experiments/RACE.md`](experiments/RACE.md) for the 12-cell head-to-head leaderboard.
 
 ---
@@ -160,13 +172,13 @@ The workspace is now a **race** between two mutable parsers, `ffc` and `fast_flo
 ## Workspace Layout
 
 ```
-ffc/                            ffc.h source (submodule — redis-performance/ffc.h)
+ffc/                            ffc.h source (submodule — kolemannix/ffc.h)
   src/                          Edit these files; run `make -C ffc ffc.h` to regenerate
     parse.h                     Main parsing logic — primary optimization target
     ffc.h                       Core algorithm
     common.h                    SIMD detection, inline helpers
     bigint.h                    Slow path (Eisel-Lemire fallback)
-simple_fastfloat_benchmark/     Lemire's benchmark suite (submodule — filipecosta90/fork)
+simple_fastfloat_benchmark/     Lemire's benchmark suite (canonical submodule)
   benchmarks/benchmark.cpp      ffc wired in via ENABLE_FFC
   data/                         canada.txt, mesh.txt, random generators
 experiments/

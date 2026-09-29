@@ -9,6 +9,56 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-066 — 2026-09-29 — [ffc] Native digit accumulation on Apple Clang — PARKED
+
+Excluded Apple from the forced Clang/AArch64 shift/add helper, allowing plain C
+multiply-add selection. Both builds use `-mcpu=apple-m6`. Correctness passed
+before benchmarking; three interleaved runs per build, both precisions and all
+three datasets. Source patch saved, then reverted and amalgam regenerated.
+
+| Dataset | Double MB/s baseline → candidate | Double Mfloat/s | Change | Float MB/s baseline → candidate | Float Mfloat/s | Change |
+|---|---:|---:|---:|---:|---:|---:|
+| random | 3485.19 → 3601.60 | 166.11 → 171.66 | +3.34% | 3145.95 → 3142.02 | 149.94 → 149.78 | -0.12% |
+| canada | 2751.68 → 3029.56 | 158.13 → 174.10 | +10.10% | 2468.48 → 2505.66 | 141.86 → 143.99 | +1.51% |
+| mesh | 2943.08 → 2915.07 | 400.93 → 397.11 | -0.95% | 1725.82 → 1744.77 | 235.10 → 237.69 | +1.10% |
+
+Profile: Time Profiler, double canada, module `ffc-profile-double`: self samples
+`ffc_parse_number_string` 44.82% → 44.96%, `ffc_loop_parse_if_eight_digits` 7.27% →
+4.06%, `ffc_compute_float` 17.36% → 18.68%. Scanning remains dominant; these are
+relative time samples, not hardware stalls. The driver adds full-input checking.
+No hardware-counter claim. The double mesh decrease is unresolved in a noisy
+cell, so no no-regression claim or source acceptance. All-Apple gating also needs
+broader evidence. Next candidate should isolate digit-accumulation sites.
+
+[Full results, patch, logs and profiles](EXP-066/README.md).
+
+## EXP-065 — 2026-09-29 — [ffc] Apple M6 compiler targeting — PARKED
+
+Installed tools, recovered the benchmark, refreshed dependency pins, and added
+macOS measurement support. Compared `-march=native` (apple-m1 model),
+`-mcpu=native` (apple-m4), and `-mcpu=apple-m6`, with upstream parser code unchanged.
+ffc unit/integer/format and supplemental tests pass; fast_float 15/15 pass.
+Five interleaved runs per target, both precisions, 100 harness repetitions each.
+
+| Dataset | Double MB/s baseline → M6 | Double Mfloat/s | Change | Float MB/s baseline → M6 | Float Mfloat/s | Change |
+|---|---:|---:|---:|---:|---:|---:|
+| random | 3495.83 → 3482.05 | 166.62 → 165.96 | -0.39% | 3140.06 → 3141.43 | 149.66 → 149.73 | +0.04% |
+| canada | 2771.73 → 2753.97 | 159.28 → 158.26 | -0.64% | 2466.51 → 2486.20 | 141.74 → 142.87 | +0.80% |
+| mesh | 2855.55 → 2916.39 | 389.00 → 397.29 | +2.13% | 1680.06 → 1747.61 | 228.87 → 238.07 | +4.02% |
+
+Profile: Instruments float mesh, module `ffc-profile-float`, self samples:
+`ffc_parse_number_string` 44.10% → 44.66%, `ffc_compute_float` 9.75% → 11.41%,
+`ffc_loop_parse_if_eight_digits` 4.32% → 4.44%. >99% samples on Super cores.
+CPU Counters template produced time-profile data; hardware bottleneck metrics
+were not established. No clear bottleneck shift. Keep existing flags as default:
+canada is consistently slightly lower, and mesh has substantial run spread.
+
+Tables report medians of harness best-of-100 throughput across runs. MB/s is the
+harness label for MiB/s; its +/- value is not a confidence interval. No parser
+optimization accepted; macOS support is infrastructure. [Full results](EXP-065/README.md)
+and [setup/recovery instructions](APPLE-M6-SETUP.md).
+
+
 ## EXP-063 — 2026-07-03 — [fast_float] Clinger gate reorder: mantissa bound before rounds_to_nearest probe — ACCEPTED
 
 **Target**: fast_float — `parse_number.h` `clinger_fast_path_impl`: hoist the

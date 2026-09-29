@@ -1,0 +1,24 @@
+{
+  "date": "2026-09-29",
+  "toolchain": {
+    "python": "Python 3.13.15",
+    "cmake": "cmake version 4.4.3",
+    "ninja": "1.13.2",
+    "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)"
+  },
+  "repositories": {
+    "ffc": "965d4db45d03365b4c852ab34f4d5b08b53bc7b3",
+    "fast_float": "9498cc361e081f46c85c936a0677e271c1930a45",
+    "simple_fastfloat_benchmark": "a856c090a6284f2a52d081471d266767b3856e82",
+    "hiredis": "058ebcdf36c5b05b759c613564fb958ec363c90f",
+    "redis-clients/hiredis": "058ebcdf36c5b05b759c613564fb958ec363c90f",
+    "redis-clients/hiredis-py": "9b16075555f9aaaf154f43df650499386d0a15d6",
+    "redis-clients/hiredis-py/vendor/hiredis": "616f2286ba5503f74ae96e720623fa11dbc690af",
+    "redis-clients/redis-py": "3b8e4eab390685f90dec4f49d0ae5cd19140f7cb"
+  },
+  "build_dependencies": {
+    "abseil": "d38452e1ee03523a208362186fd42248ff2609f6",
+    "supplemental_test_files": "088643e8d5010bd3d1540fe48685601b43b9a3e5",
+    "doctest": "dfb11445b941a75813c26aa9184f08c6ce774615"
+  }
+}

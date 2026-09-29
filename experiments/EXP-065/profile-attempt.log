@@ -1,0 +1,9 @@
+warning: (arm64) /var/folders/8t/6t6syyrj15v18fgg2lb366h40000gn/T/ffc_profile_driver-7245f5.o unable to open object file: No such file or directory
+warning: no debug symbols in executable (-arch arm64)
+Starting recording with the Time Profiler template. Launching process: ffc-profile-double. Time limit: 15.0 s
+Ctrl-C to stop the recording
+Target app exited, ending recording...
+Recording completed. Saving output file...
+Output file saved as: 20260929-142342-march-native-double-45557.trace
+Finished export to the file: /Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-065/profile-results/20260929-142342-march-native-double-45557-toc.xml
+==> Saved Instruments trace: /Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-065/profile-results/20260929-142342-march-native-double-45557.trace

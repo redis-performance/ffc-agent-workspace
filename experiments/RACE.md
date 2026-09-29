@@ -4,7 +4,27 @@ Both parsers are mutable competitors, each pushed forward by experiments. This f
 is the single source of truth for **who leads which cell** and therefore which
 parser to attack next.
 
-## Race rules
+## Apple M6 baseline — 2026-09-29
+
+The Linux leaderboard below is historical and has not been remeasured after
+the dependency refresh. Current canonical pins: ffc `965d4db`, fast_float
+`9498cc3`, benchmark `a856c09`. M6 uses Apple Clang 21, `-march=native`,
+`-O3 -DFFC_ROUNDS_TO_NEAREST`, five interleaved runs; median of harness
+best-of-100 results. These are six additional precision/dataset cells.
+
+| Precision / dataset | ffc MB/s | fast_float MB/s | Leader |
+|---|---:|---:|---|
+| double / canada.txt | 2771.73 | 2730.15 | ffc |
+| double / mesh.txt | 2855.55 | 2318.30 | ffc |
+| double / random [0,1] | 3495.83 | 3466.71 | ffc |
+| float / canada.txt | 2466.51 | 2690.58 | fast_float |
+| float / mesh.txt | 1680.06 | 1905.52 | fast_float |
+| float / random [0,1] | 3140.06 | 3412.91 | fast_float |
+
+EXP-065 and EXP-066 are parked; neither alters these baseline parser sources.
+See [setup](APPLE-M6-SETUP.md) and [measurements](EXP-065/README.md).
+
+## Historical Linux race rules
 
 - **Surface = 12 cells**: {ARM `m8g.metal-24xl` (Graviton4, EIP 3.92.205.222),
   x86 `m7i.metal-24xl`} × {GCC, Clang} × {random, canada, mesh}.

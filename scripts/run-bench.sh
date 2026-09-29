@@ -1,85 +1,61 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Runs the head-to-head race benchmark (ffc vs fast_float) on the three datasets
-# and writes a provenance-stamped result file under experiments/$EXP/bench-results/.
-#
-# Because fast_float live-tracks upstream main, every result records the exact
-# fast_float base + our patch commit, the ffc commit, the compiler, and the arch,
-# so a number is only ever compared against same-provenance runs.
-#
-# Env:
-#   EXP=EXP-NNN      destination experiment folder (default EXP-000)
-#   COMPILER=gcc|clang   pick the matching build tree (build-gcc / build-clang)
-#
-# Scoreboard note: each dataset prints TWO `fastfloat` rows. The CANONICAL one
-# (apples-to-apples vs ffc) is the FIRST — findmax_fastfloat<char>, from_chars
-# into double, printed immediately above the `ffc` row. The second `fastfloat`
-# row sits under "UTF-16 volume" (2x volume => ~2x MB/s) and is NOT scored.
-
+# PRECISION=double|float|both, BUILD_DIR, EXP, RUN_LABEL, RANDOM_VOLUME,
+# DATASET=all|random|canada|mesh. The upstream harness remains unchanged.
+# Score only the FIRST fastfloat row (ASCII), paired with ffc, per dataset.
 WORKSPACE="$(cd "$(dirname "$0")/.." && pwd)"
 COMPILER="${COMPILER:-}"
-BENCH="$WORKSPACE/simple_fastfloat_benchmark/build${COMPILER:+/$COMPILER}/benchmarks/benchmark"
+BUILD_DIR="${BUILD_DIR:-$WORKSPACE/simple_fastfloat_benchmark/build${COMPILER:+/$COMPILER}}"
 DATA="$WORKSPACE/simple_fastfloat_benchmark/data"
+PRECISION="${PRECISION:-double}"
+DATASET="${DATASET:-all}"
+case "$PRECISION" in double|float|both) ;; *) echo "Invalid PRECISION" >&2; exit 2;; esac
+case "$DATASET" in all|random|canada|mesh) ;; *) echo "Invalid DATASET" >&2; exit 2;; esac
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-EXP="${EXP:-EXP-000}"
-OUT_DIR="$WORKSPACE/experiments/$EXP/bench-results"
-
+OUT_DIR="$WORKSPACE/experiments/${EXP:-EXP-000}/bench-results"
 mkdir -p "$OUT_DIR"
+OUTPUT_FILE="$OUT_DIR/$TIMESTAMP-${RUN_LABEL:-run}-$PRECISION-$$.txt"
 
-if [[ ! -x "$BENCH" ]]; then
-  echo "ERROR: benchmark binary not found ($BENCH)." >&2
-  echo "       Run: COMPILER=${COMPILER:-} scripts/build-bench.sh first." >&2
-  exit 1
-fi
-
-# --- provenance ---
-ARCH="$(uname -m)"
-HOSTN="$(uname -n)"
-CPU="$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs || true)"
-[[ -z "$CPU" ]] && CPU="$(grep -m1 -iE 'cpu( part|model)' /proc/cpuinfo | cut -d: -f2 | xargs || echo unknown)"
-FFC_SHA="$(git -C "$WORKSPACE/ffc" rev-parse --short HEAD 2>/dev/null || echo '?')"
-FF_SHA="$(git -C "$WORKSPACE/fast_float" rev-parse --short HEAD 2>/dev/null || echo '?')"
-FF_BASE="$(git -C "$WORKSPACE/fast_float" rev-parse --short upstream/main 2>/dev/null \
-           || git -C "$WORKSPACE/fast_float" merge-base HEAD upstream/main 2>/dev/null \
-           | cut -c1-7 || echo '?')"
-if command -v "${COMPILER:-cc}" &>/dev/null; then
-  CC_VER="$(${COMPILER:-cc} --version 2>/dev/null | head -1)"
+RUN_CMD=(env)
+if [[ "$(uname -s)" == Linux ]]; then
+  CPU="$(awk -F: '/model name|CPU part/ {gsub(/^ +/, "", $2); print $2; exit}' /proc/cpuinfo)"
+  # Empty PIN_CPU disables pinning; root is opt-in, never required for timing.
+  if [[ -n "${PIN_CPU-3}" ]] && command -v taskset >/dev/null; then
+    RUN_CMD=(taskset -c "${PIN_CPU-3}")
+  fi
 else
-  CC_VER="default"
+  CPU="$(sysctl -n machdep.cpu.brand_string)"
 fi
-
-RUN_CMD=""
-if command -v sudo &>/dev/null && sudo -n true 2>/dev/null; then
-  RUN_CMD="sudo"
-fi
-# Pin to an isolated core for stable numbers on noisy/shared boxes (e.g. the local
-# x86 laptop swings ±25% unpinned, ±0.3% pinned). Set PIN_CPU= to disable.
-PIN_CPU="${PIN_CPU:-3}"
-if [[ -n "$PIN_CPU" ]] && command -v taskset &>/dev/null; then
-  RUN_CMD="$RUN_CMD taskset -c $PIN_CPU"
-fi
+if [[ "${BENCH_SUDO:-0}" == 1 ]]; then RUN_CMD=(sudo "${RUN_CMD[@]}"); fi
 
 run() {
   local label="$1"; shift
-  echo ""
-  echo "===== $label ====="
-  $RUN_CMD "$BENCH" "$@" | grep -E "^(#|model:|volume|ASCII|ffc|fastfloat|strtod|abseil)" || true
+  echo "===== $precision / $label ====="
+  "${RUN_CMD[@]}" "$bench" "$@"
 }
 
-OUTPUT_FILE="$OUT_DIR/$TIMESTAMP${COMPILER:+-$COMPILER}-$ARCH.txt"
 {
-  echo "# ffc-agent-workspace RACE benchmark — $TIMESTAMP"
-  echo "# host: $HOSTN  arch: $ARCH  cpu: $CPU"
-  echo "# compiler: ${COMPILER:-default} ($CC_VER)"
-  echo "# ffc-commit: $FFC_SHA"
-  echo "# fast_float-commit: $FF_SHA   fast_float-base(upstream/main): $FF_BASE"
-  echo "# canonical row = FIRST 'fastfloat' per section (char from_chars->double), paired with 'ffc'"
-  echo ""
-  run "random [0,1]"
-  run "canada.txt" -f "$DATA/canada.txt"
-  run "mesh.txt"   -f "$DATA/mesh.txt"
-} | tee "$OUTPUT_FILE"
-
-echo ""
+  echo "# RACE benchmark $TIMESTAMP; host: $(uname -n); arch: $(uname -m); cpu: $CPU"
+  echo "# build-dir: $BUILD_DIR"
+  echo "# runtime compiler (build provenance below): $(${COMPILER:-cc} --version | head -1)"
+  echo "# canonical row: first fastfloat per dataset (ASCII), paired with ffc"
+  echo "# units: harness MB/s uses MiB (bytes / 1024^2); preserve its labels"
+  if [[ -f "$BUILD_DIR/provenance.txt" ]]; then cat "$BUILD_DIR/provenance.txt"; fi
+  for precision in double float; do
+    [[ "$PRECISION" == both || "$PRECISION" == "$precision" ]] || continue
+    bench="$BUILD_DIR/benchmarks/benchmark"
+    [[ "$precision" == float ]] && bench="${bench}32"
+    if [[ ! -x "$bench" ]]; then echo "Missing benchmark: $bench" >&2; exit 1; fi
+    echo "# binary-sha256: $(shasum -a 256 "$bench")"
+    if [[ "$DATASET" == all || "$DATASET" == random ]]; then
+      run "random [0,1]" -v "${RANDOM_VOLUME:-100000}"
+    fi
+    for dataset in canada mesh; do
+      [[ "$DATASET" == all || "$DATASET" == "$dataset" ]] || continue
+      echo "# dataset-sha256: $(shasum -a 256 "$DATA/$dataset.txt")"
+      run "$dataset.txt" -f "$DATA/$dataset.txt"
+    done
+  done
+} 2>&1 | tee "$OUTPUT_FILE"
 echo "==> Saved to $OUTPUT_FILE"
