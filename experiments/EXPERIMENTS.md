@@ -10,6 +10,22 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-070 opt-in acceptance and upstream submission — 2026-09-29
+
+**Accepted (opt-in with disclosed ~2% double tradeoff).** User explicitly accepted
+the observed regressions and authorized the PR. Existing measured throughput,
+control limitations and profile attribution are unchanged. This supersedes the
+strict-gate parked decision below; the option remains disabled by default.
+
+Opened [kolemannix/ffc.h#31](https://github.com/kolemannix/ffc.h/pull/31), head
+ccaab79 on base 965d4db. Parser source diff is identical to the benchmarked patch;
+added option documentation and a meaningful separate C/C++ linkage regression
+test. Final default/enabled `make test`, GCC linkage and amalgam verification
+passed; the regression test correctly rejects the old broken C++ inline variant.
+[Packaging evidence](EXP-070/pr-validation/README.md). No new lab runs needed.
+Counts: Accepted 20, Rejected 43, Parked 7, In Progress 0.
+
+
 ## EXP-070 Linux follow-up — 2026-09-29
 
 **Decision unchanged: Parked (partial win).** Exact saved Clang opt-in patch,

@@ -115,7 +115,9 @@ exponent peeling, and float API inlining. The strongest result is
 +6.6–33.6% on Linux Intel/AMD/ARM. [Linux validation](experiments/EXP-070/lab/LINUX-VALIDATION.md)
 passed correctness, linkage and GCC compatibility, but small x86 double losses
 reproduced and the M6 double-mesh decrease remains unresolved. The opt-in patch
-stays parked; no parser optimization was accepted and sources remain upstream.
+is now accepted with the disclosed ~2% double tradeoff and proposed in
+[ffc #31](https://github.com/kolemannix/ffc.h/pull/31). The default remains off;
+workspace parser submodules stay at upstream.
 [fast_float's separate trial](experiments/EXP-071/README.md) gained about 2.3–2.5%
 on scientific input with a small float mesh decrease.
 
@@ -164,9 +166,9 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 
 | Status | Count |
 |--------|-------|
-| Accepted | 19 |
+| Accepted | 20 |
 | Rejected | 43 |
-| Parked | 8 |
+| Parked | 7 |
 | In Progress | 0 |
 
 The workspace is a **race** between two mutable parsers, `ffc` and `fast_float`.

@@ -1,5 +1,7 @@
 # EXP-070 Linux validation — 2026-09-29
 
+**Submission update:** accepted as a disabled-by-default opt-in with the disclosed observed double regressions (within approximately 2%); [upstream PR #31](https://github.com/kolemannix/ffc.h/pull/31). The original strict no-regression assessment below is preserved; the measurements and control limitations are unchanged.
+
 **Decision: remains parked (partial win).** Correctness and linkage passed on Intel, AMD and ARM. Float gains reproduce on every dataset. A strict no-regression acceptance is not established: AMD double random decreases about 0.45% in two independent seven-round campaigns; Intel double mesh decreases 0.46% and 0.82%. The earlier Apple M6 double-mesh decrease (1.61%) remains unresolved. No upstream PR was opened.
 
 ## Hosts and method

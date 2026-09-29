@@ -132,3 +132,16 @@ random +0.1..+6.3%, no gcc regressions; clang canada +1.6..+5.6%, clang mesh
 <= -1.1%. Guarded alternative measured on branch exp062b-ungate-guarded (offered
 in PR text). Exhaustive PASS under gcc. STATUS: OPEN.
 https://github.com/fastfloat/fast_float/pull/398
+
+## kolemannix/ffc.h#31 — opt-in Clang float API inlining (2026-09-29)
+
+OPEN: https://github.com/kolemannix/ffc.h/pull/31 . Head ccaab79 on upstream
+965d4db, branch redis-performance:perf/opt-in-float-inlining. Exact EXP-070 parser
+patch, regenerated amalgam, configuration docs and separate C/C++ linkage test.
+User explicitly accepts the observed double regression up to ~2% for this opt-in
+feature; PR discloses M6 -1.61%, Intel mesh -0.82%, AMD random -0.45% and the
+nonneutral x86 fast_float controls. No unconditional speedup claim. Linux/M6
+correctness and profiles pass; final default/enabled tests and GCC linkage pass.
+PR creation used stored OAuth (GH_TOKEN= GITHUB_TOKEN=). Snap-installed gh cannot
+read /tmp body files: stage --body-file under the home directory. Git SSH keys
+failed; authenticated HTTPS with gh's git-credential helper worked.

@@ -1,0 +1,14 @@
+float inlining=False: c implementation / c caller PASS
+float inlining=False: c implementation / c++ caller PASS
+/usr/bin/ld: /tmp/ffc-float-linkage-e2qlssjs/caller.o: in function `main':
+caller.c:(.text+0x2d): undefined reference to `ffc_from_chars_float'
+/usr/bin/ld: caller.c:(.text+0x6d): undefined reference to `ffc_from_chars_float_options'
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+Traceback (most recent call last):
+  File "/tmp/ffc-linkage-negative-20260929/test_src/test_float_linkage.py", line 55, in <module>
+    main()
+  File "/tmp/ffc-linkage-negative-20260929/test_src/test_float_linkage.py", line 46, in main
+    subprocess.run([*cxx, str(build / 'implementation.o'),
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['clang++', '/tmp/ffc-float-linkage-e2qlssjs/implementation.o', '/tmp/ffc-float-linkage-e2qlssjs/caller.o', '-lm', '-o', '/tmp/ffc-float-linkage-e2qlssjs/linked']' returned non-zero exit status 1.

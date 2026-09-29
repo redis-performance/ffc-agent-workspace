@@ -1,0 +1,8 @@
+float inlining=False: c implementation / c caller PASS
+float inlining=False: c implementation / c++ caller PASS
+float inlining=False: c++ implementation / c caller PASS
+float inlining=False: c++ implementation / c++ caller PASS
+float inlining=True: c implementation / c caller PASS
+float inlining=True: c implementation / c++ caller PASS
+float inlining=True: c++ implementation / c caller PASS
+float inlining=True: c++ implementation / c++ caller PASS

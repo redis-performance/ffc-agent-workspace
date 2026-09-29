@@ -11,7 +11,7 @@ target. The `Target` column below denotes the dataset/arch/compiler focus, not t
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
 | EXP-071 | `[fast_float]` M6 exponent digit peeling | Apple M6, Clang 21, float+double | peel2 random +2.46% double/+2.29% float, float mesh -0.97%; source restored | **Parked** | 2026-09-29 |
-| EXP-070 | `[ffc]` opt-in float API inlining, preserving C/C++ linkage | Apple M6 + Linux Intel/AMD/ARM, Clang 21/18 | Linux float +6.58..+33.62%; correctness/linkage pass; AMD double random ~-0.45%, Intel double mesh -0.46..-0.82%, M6 mesh -1.61%; [validation](EXP-070/lab/LINUX-VALIDATION.md) | **Parked (partial win)** | 2026-09-29 |
+| EXP-070 | `[ffc]` opt-in float API inlining, preserving C/C++ linkage | Apple M6 + Linux Intel/AMD/ARM, Clang 21/18 | Linux float +6.58..+33.62%; correctness/linkage pass; AMD double random ~-0.45%, Intel double mesh -0.46..-0.82%, M6 mesh -1.61%; [validation](EXP-070/lab/LINUX-VALIDATION.md) | **Accepted (opt-in; disclosed ≤2% tradeoff)** | 2026-09-29 |
 | EXP-069 | `[ffc]` peel one/two exponent digits | Apple M6, Clang 21, float+double | confirmed random +6.7% double/+3–4% float; peel1 double mesh -2.15%, peel2 float mesh -3.82% | **Parked** | 2026-09-29 |
 | EXP-068 | `[ffc]` exponent accumulator width | Apple M6, Clang 21, float+double | uint32 mesh -4.41% double/-3.48% float; signed64 duplicates EXP-067 codegen; signed rescan correctness trap recorded | **Rejected** | 2026-09-29 |
 | EXP-067 | `[ffc]` isolate native digit accumulation sites | Apple M6, Clang 21, float+double | integer/fraction float mesh -6.73%/-3.62%; exponent random +2.68% double, float mesh -1.24% | **Parked** | 2026-09-29 |

@@ -1,6 +1,6 @@
 # EXP-070 — ffc float API inlining on Apple M6
 
-**Linux validation completed 2026-09-29:** correctness/linkage passed on Intel, AMD and ARM; float improved on every dataset. Small x86 double decreases reproduced, and the M6 decrease remains unresolved. **Still parked.** See [full Linux evidence](lab/LINUX-VALIDATION.md).
+**Accepted as an opt-in tradeoff, 2026-09-29:** the observed double decreases of up to approximately 2% are accepted and disclosed in [upstream PR #31](https://github.com/kolemannix/ffc.h/pull/31). Correctness/linkage passed on Intel, AMD and ARM; float improved on every dataset. The option stays disabled by default. See [Linux evidence](lab/LINUX-VALIDATION.md) and [final packaging checks](pr-validation/README.md).
 
 For an x86 lab run, use a fresh checkout of branch
 `exp/apple-m6-float-inlining-20260929`, initialize its pinned submodules, then:
@@ -41,7 +41,7 @@ python3 experiments/EXP-070/run-lab.py --dry-run
 python3 experiments/EXP-070/run-lab.py
 ```
 
-**Decision: Parked, partial win.** The final candidate improves all three float
+**Initial strict-gate decision: Parked, partial win (superseded by the opt-in acceptance above).** The final candidate improves all three float
 datasets by 14–35%, but double mesh decreases 1.61%. The workspace's
 no-regression requirement therefore prevents acceptance. Both parser checkouts
 remain at their upstream sources. The opt-in implementation is a saved patch,

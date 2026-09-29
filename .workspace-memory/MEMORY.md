@@ -11,4 +11,4 @@ backends share the same context.
 - [upstream-prs](upstream-prs.md) — fast_float PRs from the race (#381) + how to open them
 - [hiredis-ffc](hiredis-ffc.md) — effort to propose ffc as hiredis's RESP3 double parser (read.c:311 strtod → ffc); plan in experiments/HIREDIS-FFC.md
 
-- [exp070-linux-validation](exp070-linux-validation.md) — Intel/AMD/ARM gates, repeatable small double losses; parked before upstream PR.
+- [exp070-linux-validation](exp070-linux-validation.md) — Intel/AMD/ARM gates; accepted opt-in ~2% tradeoff, upstream ffc PR #31.
