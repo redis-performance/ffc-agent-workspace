@@ -1,0 +1,50 @@
+Starting recording with the Time Profiler template. Launching process: ffc-profile-double. Time limit: 15.0 s
+Ctrl-C to stop the recording
+Target app exited, ending recording...
+Recording completed. Saving output file...
+Output file saved as: 20260929-154905-scan-neon16-outlined-scientific-ffc-double-74816.trace
+Finished export to the file: /Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-072/profile-results/20260929-154905-scan-neon16-outlined-scientific-ffc-double-74816-toc.xml
+Finished export to the file: /Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-072/profile-results/20260929-154905-scan-neon16-outlined-scientific-ffc-double-74816-samples.xml
+Target samples: 4997; total sample weight: 4.997 s
+Percentages are sampled time, not hardware stall percentages.
+
+Self: percent | module | symbol
+  38.86% | ffc-profile-double | ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool)
+  19.61% | ffc-profile-double | ffc_compute_float(long long, unsigned long long, unsigned char)
+  11.51% | ffc-profile-double | ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long long*)
+   7.32% | ffc-profile-double | ffc_parse_sixteen_ascii_neon(char const*)
+   5.06% | ffc-profile-double | profile_ffc(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+   4.36% | ffc-profile-double | ffc_is_made_of_four_digits_fast(unsigned int)
+   3.86% | ffc-profile-double | ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char)
+   2.58% | ffc-profile-double | ffc_clinger_fast_path_impl(unsigned long long, long long, bool, ffc_value*, unsigned char)
+   1.58% | ffc-profile-double | ffc_mul_u64(unsigned long long, unsigned long long)
+   1.52% | ffc-profile-double | ffc_am_to_float(bool, ffc_adjusted_mantissa, ffc_value*, unsigned char)
+   1.44% | ffc-profile-double | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::__is_long[abi:nqe220106]() const
+   0.94% | ffc-profile-double | ffc_is_integer(char)
+   0.88% | ffc-profile-double | ffc_compute_product_approximation(long long, unsigned long long, unsigned char)
+   0.22% | ffc-profile-double | ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char)
+   0.12% | libsystem_kernel.dylib | mach_continuous_time
+
+Inclusive (overlapping): percent | module | symbol
+  99.98% | dyld | start
+  99.94% | ffc-profile-double | main
+  99.78% | ffc-profile-double | profile_ffc(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+  93.28% | ffc-profile-double | ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char)
+  93.28% | ffc-profile-double | ffc_from_chars_double_options
+  93.28% | ffc-profile-double | ffc_from_chars_double
+  88.31% | unknown | 0xffffffe
+  63.00% | ffc-profile-double | ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool)
+  30.06% | ffc-profile-double | ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char)
+  23.19% | ffc-profile-double | ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long long*)
+  22.09% | ffc-profile-double | ffc_compute_float(long long, unsigned long long, unsigned char)
+   7.32% | ffc-profile-double | ffc_parse_sixteen_ascii_neon(char const*)
+   4.36% | ffc-profile-double | ffc_is_made_of_four_digits_fast(unsigned int)
+   2.58% | ffc-profile-double | ffc_clinger_fast_path_impl(unsigned long long, long long, bool, ffc_value*, unsigned char)
+   2.46% | ffc-profile-double | ffc_compute_product_approximation(long long, unsigned long long, unsigned char)
+
+Observed cores: percent | core
+  49.97% | CPU 7 (S Core)
+  49.69% | CPU 6 (S Core)
+   0.28% | CPU 8 (P Core)
+   0.06% | CPU 9 (P Core)
+==> Saved Instruments trace: /Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-072/profile-results/20260929-154905-scan-neon16-outlined-scientific-ffc-double-74816.trace

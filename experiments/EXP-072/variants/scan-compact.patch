@@ -1,0 +1,13 @@
+diff --git a/src/parse.h b/src/parse.h
+index 47fa73c..0ca9345 100644
+--- a/src/parse.h
++++ b/src/parse.h
+@@ -199,7 +199,7 @@ ffc_digit_acc10(uint64_t acc, uint64_t d) {
+ ffc_internal ffc_inline void
+ ffc_loop_parse_if_eight_digits(char const **p, char const *const pend,
+                            uint64_t* i) {
+-#if defined(__aarch64__) && defined(__clang__)
++#if defined(__aarch64__) && defined(__clang__) && !defined(__APPLE__)
+   // Clang/AArch64: manual 2x unroll converts the hot path from a while loop
+   // to a single linear block for typical float fractions (<=16 digits).
+   // Eliminating the back-edge allows Clang to keep SWAR constants in registers

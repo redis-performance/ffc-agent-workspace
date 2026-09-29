@@ -1,0 +1,55 @@
+diff --git a/src/parse.h b/src/parse.h
+index 47fa73c..8a9efcf 100644
+--- a/src/parse.h
++++ b/src/parse.h
+@@ -196,6 +196,30 @@ ffc_digit_acc10(uint64_t acc, uint64_t d) {
+ #define FFC_DIGIT_ACC10(acc, d_expr) ((acc) * 10 + (uint64_t)(d_expr))
+ #endif
+ 
++
++#if defined(__APPLE__) && defined(__aarch64__) && defined(__clang__)
++/* Caller guarantees at least 16 readable bytes. Advance only after validation. */
++ffc_internal ffc_inline bool
++ffc_parse_sixteen_ascii_neon(char const *p, uint64_t *i) {
++  uint8x16_t digits = vsubq_u8(vld1q_u8((const uint8_t *)p), vdupq_n_u8('0'));
++  if (vmaxvq_u8(digits) > 9) {
++    return false;
++  }
++  const uint8x8_t tens = {10, 1, 10, 1, 10, 1, 10, 1};
++  const uint16x8_t hundreds = {100, 1, 100, 1, 100, 1, 100, 1};
++  const uint32x4_t ten_thousands = {10000, 1, 10000, 1};
++  uint16x8_t low = vmull_u8(vget_low_u8(digits), tens);
++  uint16x8_t high = vmull_u8(vget_high_u8(digits), tens);
++  uint16x8_t pairs = vpaddq_u16(low, high);
++  uint32x4_t quads = vpaddlq_u16(vmulq_u16(pairs, hundreds));
++  uint64x2_t octets = vpaddlq_u32(vmulq_u32(quads, ten_thousands));
++  uint64_t first = vgetq_lane_u64(octets, 0);
++  uint64_t second = vgetq_lane_u64(octets, 1);
++  *i = *i * 10000000000000000ULL + first * 100000000ULL + second;
++  return true;
++}
++#endif
++
+ ffc_internal ffc_inline void
+ ffc_loop_parse_if_eight_digits(char const **p, char const *const pend,
+                            uint64_t* i) {
+@@ -206,6 +230,11 @@ ffc_loop_parse_if_eight_digits(char const **p, char const *const pend,
+   // rather than rematerializing them on each iteration; also, the 8-digit
+   // block becomes an if (no back-edge) so constants are always in a straight-
+   // line context. GCC auto-unrolls this naturally so we keep its while loop.
++#if defined(__APPLE__)
++  while (pend - *p >= 16 && ffc_parse_sixteen_ascii_neon(*p, i)) {
++    *p += 16;
++  }
++#else
+   while (pend - *p >= 16) {
+     uint64_t val1 = ffc_read8_to_u64(*p);
+     if (!ffc_is_made_of_eight_digits_fast(val1)) { break; }
+@@ -220,6 +249,7 @@ ffc_loop_parse_if_eight_digits(char const **p, char const *const pend,
+     *i = (*i * 100000000ULL + s1) * 100000000ULL + s2; // in rare cases overflows, ok
+     *p += 16;
+   }
++#endif
+   if (pend - *p >= 8) {
+     uint64_t val = ffc_read8_to_u64(*p);
+     if (ffc_is_made_of_eight_digits_fast(val)) {

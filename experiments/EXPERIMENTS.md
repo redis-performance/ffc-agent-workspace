@@ -9,6 +9,54 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-072 — 2026-09-29 — [ffc] M6 ASCII NEON digit scanning — PARKED
+
+Independent of EXP-070, while its Intel/AMD/AWS ARM validation runs elsewhere.
+Four source variants: compact scalar eight-digit loop; 16-byte ASCII NEON
+conversion retaining scalar fallback; compact NEON using the shared 8/4-byte
+fallback; and an outlined vector helper. Apple/AArch64/Clang guards, same
+upstream pins and `-mcpu=apple-m6` flags. fast_float is the unchanged control.
+
+Correctness: every variant passes regular ffc tests before measurement and the
+supplemental corpus. Each matches 529,416 direct scanner-oracle checks plus
+21,728 public float/double parses with four rounding modes. Guard pages cover
+both boundaries and unaligned, non-NUL-terminated ranges. All NEON variants
+also pass ASan/UBSan. Fingerprint: `f1a2fa492f7ee615` across 551,144 checks.
+
+Discovery: five interleaved runs/build. Compact scalar loses 2–6% across double
+cells. NEON16 gains +14.77% double random/+5.19% float random but loses mesh.
+Seven new confirmation runs/build retain the scientific-input gain:
+
+| Precision / dataset | Baseline MB/s / Mfloat/s | NEON16 MB/s / Mfloat/s | Change |
+|---|---:|---:|---:|
+| double / random | 3483.74 / 166.04 | 3995.08 / 190.42 | +14.68% |
+| double / canada | 2752.17 / 158.16 | 2846.01 / 163.55 | +3.41% |
+| double / mesh | 2954.58 / 402.49 | 2773.66 / 377.85 | -6.12% |
+| float / random | 3128.94 / 149.13 | 3290.47 / 156.83 | +5.16% |
+| float / canada | 2479.03 / 142.46 | 2453.73 / 141.01 | -1.02% |
+| float / mesh | 1742.41 / 237.36 | 1756.45 / 239.28 | +0.81% |
+
+Compact NEON raises random gains to +16.84% double/+9.60% float, but double mesh
+falls 12.11%. Its wrapper has 799 instructions versus 800 baseline, yet its stack
+frame grows 240→288 bytes with live vector constants. Outlining (five paired
+runs) reduces random gains to +5.17%/+2.67% and still loses double canada -6.95%,
+mesh -9.00%, float mesh -6.55%. All source changes restored.
+
+Profile: five-second Time Profiler, module `ffc-profile-double`. Scientific
+input: scalar helper self 8.39% → 3.90% (NEON16), vector helper 3.00%; scanner
+38.60% → 44.88%, compute_float 20.45% → 21.80%. Mesh helper 3.94% → 4.53%
+(NEON16), 8.74% (compact), 14.28% (outlined). All profiles >99% S-core samples.
+These are relative time samples, not hardware counters; register allocation and
+layout remain hypotheses. The short-input regressions are not explained away
+by the essentially flat fast_float double-mesh control.
+
+**Decision:** park the NEON direction; reject compact-scalar/outlined forms.
+No accepted optimization. Next: profile-guided layout with held-out data, or a
+long-input path that avoids imposing live state on short inputs. Keep EXP-070
+separate until its cross-platform results return. [Full tables, patches, guard
+checks, disassembly and profiles](EXP-072/README.md).
+
+
 ## EXP-071 — 2026-09-29 — [fast_float] Apple M6 exponent peeling — PARKED
 
 Isolated fast_float changes; ffc stays upstream as the control. Apple Clang 21,

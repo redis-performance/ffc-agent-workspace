@@ -21,7 +21,7 @@ best-of-100 results. These are six additional precision/dataset cells.
 | float / mesh.txt | 1680.06 | 1905.52 | fast_float |
 | float / random [0,1] | 3140.06 | 3412.91 | fast_float |
 
-EXP-065–071 leave both baseline parser sources unchanged. The strongest saved
+EXP-065–072 leave both baseline parser sources unchanged. The strongest saved
 candidate is EXP-070 float inlining (+14–35% on float); its double mesh decrease
 prevents acceptance. EXP-071's fast_float exponent trial is also parked. Candidate
 results do not replace this upstream baseline leaderboard.

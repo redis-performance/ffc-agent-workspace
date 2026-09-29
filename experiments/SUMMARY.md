@@ -10,6 +10,7 @@ target. The `Target` column below denotes the dataset/arch/compiler focus, not t
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-072 | `[ffc]` compact scalar scan and 16-byte ASCII NEON | Apple M6, Clang 21, float+double | NEON random +14.68% double/+5.16% float, double mesh -6.12%; compact NEON +16.84% random/-12.11% mesh; outlining fails | **Parked** | 2026-09-29 |
 | EXP-071 | `[fast_float]` M6 exponent digit peeling | Apple M6, Clang 21, float+double | peel2 random +2.46% double/+2.29% float, float mesh -0.97%; source restored | **Parked** | 2026-09-29 |
 | EXP-070 | `[ffc]` opt-in float API inlining, preserving C/C++ linkage | Apple M6, Clang 21, float+double | float random +17.87%, canada +14.43%, mesh +35.37%; double mesh -1.61%; safe patch saved for x86 lab | **Parked (partial win)** | 2026-09-29 |
 | EXP-069 | `[ffc]` peel one/two exponent digits | Apple M6, Clang 21, float+double | confirmed random +6.7% double/+3–4% float; peel1 double mesh -2.15%, peel2 float mesh -3.82% | **Parked** | 2026-09-29 |
