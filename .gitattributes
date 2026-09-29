@@ -1,0 +1,3 @@
+# Saved unified diffs contain intentional space-only context lines. Keep their
+# bytes intact; check the applied source patch for whitespace instead.
+experiments/**/variants/*.patch -whitespace

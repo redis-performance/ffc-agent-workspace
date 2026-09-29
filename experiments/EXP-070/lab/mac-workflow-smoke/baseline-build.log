@@ -1,0 +1,108 @@
+==> Regenerating ffc.h amalgam...
+make: `ffc.h' is up to date.
+==> Configuring benchmark (COMPILER=clang)
+    FFC_DIR=/Users/oly/redislabs/ffc-agent-workspace/ffc
+    fast_float (mutable) <- /Users/oly/redislabs/ffc-agent-workspace/fast_float
+The --no-warn-unused-cli option is deprecated.  Use -Wno-unused-cli instead.
+The no-dev option is deprecated.  Use -Wno-author instead.
+-- The CXX compiler identification is AppleClang 21.0.0.21000334
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test ABSL_INTERNAL_AT_LEAST_CXX17
+-- Performing Test ABSL_INTERNAL_AT_LEAST_CXX17 - Success
+-- Performing Test ABSL_INTERNAL_AT_LEAST_CXX20
+-- Performing Test ABSL_INTERNAL_AT_LEAST_CXX20 - Success
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Tests are disabled. Set FASTFLOAT_TEST to ON to run tests.
+-- Benchmarks are disabled. Set FASTFLOAT_BENCHMARKS to ON to build benchmarks (assumes C++17).
+-- The C compiler identification is AppleClang 21.0.0.21000334
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Retrieving test files.
+-- Supplemental test files retrieved.
+-- Configuring done (17.9s)
+-- Generating done (0.2s)
+-- Build files have been written to: /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/exp070-lab/mac-workflow-smoke/baseline
+==> Building...
+[  0%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/spinlock_wait.dir/internal/spinlock_wait.cc.o
+[  7%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/log_severity.dir/log_severity.cc.o
+[ 15%] Linking CXX static library libabsl_spinlock_wait.a
+[ 15%] Built target spinlock_wait
+[ 15%] Linking CXX static library libabsl_log_severity.a
+[ 15%] Built target log_severity
+[ 15%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/raw_logging_internal.dir/internal/raw_logging.cc.o
+[ 15%] Linking CXX static library libabsl_raw_logging_internal.a
+[ 15%] Built target raw_logging_internal
+[ 15%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/base.dir/internal/cycleclock.cc.o
+[ 15%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/throw_delegate.dir/internal/throw_delegate.cc.o
+[ 15%] Linking CXX static library libabsl_throw_delegate.a
+[ 15%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/base.dir/internal/spinlock.cc.o
+[ 15%] Built target throw_delegate
+[ 23%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/base.dir/internal/sysinfo.cc.o
+[ 23%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/base.dir/internal/thread_identity.cc.o
+[ 23%] Building CXX object _deps/abseil-build/absl/base/CMakeFiles/base.dir/internal/unscaledcycleclock.cc.o
+[ 30%] Linking CXX static library libabsl_base.a
+[ 30%] Built target base
+[ 30%] Building CXX object _deps/abseil-build/absl/numeric/CMakeFiles/int128.dir/int128.cc.o
+[ 38%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings_internal.dir/internal/ostringstream.cc.o
+[ 38%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings_internal.dir/internal/utf8.cc.o
+[ 46%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings_internal.dir/internal/escaping.cc.o
+[ 46%] Linking CXX static library libabsl_int128.a
+[ 46%] Built target int128
+[ 53%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/string_view.dir/string_view.cc.o
+[ 53%] Linking CXX static library libabsl_string_view.a
+[ 53%] Linking CXX static library libabsl_strings_internal.a
+[ 53%] Built target string_view
+[ 53%] Built target strings_internal
+[ 53%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/ascii.cc.o
+[ 61%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/charconv.cc.o
+[ 61%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/escaping.cc.o
+[ 61%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/internal/charconv_bigint.cc.o
+[ 69%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/internal/charconv_parse.cc.o
+[ 69%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/internal/damerau_levenshtein_distance.cc.o
+[ 76%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/internal/memutil.cc.o
+[ 76%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/internal/stringify_sink.cc.o
+[ 76%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/match.cc.o
+[ 84%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/numbers.cc.o
+[ 84%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/str_cat.cc.o
+[ 84%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/str_replace.cc.o
+[ 92%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/str_split.cc.o
+[ 92%] Building CXX object _deps/abseil-build/absl/strings/CMakeFiles/strings.dir/substitute.cc.o
+[ 92%] Linking CXX static library libabsl_strings.a
+[ 92%] Built target strings
+[ 92%] Building CXX object benchmarks/CMakeFiles/benchmark.dir/to_chars.cpp.o
+[ 92%] Building CXX object benchmarks/CMakeFiles/benchmark.dir/benchmark.cpp.o
+In file included from /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/benchmarks/benchmark.cpp:29:
+/Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/benchmarks/dtoa.c:226:9: warning: 'assert' macro redefined [-Wmacro-redefined]
+  226 | #define assert(x) /*nothing*/
+      |         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/assert.h:52:9: note: previous definition is here
+   52 | #define assert(e)       ((void)0)
+      |         ^
+1 warning generated.
+[100%] Linking CXX executable benchmark
+[100%] Built target benchmark
+[  7%] Built target spinlock_wait
+[ 15%] Built target log_severity
+[ 15%] Built target raw_logging_internal
+[ 15%] Built target throw_delegate
+[ 30%] Built target base
+[ 30%] Built target int128
+[ 46%] Built target strings_internal
+[ 53%] Built target string_view
+[ 92%] Built target strings
+[ 92%] Building CXX object benchmarks/CMakeFiles/benchmark32.dir/benchmark32.cpp.o
+[100%] Building CXX object benchmarks/CMakeFiles/benchmark32.dir/to_chars.cpp.o
+[100%] Linking CXX executable benchmark32
+[100%] Built target benchmark32
+==> Done. Binaries:
+    /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/exp070-lab/mac-workflow-smoke/baseline/benchmarks/benchmark
+    /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/exp070-lab/mac-workflow-smoke/baseline/benchmarks/benchmark32

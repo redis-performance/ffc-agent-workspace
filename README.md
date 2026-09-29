@@ -109,8 +109,13 @@ ffc correctness/supplemental tests and all 15 fast_float tests pass.
 See [setup and commands](experiments/APPLE-M6-SETUP.md) and the
 [M6 baseline](experiments/EXP-065/README.md).
 
-EXP-065 compiler targeting and EXP-066 native digit accumulation are parked;
-neither established a no-regression result. The parser source remains upstream.
+EXP-065 through EXP-071 investigate compiler targeting, accumulator sites,
+exponent peeling, and float API inlining. The strongest result is
+[EXP-070](experiments/EXP-070/README.md): ffc float +14–35%, with an unresolved
+-1.61% double mesh decrease. The safe opt-in patch and an x86 lab runner are
+saved for review. No parser optimization was accepted; sources remain upstream.
+[fast_float's separate trial](experiments/EXP-071/README.md) gained about 2.3–2.5%
+on scientific input with a small float mesh decrease.
 
 ## Historical Linux State (post EXP-042, 2026-05-27)
 
@@ -158,8 +163,8 @@ All experiments are logged in [`experiments/EXPERIMENTS.md`](experiments/EXPERIM
 | Status | Count |
 |--------|-------|
 | Accepted | 19 |
-| Rejected | 42 |
-| Parked | 4 |
+| Rejected | 43 |
+| Parked | 8 |
 | In Progress | 0 |
 
 The workspace is a **race** between two mutable parsers, `ffc` and `fast_float`.

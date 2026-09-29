@@ -1,0 +1,15 @@
+diff --git a/src/parse.h b/src/parse.h
+index 47fa73c..883cffe 100644
+--- a/src/parse.h
++++ b/src/parse.h
+@@ -445,6 +445,10 @@ ffc_parsed ffc_parse_number_string(
+       // Otherwise (fixed-tolerant, non-JSON), we will be ignoring the 'e'.
+       p = location_of_e;
+     } else {
++#if defined(__APPLE__) && defined(__aarch64__) && defined(__clang__)
++      // The first exponent character has already passed the digit check.
++      exp_number = (uint8_t)(*p++ - '0');
++#endif
+       while ((p != pend) && ffc_is_integer(*p)) {
+         uint8_t digit = (uint8_t)(*p - '0');
+         if (exp_number < 0x10000000) {

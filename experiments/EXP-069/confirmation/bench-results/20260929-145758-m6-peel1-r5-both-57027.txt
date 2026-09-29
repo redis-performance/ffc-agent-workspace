@@ -1,0 +1,91 @@
+# RACE benchmark 20260929-145758; host: Mac-mini.Home; arch: arm64; cpu: Apple M6
+# build-dir: /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/m6-peel1
+# runtime compiler (build provenance below): Apple clang version 21.0.0 (clang-2100.3.34.2)
+# canonical row: first fastfloat per dataset (ASCII), paired with ffc
+# units: harness MB/s uses MiB (bytes / 1024^2); preserve its labels
+# compiler: clang
+# arch-flags: -mcpu=apple-m6
+# rounding: FFC_ROUNDS_TO_NEAREST
+# ffc: 965d4db45d03365b4c852ab34f4d5b08b53bc7b3
+# ffc-worktree-diff: 2d45299aa224f2d4cb129711247f5a9a1ccc9f918f41180e680cf98054742911
+# fast_float: 9498cc361e081f46c85c936a0677e271c1930a45
+# fast_float-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# simple_fastfloat_benchmark: a856c090a6284f2a52d081471d266767b3856e82
+# simple_fastfloat_benchmark-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# binary-sha256: 1adce2b8e4134c6b2aed652faf5c31eb5af6851bb7e19ea7a22dd7b7e64a6c63  /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/m6-peel1/benchmarks/benchmark
+===== double / random [0,1] =====
+# parsing random numbers
+available models (-m): uniform one_over_rand32 simple_uniform32 simple_int32 int_e_int simple_int64 bigint_int_dot_int big_ints
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB
+Permission denied, xnu/kpc requires root privileges.
+netlib                                  :   781.99 MB/s (+/- 3.8 %)    37.27 Mfloat/s
+strtod                                  :  1624.74 MB/s (+/- 6.5 %)    77.44 Mfloat/s
+abseil                                  :  1589.36 MB/s (+/- 2.6 %)    75.75 Mfloat/s
+fastfloat                               :  3461.71 MB/s (+/- 4.9 %)   164.99 Mfloat/s
+ffc                                     :  3717.26 MB/s (+/- 6.6 %)   177.17 Mfloat/s
+UTF-16 volume = 4.19617 MB
+fastfloat                               :  7285.54 MB/s (+/- 5.0 %)   173.62 Mfloat/s
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+# dataset-sha256: 157834558e841b454a507d76f1744136afb192db4006a532205bb5defcbe93a0  /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/data/canada.txt
+===== double / canada.txt =====
+# read 111126 lines
+ASCII volume = 1.93374 MB
+Permission denied, xnu/kpc requires root privileges.
+netlib                                  :   733.17 MB/s (+/- 5.2 %)    42.13 Mfloat/s
+strtod                                  :  1372.46 MB/s (+/- 5.1 %)    78.87 Mfloat/s
+abseil                                  :  1426.24 MB/s (+/- 4.1 %)    81.96 Mfloat/s
+fastfloat                               :  2746.15 MB/s (+/- 5.0 %)   157.81 Mfloat/s
+ffc                                     :  2763.81 MB/s (+/- 4.7 %)   158.83 Mfloat/s
+UTF-16 volume = 3.86749 MB
+fastfloat                               :  4727.50 MB/s (+/- 4.5 %)   135.84 Mfloat/s
+# dataset-sha256: 8d2adfc655583b7259c18de73f9b0833cdec9fa60b369208e4e0fd034797d341  /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/data/mesh.txt
+===== double / mesh.txt =====
+# read 73019 lines
+ASCII volume = 0.536009 MB
+Permission denied, xnu/kpc requires root privileges.
+netlib                                  :  1055.91 MB/s (+/- 5.3 %)   143.84 Mfloat/s
+strtod                                  :  1030.46 MB/s (+/- 4.8 %)   140.38 Mfloat/s
+abseil                                  :   798.77 MB/s (+/- 4.3 %)   108.81 Mfloat/s
+fastfloat                               :  2297.59 MB/s (+/- 5.2 %)   312.99 Mfloat/s
+ffc                                     :  2744.08 MB/s (+/- 1.1 %)   373.82 Mfloat/s
+UTF-16 volume = 1.07202 MB
+fastfloat                               :  4377.82 MB/s (+/- 6.6 %)   298.19 Mfloat/s
+# binary-sha256: d59bc30952f6270eb2eb288992014e08439d684ad75dec191e93b8baa91c6ed9  /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/m6-peel1/benchmarks/benchmark32
+===== float / random [0,1] =====
+# parsing random numbers
+available models (-m): uniform one_over_rand32 simple_uniform32 simple_int32 int_e_int simple_int64 bigint_int_dot_int big_ints
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+volume = 2.09808 MB
+Permission denied, xnu/kpc requires root privileges.
+strtof                                  :  1725.99 MB/s (+/- 6.2 %)    82.27 Mfloat/s
+abseil                                  :  1594.54 MB/s (+/- 2.3 %)    76.00 Mfloat/s
+fastfloat                               :  3352.69 MB/s (+/- 4.7 %)   159.80 Mfloat/s
+ffc                                     :  3190.39 MB/s (+/- 3.7 %)   152.06 Mfloat/s
+UTF-16 volume = 4.19617 MB
+fastfloat                               :  7261.89 MB/s (+/- 5.5 %)   173.06 Mfloat/s
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+# dataset-sha256: 157834558e841b454a507d76f1744136afb192db4006a532205bb5defcbe93a0  /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/data/canada.txt
+===== float / canada.txt =====
+# read 111126 lines
+volume = 1.93374 MB
+Permission denied, xnu/kpc requires root privileges.
+strtof                                  :  1431.83 MB/s (+/- 5.9 %)    82.28 Mfloat/s
+abseil                                  :  1421.91 MB/s (+/- 4.0 %)    81.71 Mfloat/s
+fastfloat                               :  2686.69 MB/s (+/- 4.6 %)   154.40 Mfloat/s
+ffc                                     :  2456.98 MB/s (+/- 4.8 %)   141.19 Mfloat/s
+UTF-16 volume = 3.86749 MB
+fastfloat                               :  4694.27 MB/s (+/- 4.4 %)   134.88 Mfloat/s
+# dataset-sha256: 8d2adfc655583b7259c18de73f9b0833cdec9fa60b369208e4e0fd034797d341  /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/data/mesh.txt
+===== float / mesh.txt =====
+# read 73019 lines
+volume = 0.536009 MB
+Permission denied, xnu/kpc requires root privileges.
+strtof                                  :   929.83 MB/s (+/- 6.7 %)   126.67 Mfloat/s
+abseil                                  :   793.30 MB/s (+/- 4.8 %)   108.07 Mfloat/s
+fastfloat                               :  1886.52 MB/s (+/- 5.3 %)   257.00 Mfloat/s
+ffc                                     :  1737.70 MB/s (+/- 7.1 %)   236.72 Mfloat/s
+UTF-16 volume = 1.07202 MB
+fastfloat                               :  3669.72 MB/s (+/- 6.5 %)   249.96 Mfloat/s

@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 
 
 def main():
+    process_prefix = sys.argv[3] if len(sys.argv) > 3 else "ffc-profile-"
     if len(sys.argv) > 2:
         toc = ET.parse(sys.argv[2]).getroot()
         target = toc.find(".//target/process")
@@ -26,7 +27,7 @@ def main():
     samples = 0
     for row in root.iter("row"):
         process = resolve(row.find("process"))
-        if process is None or "ffc-profile-" not in process.attrib.get("fmt", ""):
+        if process is None or process_prefix not in process.attrib.get("fmt", ""):
             continue
         weight = resolve(row.find("weight"))
         stack = resolve(row.find("tagged-backtrace"))
@@ -49,7 +50,7 @@ def main():
         core = resolve(row.find("core"))
         cores[core.attrib.get("fmt", "unknown") if core is not None else "unknown"] += value
     if not total:
-        raise SystemExit("No weighted ffc profile samples found")
+        raise SystemExit(f"No weighted {process_prefix} profile samples found")
     print(f"Target samples: {samples}; total sample weight: {total / 1e9:.3f} s")
     print("Percentages are sampled time, not hardware stall percentages.")
     for title, counts in [("Self", exclusive), ("Inclusive (overlapping)", inclusive)]:

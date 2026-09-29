@@ -1,0 +1,13 @@
+# compiler: clang
+# arch-flags: -mcpu=apple-m6
+# rounding: FFC_ROUNDS_TO_NEAREST
+# ffc: 965d4db45d03365b4c852ab34f4d5b08b53bc7b3
+# ffc-worktree-diff: 2d45299aa224f2d4cb129711247f5a9a1ccc9f918f41180e680cf98054742911
+# fast_float: 9498cc361e081f46c85c936a0677e271c1930a45
+# fast_float-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# simple_fastfloat_benchmark: a856c090a6284f2a52d081471d266767b3856e82
+# simple_fastfloat_benchmark-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# profile-driver-sha256: 1eee41cbd1c913e279d780166cbed8793d60d647eaa3eecabc2248e893f2a192  /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/m6-peel1/benchmarks/ffc-profile-double
+# profile-source-sha256: f6ceeaca3eb9bb3212f8deba9a0913f47c1434d2ebbf0f1876fb24de421699c8  /Users/oly/redislabs/ffc-agent-workspace/scripts/ffc_profile_driver.cpp
+# data-sha256: 969ed16048943c3a74d93f6137dfda73aec8c6ee7b32cb8831bd2bbdcb2c84d9  /Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/profile-data/random-scientific.txt
+# precision: double; duration: 5s

@@ -1,0 +1,76 @@
+[
+  {
+    "target": "apple-m6",
+    "precision": "double",
+    "instructions": 800,
+    "instruction_word_sha256": "79a2aa9faddfddfbd4b175a5004b4c837caeee700e3a69a75e90ec657df48096",
+    "float_symbols": [
+      "000000010000397c T _ffc_from_chars_float",
+      "0000000100002ca0 T _ffc_from_chars_float_options"
+    ]
+  },
+  {
+    "target": "apple-m6",
+    "precision": "float",
+    "instructions": 53,
+    "instruction_word_sha256": "77c894e8606fcd821ec02950a6afdd87c4957af0c388f0a1e3e5bdcb2a6b59a2",
+    "float_symbols": [
+      "000000010000397c T _ffc_from_chars_float",
+      "0000000100002ca0 T _ffc_from_chars_float_options"
+    ]
+  },
+  {
+    "target": "m6-float-inline",
+    "precision": "double",
+    "instructions": 800,
+    "instruction_word_sha256": "b356e9939d6bc84057b524a4ae2e4d441faf5ea031595a3aad75819e93f5aeeb",
+    "float_symbols": []
+  },
+  {
+    "target": "m6-float-inline",
+    "precision": "float",
+    "instructions": 761,
+    "instruction_word_sha256": "12c1e06fcae1b549f355f2d835271bd846168d59b4de88db7709ead21bcf4e9a",
+    "float_symbols": []
+  },
+  {
+    "target": "m6-float-inline-clang-off",
+    "precision": "double",
+    "instructions": 800,
+    "instruction_word_sha256": "79a2aa9faddfddfbd4b175a5004b4c837caeee700e3a69a75e90ec657df48096",
+    "float_symbols": [
+      "000000010000397c T _ffc_from_chars_float",
+      "0000000100002ca0 T _ffc_from_chars_float_options"
+    ]
+  },
+  {
+    "target": "m6-float-inline-clang-off",
+    "precision": "float",
+    "instructions": 53,
+    "instruction_word_sha256": "77c894e8606fcd821ec02950a6afdd87c4957af0c388f0a1e3e5bdcb2a6b59a2",
+    "float_symbols": [
+      "000000010000397c T _ffc_from_chars_float",
+      "0000000100002ca0 T _ffc_from_chars_float_options"
+    ]
+  },
+  {
+    "target": "m6-float-inline-clang-on",
+    "precision": "double",
+    "instructions": 800,
+    "instruction_word_sha256": "15f8e004bb15332d6d299eaab1c1bd253ff4ef7dc3129f70ffdb4025aee1ad20",
+    "float_symbols": [
+      "000000010000397c T _ffc_from_chars_float",
+      "0000000100002ca0 T _ffc_from_chars_float_options"
+    ]
+  },
+  {
+    "target": "m6-float-inline-clang-on",
+    "precision": "float",
+    "instructions": 761,
+    "instruction_word_sha256": "b12de3afebc1ab185f5b181717e476f0441f15710c15b56b1fd715c1644829f6",
+    "float_symbols": [
+      "000000010000397c T _ffc_from_chars_float",
+      "0000000100002ca0 T _ffc_from_chars_float_options"
+    ]
+  }
+]

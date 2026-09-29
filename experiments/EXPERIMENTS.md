@@ -9,6 +9,112 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
 
+## EXP-071 — 2026-09-29 — [fast_float] Apple M6 exponent peeling — PARKED
+
+Isolated fast_float changes; ffc stays upstream as the control. Apple Clang 21,
+`-mcpu=apple-m6`; both one- and two-digit variants pass core/supplemental 15/15
+and the ffc control passes its tests before benchmarking. Five interleaved runs
+per build, both precisions, 100 harness repetitions.
+
+Two-digit peeling: double random +2.46%, canada +0.27%, mesh +0.14%; float random
++2.29%, canada +0.02%, mesh -0.97%. One-digit peeling loses 1.25% double mesh and
+2.06% float mesh. Source restored; the float mesh decrease is unresolved.
+
+Time Profiler, double scientific corpus, module `fast_float-profile-double`:
+scanner self share 33.37% → 31.37%, compute_float 17.25% → 18.66%, to_float
+7.00% → 8.95%; >99.5% S-core samples. These are relative time samples, not
+hardware counters. The profiling script now supports either parser with
+selected-source provenance checks. [MB/s, Mfloat/s, patches and profiles](EXP-071/README.md).
+
+## EXP-070 — 2026-09-29 — [ffc] Float API inlining — PARKED / PARTIAL WIN
+
+Found missing forced inlining on the float API, while double already has it.
+The first inline-keyword trial improved float throughput but broke external
+float symbols in a C++ implementation TU. Final prototype uses an opt-in Clang
+always_inline attribute without the inline keyword, preserving external linkage.
+Source restored; the safe patch is retained for the x86 lab, not enabled by default.
+
+Correctness: unit/integer/274,944 format checks before all benchmarks; final
+option on/off also pass supplemental data, 268,800 differential checks each
+(four rounding modes), and all four C/C++ implementation/caller combinations.
+Disabled float and double benchmark functions are instruction-byte-identical
+to upstream. Apple M6, Clang 21, same pinned dependencies and `-mcpu=apple-m6`.
+Seven interleaved final runs per build after the five-run discovery cohort.
+
+| Precision / dataset | Baseline MB/s / Mfloat/s | Final enabled MB/s / Mfloat/s | Change |
+|---|---:|---:|---:|
+| double / random | 3479.17 / 165.83 | 3544.56 / 168.94 | +1.88% |
+| double / canada | 2752.50 / 158.18 | 2774.72 / 159.45 | +0.81% |
+| double / mesh | 2932.36 / 399.47 | 2885.01 / 393.02 | -1.61% |
+| float / random | 3109.42 / 148.20 | 3665.04 / 174.69 | +17.87% |
+| float / canada | 2454.90 / 141.07 | 2809.14 / 161.43 | +14.43% |
+| float / mesh | 1702.75 / 231.96 | 2305.00 / 314.00 | +35.37% |
+
+Time Profiler, float mesh, module `ffc-profile-float`: generic options wrapper
+11.96% self samples falls outside the top 15 after inlining; scanner 43.44% →
+46.95%, compute_float 11.42% → 14.02%. >99.5% S-core samples. Assembly confirms
+the per-value external call is removed. Scanning/conversion remain dominant.
+These are relative time samples; they do not diagnose hardware stalls. Double
+mesh remains slower (control fast_float -0.16%), so the no-regression gate is
+not met despite the substantial float gain.
+
+[Full results, safe patch, linkage finding and lab reproduction](EXP-070/README.md).
+
+## EXP-069 — 2026-09-29 — [ffc] Peel one or two exponent digits — PARKED
+
+Same M6/Clang/flags, original clamped fallback retained. Both variants pass
+unit/integer/format tests and 268,800 targeted differential checks each. Five
+interleaved discovery runs, followed by seven separate confirmation runs per
+build, both precisions. No source retained.
+
+Confirmation: peel1 double random +6.76%, mesh -2.15%; float random +4.04%, mesh
+-1.01%. Peel2 double random +6.71%, mesh +1.62%; float random +3.38%, mesh -3.82%.
+Canada approximately flat. The scientific-input gain repeats; mesh losses
+prevent acceptance. [Full MB/s and Mfloat/s tables](EXP-069/README.md).
+
+Time Profiler, double scientific corpus, module `ffc-profile-double`: scanner
+40.92% → 39.48%/36.51% (peel1/peel2), compute_float 17.30% → 20.81%/22.16%;
+>99.5% S-core samples. Float mesh remains scanner-dominated; no new dominant
+symbol explains its regression. Mesh has no explicit exponents, so code layout
+and allocation effects are hypotheses. Disassembly also exposed the float API
+inlining asymmetry pursued in EXP-070.
+
+## EXP-068 — 2026-09-29 — [ffc] Exponent expression width — REJECTED
+
+Compare native signed64 arithmetic to a separate unsigned32 magnitude on M6.
+The first uint32 implementation mishandled the signed exponent used again in
+long-mantissa rescanning; existing tests caught 24 failures before benchmarking.
+The corrected version and signed64 both pass the full regular suite, and match
+baseline across 268,800 additional differential checks each. Broken patch/log
+retained as evidence, never benchmarked.
+
+Five interleaved runs each: corrected uint32 double random +3.40%, mesh -4.41%;
+float random +0.87%, mesh -3.48%. Signed64 double random +4.49%, mesh -0.43%;
+float random +1.49%, mesh -0.99%. Signed64's double function is instruction-word
+identical to EXP-067's exponent trial, with no independent codegen benefit.
+
+Time Profiler, double scientific corpus, `ffc-profile-double`: baseline scanner
+40.92% → uint32 36.97%, compute_float 17.30% → 21.55%, eight-digit helper
+11.08% → 12.02%; 99.60% S-core samples in both. Does not resolve mesh regressions.
+Source restored. [Full MB/s/Mfloat/s tables and correctness finding](EXP-068/README.md).
+
+## EXP-067 — 2026-09-29 — [ffc] Native accumulator site isolation — PARKED
+
+Split EXP-066 into integer, fraction-tail and exponent changes. M6, Clang 21,
+`-mcpu=apple-m6`, current upstream pins. Corrected candidates all pass regular
+ffc tests before benchmarking; five interleaved runs per build, both precisions.
+Integer/fraction variants lose 6.73%/3.62% float mesh, respectively. Exponent
+variant gains 2.68% double random and 1.22% float random, but loses 1.24% float
+mesh. None accepted; source restored. An initial patch-generation compile error
+was fixed before measurement.
+
+Time Profiler, double scientific corpus, `ffc-profile-double`: scanner self
+39.40% → 37.40%, compute_float 18.09% → 19.92%, eight-digit helper 9.74% → 12.21%;
+>99.6% S-core samples. Scanner inclusive share rises, so self attribution alone
+is not proof of an absolute scanner cost reduction. The signal motivates
+EXP-068/069. [Full MB/s/Mfloat/s, patches and profiles](EXP-067/README.md).
+
+
 ## EXP-066 — 2026-09-29 — [ffc] Native digit accumulation on Apple Clang — PARKED
 
 Excluded Apple from the forced Clang/AArch64 shift/add helper, allowing plain C

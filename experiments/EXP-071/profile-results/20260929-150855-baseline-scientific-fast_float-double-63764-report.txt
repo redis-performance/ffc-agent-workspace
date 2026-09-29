@@ -1,0 +1,43 @@
+Target samples: 4998; total sample weight: 4.998 s
+Percentages are sampled time, not hardware stall percentages.
+
+Self: percent | module | symbol
+  33.37% | fast_float-profile-double | fast_float::parsed_number_string_t<char> fast_float::parse_number_string_impl<false, false, char>(char const*, char const*, fast_float::parse_options_t<char>, bool)
+  17.25% | fast_float-profile-double | fast_float::adjusted_mantissa fast_float::compute_float<fast_float::binary_format<double>>(long long, unsigned long long)
+  11.42% | fast_float-profile-double | fast_float::parse_eight_digits_unrolled(unsigned long long)
+   7.42% | fast_float-profile-double | unsigned long long fast_float::read8_to_u64<char>(char const*)
+   7.00% | fast_float-profile-double | void fast_float::to_float<double>(bool, fast_float::adjusted_mantissa, double&)
+   4.76% | fast_float-profile-double | profile_fast_float(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+   4.60% | fast_float-profile-double | fast_float::from_chars_result_t<char> fast_float::from_chars_float_advanced<double, char>(char const*, char const*, double&, fast_float::parse_options_t<char>)
+   2.84% | fast_float-profile-double | fast_float::full_multiplication(unsigned long long, unsigned long long)
+   2.80% | fast_float-profile-double | fast_float::from_chars_result_t<char> fast_float::from_chars_fixed_format<double, char, (fast_float::chars_format)5>(char const*, char const*, double&)
+   2.70% | fast_float-profile-double | fast_float::is_made_of_four_digits_fast(unsigned int)
+   1.80% | fast_float-profile-double | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::__is_long[abi:nqe220106]() const
+   1.20% | fast_float-profile-double | bool fast_float::is_integer<char>(char)
+   1.10% | fast_float-profile-double | bool fast_float::clinger_fast_path_impl<double>(unsigned long long, long long, bool, double&)
+   0.94% | fast_float-profile-double | fast_float::value128 fast_float::compute_product_approximation<55>(long long, unsigned long long)
+   0.50% | fast_float-profile-double | fast_float::loop_parse_if_eight_digits(char const*&, char const*, unsigned long long&)
+
+Inclusive (overlapping): percent | module | symbol
+ 100.00% | dyld | start
+  99.94% | fast_float-profile-double | main
+  96.90% | fast_float-profile-double | profile_fast_float(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+  93.20% | fast_float-profile-double | fast_float::from_chars_result_t<char> fast_float::from_chars_fixed_format<double, char, (fast_float::chars_format)5>(char const*, char const*, double&)
+  90.40% | fast_float-profile-double | fast_float::from_chars_result_t<char> fast_float::from_chars_advanced<double, char>(char const*, char const*, double&, fast_float::parse_options_t<char>)
+  90.40% | fast_float-profile-double | fast_float::from_chars_result_t<char> fast_float::from_chars_caller<double>::call<char>(char const*, char const*, double&, fast_float::parse_options_t<char>)
+  90.40% | fast_float-profile-double | fast_float::from_chars_result_t<char> fast_float::from_chars_float_advanced<double, char>(char const*, char const*, double&, fast_float::parse_options_t<char>)
+  90.40% | fast_float-profile-double | fast_float::from_chars_result_t<char> fast_float::from_chars_advanced_caller<1ul>::call<double, char>(char const*, char const*, double&, fast_float::parse_options_t<char>)
+  90.34% | fast_float-profile-double | fast_float::from_chars_result_t<char> fast_float::from_chars<double, char, int>(char const*, char const*, double&, fast_float::chars_format)
+  56.66% | fast_float-profile-double | fast_float::parsed_number_string_t<char> fast_float::parse_number_string_impl<false, false, char>(char const*, char const*, fast_float::parse_options_t<char>, bool)
+  22.09% | fast_float-profile-double | fast_float::loop_parse_if_eight_digits(char const*&, char const*, unsigned long long&)
+  21.03% | fast_float-profile-double | fast_float::adjusted_mantissa fast_float::compute_float<fast_float::binary_format<double>>(long long, unsigned long long)
+  11.42% | fast_float-profile-double | fast_float::parse_eight_digits_unrolled(unsigned long long)
+   7.42% | fast_float-profile-double | unsigned long long fast_float::read8_to_u64<char>(char const*)
+   7.00% | fast_float-profile-double | void fast_float::to_float<double>(bool, fast_float::adjusted_mantissa, double&)
+
+Observed cores: percent | core
+  50.28% | CPU 7 (S Core)
+  49.40% | CPU 6 (S Core)
+   0.26% | CPU 8 (P Core)
+   0.04% | CPU 9 (P Core)
+   0.02% | CPU 10 (P Core)

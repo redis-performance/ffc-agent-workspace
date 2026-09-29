@@ -10,6 +10,11 @@ target. The `Target` column below denotes the dataset/arch/compiler focus, not t
 
 | # | Title | Target | Δ MB/s (best dataset) | Status | Date |
 |---|-------|--------|-----------------------|--------|------|
+| EXP-071 | `[fast_float]` M6 exponent digit peeling | Apple M6, Clang 21, float+double | peel2 random +2.46% double/+2.29% float, float mesh -0.97%; source restored | **Parked** | 2026-09-29 |
+| EXP-070 | `[ffc]` opt-in float API inlining, preserving C/C++ linkage | Apple M6, Clang 21, float+double | float random +17.87%, canada +14.43%, mesh +35.37%; double mesh -1.61%; safe patch saved for x86 lab | **Parked (partial win)** | 2026-09-29 |
+| EXP-069 | `[ffc]` peel one/two exponent digits | Apple M6, Clang 21, float+double | confirmed random +6.7% double/+3–4% float; peel1 double mesh -2.15%, peel2 float mesh -3.82% | **Parked** | 2026-09-29 |
+| EXP-068 | `[ffc]` exponent accumulator width | Apple M6, Clang 21, float+double | uint32 mesh -4.41% double/-3.48% float; signed64 duplicates EXP-067 codegen; signed rescan correctness trap recorded | **Rejected** | 2026-09-29 |
+| EXP-067 | `[ffc]` isolate native digit accumulation sites | Apple M6, Clang 21, float+double | integer/fraction float mesh -6.73%/-3.62%; exponent random +2.68% double, float mesh -1.24% | **Parked** | 2026-09-29 |
 | EXP-066 | `[ffc]` native digit accumulation on Apple Clang | Apple M6, Clang 21, float+double | double canada +10.10%, random +3.34%, mesh -0.95% unresolved; candidate reverted, profile captured | **Parked** | 2026-09-29 |
 | EXP-065 | `[ffc]` compiler target sweep and macOS baseline | Apple M6, Clang 21, float+double | explicit apple-m6: double mesh +2.13%, float mesh +4.02% with spread, double canada -0.64%; default unchanged | **Parked** | 2026-09-29 |
 | EXP-064 | `[ffc]` revive outline-slow-resolve (ead51af) on post-#24 tip | gcc-x86 | icx2 -7.0% random/-4.4% canada, clx1 -6.3/-10.8/-3.5; clang byte-identical flat. #24 flipped the outline from win to loss | **Rejected** | 2026-07-03 |

@@ -1,0 +1,49 @@
+Starting recording with the Time Profiler template. Launching process: ffc-profile-float. Time limit: 15.0 s
+Ctrl-C to stop the recording
+Target app exited, ending recording...
+Recording completed. Saving output file...
+Output file saved as: 20260929-152344-float-inline-on-ffc-float-69421.trace
+Finished export to the file: /Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-070/lab/mac-workflow-smoke/profile-results/20260929-152344-float-inline-on-ffc-float-69421-toc.xml
+Finished export to the file: /Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-070/lab/mac-workflow-smoke/profile-results/20260929-152344-float-inline-on-ffc-float-69421-samples.xml
+Target samples: 1004; total sample weight: 1.004 s
+Percentages are sampled time, not hardware stall percentages.
+
+Self: percent | module | symbol
+  46.61% | ffc-profile-float | ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool)
+  13.84% | ffc-profile-float | ffc_compute_float(long long, unsigned long long, unsigned char)
+  11.45% | ffc-profile-float | profile_ffc(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+   6.57% | ffc-profile-float | ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char)
+   3.69% | ffc-profile-float | ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long long*)
+   3.09% | ffc-profile-float | ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char)
+   2.89% | ffc-profile-float | ffc_is_made_of_four_digits_fast(unsigned int)
+   1.89% | ffc-profile-float | ffc_clinger_fast_path_impl(unsigned long long, long long, bool, ffc_value*, unsigned char)
+   1.69% | ffc-profile-float | ffc_mul_u64(unsigned long long, unsigned long long)
+   1.29% | ffc-profile-float | ffc_parse_eight_digits_unrolled_swar(unsigned long long)
+   1.29% | ffc-profile-float | ffc_am_to_float(bool, ffc_adjusted_mantissa, ffc_value*, unsigned char)
+   1.20% | ffc-profile-float | ffc_is_integer(char)
+   1.10% | ffc-profile-float | ffc_digit_acc10(unsigned long long, unsigned long long)
+   1.10% | ffc-profile-float | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::__get_pointer[abi:nqe220106]() const
+   1.00% | ffc-profile-float | ffc_read8_to_u64(char const*)
+
+Inclusive (overlapping): percent | module | symbol
+  99.90% | dyld | start
+  99.70% | ffc-profile-float | main
+  99.50% | ffc-profile-float | profile_ffc(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+  86.16% | ffc-profile-float | ffc_from_chars_float
+  86.16% | ffc-profile-float | ffc_from_chars_float_options
+  86.16% | ffc-profile-float | ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char)
+  57.77% | ffc-profile-float | ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool)
+  25.30% | ffc-profile-float | ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char)
+  15.54% | ffc-profile-float | ffc_compute_float(long long, unsigned long long, unsigned char)
+   8.86% | ffc-profile-float | ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long long*)
+   2.89% | ffc-profile-float | ffc_is_made_of_four_digits_fast(unsigned int)
+   1.89% | ffc-profile-float | ffc_clinger_fast_path_impl(unsigned long long, long long, bool, ffc_value*, unsigned char)
+   1.89% | ffc-profile-float | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::__get_pointer[abi:nqe220106]() const
+   1.89% | ffc-profile-float | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::data[abi:nqe220106]() const
+   1.69% | ffc-profile-float | ffc_compute_product_approximation(long long, unsigned long long, unsigned char)
+
+Observed cores: percent | core
+  52.89% | CPU 6 (S Core)
+  46.81% | CPU 7 (S Core)
+   0.30% | CPU 8 (P Core)
+==> Saved Instruments trace: /Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-070/lab/mac-workflow-smoke/profile-results/20260929-152344-float-inline-on-ffc-float-69421.trace

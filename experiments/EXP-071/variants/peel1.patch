@@ -1,0 +1,15 @@
+diff --git a/include/fast_float/ascii_number.h b/include/fast_float/ascii_number.h
+index e814f12..d9b00e4 100644
+--- a/include/fast_float/ascii_number.h
++++ b/include/fast_float/ascii_number.h
+@@ -510,6 +510,10 @@ parse_number_string_impl(UC const *p, UC const *pend,
+       // Otherwise, we will be ignoring the 'e'.
+       p = location_of_e;
+     } else {
++#if defined(__APPLE__) && defined(__aarch64__) && defined(__clang__)
++      // The first exponent character has already passed the digit check.
++      exp_number = uint8_t(*p++ - UC('0'));
++#endif
+       while ((p != pend) && is_integer(*p)) {
+         uint8_t digit = uint8_t(*p - UC('0'));
+         if (exp_number < 0x10000000) {

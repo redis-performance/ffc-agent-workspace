@@ -1,0 +1,42 @@
+Target samples: 4998; total sample weight: 4.998 s
+Percentages are sampled time, not hardware stall percentages.
+
+Self: percent | module | symbol
+  36.97% | ffc-profile-double | ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool)
+  21.55% | ffc-profile-double | ffc_compute_float(long long, unsigned long long, unsigned char)
+  12.02% | ffc-profile-double | ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long long*)
+   6.32% | ffc-profile-double | profile_ffc(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+   3.78% | ffc-profile-double | ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char)
+   3.64% | ffc-profile-double | ffc_is_made_of_four_digits_fast(unsigned int)
+   3.52% | ffc-profile-double | ffc_mul_u64(unsigned long long, unsigned long long)
+   2.76% | ffc-profile-double | ffc_clinger_fast_path_impl(unsigned long long, long long, bool, ffc_value*, unsigned char)
+   2.22% | ffc-profile-double | ffc_read8_to_u64(char const*)
+   1.70% | ffc-profile-double | ffc_am_to_float(bool, ffc_adjusted_mantissa, ffc_value*, unsigned char)
+   1.34% | ffc-profile-double | std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::__is_long[abi:nqe220106]() const
+   1.26% | ffc-profile-double | ffc_is_integer(char)
+   1.02% | ffc-profile-double | ffc_compute_product_approximation(long long, unsigned long long, unsigned char)
+   0.94% | ffc-profile-double | ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char)
+   0.70% | ffc-profile-double | ffc_parse_eight_digits_unrolled_swar(unsigned long long)
+
+Inclusive (overlapping): percent | module | symbol
+  99.98% | dyld | start
+  99.96% | ffc-profile-double | main
+  99.80% | ffc-profile-double | profile_ffc(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>> const&)
+  99.80% | unknown | 0x5f5e0ff
+  92.14% | ffc-profile-double | ffc_from_chars_double
+  92.14% | ffc-profile-double | ffc_from_chars_double_options
+  92.14% | ffc-profile-double | ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char)
+  56.82% | ffc-profile-double | ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool)
+  34.37% | ffc-profile-double | ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char)
+  26.13% | ffc-profile-double | ffc_compute_float(long long, unsigned long long, unsigned char)
+  18.59% | ffc-profile-double | ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long long*)
+   4.54% | ffc-profile-double | ffc_compute_product_approximation(long long, unsigned long long, unsigned char)
+   3.64% | ffc-profile-double | ffc_is_made_of_four_digits_fast(unsigned int)
+   3.52% | ffc-profile-double | ffc_mul_u64(unsigned long long, unsigned long long)
+   2.76% | ffc-profile-double | ffc_clinger_fast_path_impl(unsigned long long, long long, bool, ffc_value*, unsigned char)
+
+Observed cores: percent | core
+  50.52% | CPU 6 (S Core)
+  49.08% | CPU 7 (S Core)
+   0.36% | CPU 8 (P Core)
+   0.04% | CPU 9 (P Core)

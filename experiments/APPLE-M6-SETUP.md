@@ -91,6 +91,9 @@ no sudo; `BENCH_SUDO=1` is an explicit option for the harness counter reader.
   each; +10.10% double canada and +3.34% random, with an unresolved -0.95% mesh
   result. Patch saved and source restored. No parsing optimization accepted.
 
-The next useful source experiment separates the integer, fractional-tail, and
-exponent accumulator sites rather than disabling the helper for every Apple
-target. Keep both precisions and all datasets in the gate.
+Follow-up experiments EXP-067–071 are now recorded. The strongest candidate is
+[EXP-070 float inlining](EXP-070/README.md), with a C/C++ linkage-safe opt-in
+patch and a portable Clang lab runner. Its remaining double mesh regression
+prevents acceptance. Profiling now accepts `PARSER=ffc|fast_float` and validates
+the selected parser's source against build provenance. Both precisions and all
+datasets remain in the gate.

@@ -1,0 +1,34 @@
+diff --git a/src/parse.h b/src/parse.h
+index 47fa73c..eac7563 100644
+--- a/src/parse.h
++++ b/src/parse.h
+@@ -196,6 +196,14 @@ ffc_digit_acc10(uint64_t acc, uint64_t d) {
+ #define FFC_DIGIT_ACC10(acc, d_expr) ((acc) * 10 + (uint64_t)(d_expr))
+ #endif
+ 
++
++// Experimental site ablation; not a proposed all-Apple default.
++#if defined(__APPLE__) && defined(__aarch64__) && defined(__clang__)
++#define FFC_NATIVE_SITE_ACC10(acc, d_expr) ((acc) * 10 + (uint64_t)(d_expr))
++#else
++#define FFC_NATIVE_SITE_ACC10(acc, d_expr) FFC_DIGIT_ACC10(acc, d_expr)
++#endif
++
+ ffc_internal ffc_inline void
+ ffc_loop_parse_if_eight_digits(char const **p, char const *const pend,
+                            uint64_t* i) {
+@@ -381,11 +389,11 @@ ffc_parsed ffc_parse_number_string(
+ 
+     // manual unroll for the 1-3 digit case
+     if (p != pend && ffc_is_integer(*p)) {
+-      i = FFC_DIGIT_ACC10(i, (uint8_t)(*p++ - (char)('0'))); // in rare cases overflows, ok
++      i = FFC_NATIVE_SITE_ACC10(i, (uint8_t)(*p++ - (char)('0'))); // in rare cases overflows, ok
+       if (p != pend && ffc_is_integer(*p)) {
+-        i = FFC_DIGIT_ACC10(i, (uint8_t)(*p++ - (char)('0')));
++        i = FFC_NATIVE_SITE_ACC10(i, (uint8_t)(*p++ - (char)('0')));
+         if (p != pend && ffc_is_integer(*p)) {
+-          i = FFC_DIGIT_ACC10(i, (uint8_t)(*p++ - (char)('0')));
++          i = FFC_NATIVE_SITE_ACC10(i, (uint8_t)(*p++ - (char)('0')));
+         }
+       }
+     }

@@ -1,0 +1,17 @@
+inline=on: c implementation / c caller PASS
+inline=on: c implementation / c++ caller PASS
+Undefined symbols for architecture arm64:
+  "_ffc_from_chars_float", referenced from:
+      _main in caller.o
+  "_ffc_from_chars_float_options", referenced from:
+      _main in caller.o
+ld: symbol(s) not found for architecture arm64
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+Traceback (most recent call last):
+  File "/Users/oly/redislabs/ffc-agent-workspace/experiments/EXP-070/check-linkage.py", line 38, in <module>
+    subprocess.run(['clang++', str(impl_obj), str(caller_obj), '-o', str(executable)], check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/oly/.local/share/uv/python/cpython-3.13.15-macos-aarch64-none/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['clang++', '/Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/profile-data/float-linkage/implementation-cpp.o', '/Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/profile-data/float-linkage/caller.o', '-o', '/Users/oly/redislabs/ffc-agent-workspace/simple_fastfloat_benchmark/build/profile-data/float-linkage/linked']' returned non-zero exit status 1.

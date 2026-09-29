@@ -1,7 +1,15 @@
-// Isolate ffc from the other parsers in the unchanged upstream benchmark.
+// Isolate one parser from the others in the unchanged upstream benchmark.
 // Usage: driver <dataset> [seconds]. Build with PROFILE_FLOAT for float parsing.
+#ifdef PROFILE_FAST_FLOAT
+#include "fast_float/fast_float.h"
+#define PROFILE_FUNCTION profile_fast_float
+#define PARSER_NAME "fast_float"
+#else
 #define FFC_IMPL
 #include "ffc.h"
+#define PROFILE_FUNCTION profile_ffc
+#define PARSER_NAME "ffc"
+#endif
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -21,12 +29,18 @@ using value_type = double;
 // Keep an identifiable symbol while allowing the parser to inline as it does
 // in findmax_ffc. Match the upstream benchmark's max reduction, not a sum chain.
 __attribute__((noinline)) value_type
-profile_ffc(const std::vector<std::string> &lines) {
+PROFILE_FUNCTION(const std::vector<std::string> &lines) {
   value_type maximum = std::numeric_limits<value_type>::lowest();
   for (const auto &line : lines) {
     value_type value;
+#ifdef PROFILE_FAST_FLOAT
+    const auto result = fast_float::from_chars(line.data(), line.data() + line.size(), value);
+    const bool failed = result.ec != std::errc();
+#else
     const auto result = PARSE(line.data(), line.data() + line.size(), &value);
-    if (result.outcome != FFC_OUTCOME_OK || result.ptr != line.data() + line.size()) {
+    const bool failed = result.outcome != FFC_OUTCOME_OK;
+#endif
+    if (failed || result.ptr != line.data() + line.size()) {
       std::fprintf(stderr, "Incomplete or invalid parse in profile dataset\n");
       std::exit(1);
     }
@@ -52,8 +66,8 @@ int main(int argc, char **argv) {
   size_t repetitions = 0;
   volatile value_type maximum = 0;
   do {
-    maximum = profile_ffc(lines);
+    maximum = PROFILE_FUNCTION(lines);
     ++repetitions;
   } while (std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count() < seconds);
-  std::printf("ffc max=%g lines=%zu repetitions=%zu\n", double(maximum), lines.size(), repetitions);
+  std::printf("%s max=%g lines=%zu repetitions=%zu\n", PARSER_NAME, double(maximum), lines.size(), repetitions);
 }
