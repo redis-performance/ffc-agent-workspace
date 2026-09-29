@@ -1,0 +1,86 @@
+# RACE benchmark 20260929-144209; host: ip-172-31-62-214; arch: x86_64; cpu: Intel(R) Xeon(R) Platinum 8488C
+# build-dir: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline
+# pin-cpu: 3 (Linux taskset; empty disables pinning)
+# runtime compiler (build provenance below): Ubuntu clang version 18.1.3 (1ubuntu1)
+# canonical row: first fastfloat per dataset (ASCII), paired with ffc
+# units: harness MB/s uses MiB (bytes / 1024^2); preserve its labels
+# compiler: clang
+# arch-flags: -march=native
+# rounding: FFC_ROUNDS_TO_NEAREST
+# ffc: 965d4db45d03365b4c852ab34f4d5b08b53bc7b3
+# ffc-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# fast_float: 9498cc361e081f46c85c936a0677e271c1930a45
+# fast_float-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# simple_fastfloat_benchmark: a856c090a6284f2a52d081471d266767b3856e82
+# simple_fastfloat_benchmark-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# binary-sha256: 6191d9c5792c306dc0f0c3cb4f39fc5d6da7d8cb4498491cc78c7a6b932e499d  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/benchmarks/benchmark
+===== double / random [0,1] =====
+# parsing random numbers
+available models (-m): uniform one_over_rand32 simple_uniform32 simple_int32 int_e_int simple_int64 bigint_int_dot_int big_ints 
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB 
+netlib                                  :   380.09 MB/s (+/- 1.2 %)    18.12 Mfloat/s  
+strtod                                  :   308.53 MB/s (+/- 2.9 %)    14.71 Mfloat/s  
+abseil                                  :   756.53 MB/s (+/- 2.1 %)    36.06 Mfloat/s  
+fastfloat                               :  1823.12 MB/s (+/- 0.7 %)    86.89 Mfloat/s  
+ffc                                     :  1417.15 MB/s (+/- 0.3 %)    67.55 Mfloat/s  
+UTF-16 volume = 4.19617 MB 
+fastfloat                               :  3563.08 MB/s (+/- 0.2 %)    84.91 Mfloat/s  
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+# dataset-sha256: 157834558e841b454a507d76f1744136afb192db4006a532205bb5defcbe93a0  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/canada.txt
+===== double / canada.txt =====
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+netlib                                  :   371.01 MB/s (+/- 1.4 %)    21.32 Mfloat/s  
+strtod                                  :   218.53 MB/s (+/- 1.2 %)    12.56 Mfloat/s  
+abseil                                  :   671.25 MB/s (+/- 0.9 %)    38.57 Mfloat/s  
+fastfloat                               :  1602.04 MB/s (+/- 0.8 %)    92.06 Mfloat/s  
+ffc                                     :  1334.05 MB/s (+/- 0.4 %)    76.66 Mfloat/s  
+UTF-16 volume = 3.86749 MB 
+fastfloat                               :  2669.23 MB/s (+/- 0.5 %)    76.70 Mfloat/s  
+# dataset-sha256: 8d2adfc655583b7259c18de73f9b0833cdec9fa60b369208e4e0fd034797d341  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt
+===== double / mesh.txt =====
+# read 73019 lines 
+ASCII volume = 0.536009 MB 
+netlib                                  :   481.18 MB/s (+/- 1.6 %)    65.55 Mfloat/s  
+strtod                                  :   195.44 MB/s (+/- 4.2 %)    26.62 Mfloat/s  
+abseil                                  :   460.60 MB/s (+/- 1.1 %)    62.75 Mfloat/s  
+fastfloat                               :  1283.38 MB/s (+/- 4.6 %)   174.83 Mfloat/s  
+ffc                                     :  1389.85 MB/s (+/- 4.8 %)   189.34 Mfloat/s  
+UTF-16 volume = 1.07202 MB 
+fastfloat                               :  2387.31 MB/s (+/- 3.3 %)   162.61 Mfloat/s  
+# binary-sha256: 7491dc628348715329817f4f8b2957bc40341d02d04b748aedca9adb03c129a5  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/benchmarks/benchmark32
+===== float / random [0,1] =====
+# parsing random numbers
+available models (-m): uniform one_over_rand32 simple_uniform32 simple_int32 int_e_int simple_int64 bigint_int_dot_int big_ints 
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+volume = 2.09808 MB 
+strtof                                  :   342.24 MB/s (+/- 2.7 %)    16.31 Mfloat/s  
+abseil                                  :   762.22 MB/s (+/- 2.6 %)    36.33 Mfloat/s  
+fastfloat                               :  1824.92 MB/s (+/- 0.9 %)    86.98 Mfloat/s  
+ffc                                     :  1348.00 MB/s (+/- 0.7 %)    64.25 Mfloat/s  
+UTF-16 volume = 4.19617 MB 
+fastfloat                               :  3543.05 MB/s (+/- 1.7 %)    84.44 Mfloat/s  
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+# dataset-sha256: 157834558e841b454a507d76f1744136afb192db4006a532205bb5defcbe93a0  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/canada.txt
+===== float / canada.txt =====
+# read 111126 lines 
+volume = 1.93374 MB 
+strtof                                  :   245.91 MB/s (+/- 1.9 %)    14.13 Mfloat/s  
+abseil                                  :   663.45 MB/s (+/- 2.0 %)    38.13 Mfloat/s  
+fastfloat                               :  1602.77 MB/s (+/- 1.4 %)    92.11 Mfloat/s  
+ffc                                     :  1209.02 MB/s (+/- 0.7 %)    69.48 Mfloat/s  
+UTF-16 volume = 3.86749 MB 
+fastfloat                               :  2693.84 MB/s (+/- 0.6 %)    77.40 Mfloat/s  
+# dataset-sha256: 8d2adfc655583b7259c18de73f9b0833cdec9fa60b369208e4e0fd034797d341  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt
+===== float / mesh.txt =====
+# read 73019 lines 
+volume = 0.536009 MB 
+strtof                                  :   208.92 MB/s (+/- 1.7 %)    28.46 Mfloat/s  
+abseil                                  :   450.20 MB/s (+/- 5.2 %)    61.33 Mfloat/s  
+fastfloat                               :  1065.60 MB/s (+/- 3.5 %)   145.16 Mfloat/s  
+ffc                                     :   811.74 MB/s (+/- 2.1 %)   110.58 Mfloat/s  
+UTF-16 volume = 1.07202 MB 
+fastfloat                               :  2067.31 MB/s (+/- 5.7 %)   140.81 Mfloat/s  

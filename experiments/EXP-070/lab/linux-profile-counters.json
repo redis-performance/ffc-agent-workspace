@@ -1,0 +1,122 @@
+[
+  {
+    "host": "intel-2",
+    "target": "baseline",
+    "precision": "double",
+    "values": 989115374,
+    "instructions_per_value": 118.08010114399455,
+    "cycles_per_value": 19.15451300527455,
+    "branches_per_value": 23.536021120423914,
+    "branch-misses_per_value": 0.05287491467097548
+  },
+  {
+    "host": "intel-2",
+    "target": "float-inline-on",
+    "precision": "double",
+    "values": 958593432,
+    "instructions_per_value": 118.08374387547441,
+    "cycles_per_value": 19.65038176059608,
+    "branches_per_value": 23.536733148616023,
+    "branch-misses_per_value": 0.05121189793422244
+  },
+  {
+    "host": "intel-2",
+    "target": "float-inline-on",
+    "precision": "float",
+    "values": 722961119,
+    "instructions_per_value": 144.7100236838601,
+    "cycles_per_value": 26.225925603338013,
+    "branches_per_value": 26.360691412230704,
+    "branch-misses_per_value": 0.061557605008631174
+  },
+  {
+    "host": "intel-2",
+    "target": "baseline",
+    "precision": "float",
+    "values": 538661163,
+    "instructions_per_value": 209.38460733431418,
+    "cycles_per_value": 35.05526593347514,
+    "branches_per_value": 38.944982385893674,
+    "branch-misses_per_value": 0.0608700222926597
+  },
+  {
+    "host": "amd",
+    "target": "float-inline-on",
+    "precision": "float",
+    "values": 865713264,
+    "instructions_per_value": 146.78012850106916,
+    "cycles_per_value": 26.09528952071133,
+    "branches_per_value": 26.358374395890046,
+    "branch-misses_per_value": 0.05341465346891116
+  },
+  {
+    "host": "amd",
+    "target": "baseline",
+    "precision": "double",
+    "values": 1121498821,
+    "instructions_per_value": 121.86202685539872,
+    "cycles_per_value": 20.117496793159802,
+    "branches_per_value": 23.533759969061975,
+    "branch-misses_per_value": 0.04146674711484159
+  },
+  {
+    "host": "amd",
+    "target": "baseline",
+    "precision": "float",
+    "values": 645049846,
+    "instructions_per_value": 211.47081587242175,
+    "cycles_per_value": 34.978131068339174,
+    "branches_per_value": 38.941216372292565,
+    "branch-misses_per_value": 0.06582861194885085
+  },
+  {
+    "host": "amd",
+    "target": "float-inline-on",
+    "precision": "double",
+    "values": 1110618990,
+    "instructions_per_value": 121.86118736003245,
+    "cycles_per_value": 20.313345298552836,
+    "branches_per_value": 23.534483007534384,
+    "branch-misses_per_value": 0.04169079352767055
+  },
+  {
+    "host": "arm-2",
+    "target": "float-inline-on",
+    "precision": "float",
+    "values": 715002048,
+    "instructions_per_value": 125.78951489660628,
+    "cycles_per_value": 19.59739970842713,
+    "branches_per_value": 24.47127490465594,
+    "branch-misses_per_value": 0.05322592027037103
+  },
+  {
+    "host": "arm-2",
+    "target": "float-inline-on",
+    "precision": "double",
+    "values": 944135670,
+    "instructions_per_value": 102.58451757468288,
+    "cycles_per_value": 14.840705434844972,
+    "branches_per_value": 20.92209928579438,
+    "branch-misses_per_value": 0.056563879214520094
+  },
+  {
+    "host": "arm-2",
+    "target": "baseline",
+    "precision": "double",
+    "values": 949977190,
+    "instructions_per_value": 102.5829765765218,
+    "cycles_per_value": 14.750956969819454,
+    "branches_per_value": 20.921867040828634,
+    "branch-misses_per_value": 0.04939856608557096
+  },
+  {
+    "host": "arm-2",
+    "target": "baseline",
+    "precision": "float",
+    "values": 522670002,
+    "instructions_per_value": 169.91518335693578,
+    "cycles_per_value": 26.80875963683104,
+    "branches_per_value": 36.665574277591695,
+    "branch-misses_per_value": 0.06131653218544576
+  }
+]

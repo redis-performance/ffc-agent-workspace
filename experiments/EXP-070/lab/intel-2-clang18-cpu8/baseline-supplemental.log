@@ -1,0 +1,94 @@
+make: Entering directory '/tmp/ffc-exp070-20260929/workspace/ffc'
+clang -xc -Wall -Wextra -Wpedantic -O3 -g -std=c99 -D_DEFAULT_SOURCE -I. -Itest_src -DSUPPLEMENTAL_TEST_DATA_DIR=\"/tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data\" test_src/supplemental_tests.c -o out/supplemental_tests -lm
+In file included from test_src/supplemental_tests.c:2:
+./ffc.h:3547:23: warning: static function 'ffc_from_chars' is used in an inline function with external linkage [-Wstatic-in-inline]
+ 3547 |   ffc_result result = ffc_from_chars((char*)start, (char*)end, options, &out_value, FFC_VALUE_KIND_DOUBLE);
+      |                       ^
+./ffc.h:3503:12: note: 'ffc_from_chars' declared here
+ 3503 | ffc_result ffc_from_chars(char* first, char* last, ffc_parse_options options, ffc_value *value, ffc_value_kind vk) {
+      |            ^
+test_src/supplemental_tests.c:55:50: warning: format specifies type 'unsigned long long *' but the argument has type 'uint64_t *' (aka 'unsigned long *') [-Wformat]
+   55 |                     if (sscanf(str + 14, "%llx", &float64) != 1) {
+      |                                           ~~~~   ^~~~~~~~
+      |                                           %lx
+2 warnings generated.
+./out/supplemental_tests
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-0.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-0.txt
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/more-test-cases.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/more-test-cases.txt
+checked 3 values
+checked 3 values
+checked 3 values
+checked 3 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-1.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-1.txt
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/freetype-2-7.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/freetype-2-7.txt
+checked 3566 values
+checked 3566 values
+checked 3566 values
+checked 3566 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/lemire-fast-float.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/lemire-fast-float.txt
+checked 3299 values
+checked 3299 values
+checked 3299 values
+checked 3299 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/google-double-conversion.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/google-double-conversion.txt
+checked 564745 values
+checked 564745 values
+checked 564745 values
+checked 564745 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/lemire-fast-double-parser.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/lemire-fast-double-parser.txt
+checked 94313 values
+checked 94313 values
+checked 94313 values
+checked 94313 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/google-wuffs.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/google-wuffs.txt
+checked 10744 values
+checked 10744 values
+checked 10744 values
+checked 10744 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/ibm-fpgen.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/ibm-fpgen.txt
+checked 102792 values
+checked 102792 values
+checked 102792 values
+checked 102792 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/tencent-rapidjson.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/tencent-rapidjson.txt
+checked 3563 values
+checked 3563 values
+checked 3563 values
+checked 3563 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-2.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-2.txt
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/ulfjack-ryu.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/ulfjack-ryu.txt
+checked 599458 values
+checked 599458 values
+checked 599458 values
+checked 599458 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-3.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-3.txt
+checked 885708 values
+checked 885708 values
+checked 885708 values
+checked 885708 values
+make: Leaving directory '/tmp/ffc-exp070-20260929/workspace/ffc'

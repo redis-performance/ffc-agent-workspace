@@ -1,0 +1,78 @@
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-3.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-3.txt
+checked 885708 values
+checked 885708 values
+checked 885708 values
+checked 885708 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/more-test-cases.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/more-test-cases.txt
+checked 3 values
+checked 3 values
+checked 3 values
+checked 3 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/freetype-2-7.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/freetype-2-7.txt
+checked 3566 values
+checked 3566 values
+checked 3566 values
+checked 3566 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/ibm-fpgen.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/ibm-fpgen.txt
+checked 102792 values
+checked 102792 values
+checked 102792 values
+checked 102792 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/lemire-fast-float.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/lemire-fast-float.txt
+checked 3299 values
+checked 3299 values
+checked 3299 values
+checked 3299 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/google-double-conversion.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/google-double-conversion.txt
+checked 564745 values
+checked 564745 values
+checked 564745 values
+checked 564745 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-2.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-2.txt
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-0.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-0.txt
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-1.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/remyoudompheng-fptest-1.txt
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+checked 1000000 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/ulfjack-ryu.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/ulfjack-ryu.txt
+checked 599458 values
+checked 599458 values
+checked 599458 values
+checked 599458 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/lemire-fast-double-parser.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/lemire-fast-double-parser.txt
+checked 94313 values
+checked 94313 values
+checked 94313 values
+checked 94313 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/google-wuffs.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/google-wuffs.txt
+checked 10744 values
+checked 10744 values
+checked 10744 values
+checked 10744 values
+Testing file: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/tencent-rapidjson.txt
+Checking /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/_deps/supplemental_test_files-src/data/tencent-rapidjson.txt
+checked 3563 values
+checked 3563 values
+checked 3563 values
+checked 3563 values

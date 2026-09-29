@@ -1,0 +1,5 @@
+{
+  "PERF_BIN": "/usr/lib/linux-tools/7.0.0-1011-aws/perf",
+  "ARCH_FLAGS": "-mcpu=native",
+  "JOBS": "2"
+}

@@ -1,0 +1,5 @@
+{
+  "PERF_BIN": "/usr/lib/linux-tools/7.0.0-1013-aws/perf",
+  "ARCH_FLAGS": "-march=native",
+  "JOBS": "2"
+}

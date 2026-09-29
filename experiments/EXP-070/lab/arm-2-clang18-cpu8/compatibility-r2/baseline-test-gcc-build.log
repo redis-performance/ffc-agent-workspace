@@ -1,0 +1,171 @@
+ffc/test_src/test.c: In function ‘fHexAndDec_double’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In file included from /usr/include/stdio.h:980,
+                 from ffc/test_src/sonicsv.h:52,
+                 from ffc/test_src/test.c:2:
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+ffc/test_src/test.c: In function ‘double_rounds_to_nearest’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+In function ‘fHexAndDec_double’,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:356:10:
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:356:10:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+ffc/test_src/test.c: In function ‘double_rounds_to_nearest’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+In function ‘fHexAndDec_double’,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:357:10:
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:357:10:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+ffc/test_src/test.c: In function ‘double_rounds_to_nearest’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+In function ‘fHexAndDec_double’,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:363:10:
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:363:10:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+ffc/test_src/test.c: In function ‘double_rounds_to_nearest’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+In function ‘fHexAndDec_double’,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:364:10:
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:364:10:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+ffc/test_src/test.c: In function ‘double_rounds_to_nearest’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+In function ‘fHexAndDec_double’,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:370:10:
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:370:10:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+ffc/test_src/test.c: In function ‘double_rounds_to_nearest’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+In function ‘fHexAndDec_double’,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:371:10:
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:371:10:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+ffc/test_src/test.c: In function ‘double_rounds_to_nearest’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+In function ‘fHexAndDec_double’,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:377:10:
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:377:10:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+ffc/test_src/test.c: In function ‘double_rounds_to_nearest’:
+ffc/test_src/test.c:68:33: warning: ‘%.*g’ directive output may be truncated writing between 1 and 310 bytes into a region of size 64 [-Wformat-truncation=]
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                 ^~~~
+In function ‘fHexAndDec_double’,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:378:10:
+ffc/test_src/test.c:68:32: note: assuming directive output of 309 bytes
+   68 |     snprintf(dec, sizeof(dec), "%.*g", DBL_MAX_10_EXP + 1, v);
+      |                                ^~~~~~
+In function ‘snprintf’,
+    inlined from ‘fHexAndDec_double’ at ffc/test_src/test.c:68:5,
+    inlined from ‘double_rounds_to_nearest’ at ffc/test_src/test.c:378:10:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 2 and 311 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~

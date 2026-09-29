@@ -1,0 +1,8 @@
+ffc/test_src/supplemental_tests.c: In function ‘check_file’:
+ffc/test_src/supplemental_tests.c:55:46: warning: format ‘%llx’ expects argument of type ‘long long unsigned int *’, but argument 3 has type ‘uint64_t *’ {aka ‘long unsigned int *’} [-Wformat=]
+   55 |                     if (sscanf(str + 14, "%llx", &float64) != 1) {
+      |                                           ~~~^   ~~~~~~~~
+      |                                              |   |
+      |                                              |   uint64_t * {aka long unsigned int *}
+      |                                              long long unsigned int *
+      |                                           %lx

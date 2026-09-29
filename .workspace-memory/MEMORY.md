@@ -10,3 +10,5 @@ backends share the same context.
 - [metal-fleet](metal-fleet.md) — ARM m8g (Graviton4 @ 3.92.205.222) + x86 m7i benchmark VMs
 - [upstream-prs](upstream-prs.md) — fast_float PRs from the race (#381) + how to open them
 - [hiredis-ffc](hiredis-ffc.md) — effort to propose ffc as hiredis's RESP3 double parser (read.c:311 strtod → ffc); plan in experiments/HIREDIS-FFC.md
+
+- [exp070-linux-validation](exp070-linux-validation.md) — Intel/AMD/ARM gates, repeatable small double losses; parked before upstream PR.

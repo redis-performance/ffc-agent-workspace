@@ -1,0 +1,20 @@
+Repeat 1 PASS
+Repeat 2 PASS
+Repeat 3 PASS
+Repeat 4 PASS
+Repeat 5 PASS
+Repeat 6 PASS
+Repeat 7 PASS
+baseline               double / canada.txt        1333.55 MB/s   76.63 Mfloat/s  +0.00% (7 runs)
+float-inline-on        double / canada.txt        1338.49 MB/s   76.92 Mfloat/s  +0.37% (7 runs)
+baseline               double / mesh.txt          1403.88 MB/s  191.25 Mfloat/s  +0.00% (7 runs)
+float-inline-on        double / mesh.txt          1392.41 MB/s  189.68 Mfloat/s  -0.82% (7 runs)
+baseline               double / random [0,1]      1418.48 MB/s   67.61 Mfloat/s  +0.00% (7 runs)
+float-inline-on        double / random [0,1]      1421.15 MB/s   67.74 Mfloat/s  +0.19% (7 runs)
+baseline               float / canada.txt         1209.04 MB/s   69.48 Mfloat/s  +0.00% (7 runs)
+float-inline-on        float / canada.txt         1352.40 MB/s   77.72 Mfloat/s +11.86% (7 runs)
+baseline               float / mesh.txt            812.67 MB/s  110.71 Mfloat/s  +0.00% (7 runs)
+float-inline-on        float / mesh.txt           1081.81 MB/s  147.37 Mfloat/s +33.12% (7 runs)
+baseline               float / random [0,1]       1346.21 MB/s   64.16 Mfloat/s  +0.00% (7 runs)
+float-inline-on        float / random [0,1]       1434.82 MB/s   68.39 Mfloat/s  +6.58% (7 runs)
+REPEAT COMPLETE

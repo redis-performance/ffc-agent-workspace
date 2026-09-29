@@ -1,0 +1,17 @@
+ffc max=4.27819e+09 lines=73019 repetitions=7377
+
+ Performance counter stats for '/tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/benchmarks/ffc-profile-float /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt 5':
+
+      112787356101      instructions                                                          
+       18882910317      cycles                                                                
+       20978149505      branches                                                              
+          32788317      branch-misses                                                         
+         167542343      cache-references                                                      
+            177184      cache-misses                                                          
+
+       5.002111703 seconds time elapsed
+
+       5.000117000 seconds user
+       0.003998000 seconds sys
+
+

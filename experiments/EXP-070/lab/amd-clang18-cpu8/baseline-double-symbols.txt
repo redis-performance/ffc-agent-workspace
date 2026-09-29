@@ -1,0 +1,3 @@
+0000000000012a10 0000000000000d11 T findmax_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, bool)
+0000000000009dc0 0000000000000010 T ffc_from_chars_float
+0000000000009070 0000000000000d4f T ffc_from_chars_float_options

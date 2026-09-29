@@ -1,0 +1,80 @@
+ffc max=4.27819e+09 lines=73019 repetitions=7158
+
+ Performance counter stats for '/tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/arm-2-clang18-cpu8/baseline/benchmarks/ffc-profile-float /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt 5':
+
+       88809569225      instructions                                                          
+       14012134453      cycles                                                                
+       19163995781      branches                                                              
+          32048312      branch-misses                                                         
+        9052093839      cache-references                                                      
+           2372920      cache-misses                                                          
+
+       5.001554141 seconds time elapsed
+
+       5.004386000 seconds user
+       0.000000000 seconds sys
+
+
+ffc max=4.27819e+09 lines=73019 repetitions=7143
+[ perf record: Woken up 3 times to write data ]
+[ perf record: Captured and wrote 0.573 MB /tmp/ffc-exp070-20260929/workspace/experiments/EXP-070/lab/arm-2-clang18-cpu8/profile-results/20260929-144450-baseline-ffc-float-1799581.data (4979 samples) ]
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 4K of event 'armv8_pmuv3_0/cycles/P'
+# Event count (approx.): 13981537489
+#
+# Overhead  Command          Shared Object      Symbol                                                                                                                                                                                                                 
+# ........  ...............  .................  .......................................................................................................................................................................................................................
+#
+    74.97%  ffc-profile-flo  ffc-profile-float  [.] ffc_from_chars_float_options
+            |          
+            |--24.62%--ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          main
+            |          0xf18ce1bb84c4
+            |          __libc_start_main
+            |          _start
+            |          
+            |--18.19%--ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          main
+            |          0xf18ce1bb84c4
+            |          __libc_start_main
+            |          _start
+            |          
+            |--11.80%--ffc_from_chars_float_options
+            |          |          
+            |          |--8.90%--profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          |          main
+            |          |          0xf18ce1bb84c4
+            |          |          __libc_start_main
+            |          |          _start
+            |          |          
+            |           --2.54%--ffc_from_chars_float (inlined)
+            |                     profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |                     main
+            |                     0xf18ce1bb84c4
+            |                     __libc_start_main
+            |                     _start
+            |          
+            |--5.56%--ffc_compute_float(long, unsigned long, unsigned char) (inlined)
+            |          ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          main
+            |          0xf18ce1bb84c4
+            |          __libc_start_main
+            |          _start
+            |          
+            |--2.24%--ffc_clinger_fast_path_impl(unsigned long, long, bool, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options

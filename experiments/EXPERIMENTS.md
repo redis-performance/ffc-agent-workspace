@@ -1,5 +1,6 @@
 # Experiments Log — ffc.h Parsing Optimization
 
+
 Append-only. Every experiment gets an entry — wins, rejections, and parks alike.
 Knowing what didn't work is as valuable as knowing what did.
 
@@ -8,6 +9,38 @@ Use `approaches/TEMPLATE.md` to copy-paste the structure.
 ---
 
 <!-- Append new experiments below in reverse-chronological order (newest first) -->
+
+## EXP-070 Linux follow-up — 2026-09-29
+
+**Decision unchanged: Parked (partial win).** Exact saved Clang opt-in patch,
+ffc 965d4db / fast_float 9498cc3 / benchmark a856c09. Idle Intel Sapphire Rapids,
+AMD Zen 5 and ARM Graviton4 runners were checked live and reserved in the shared
+fleet, then independently released with original coordinators restored.
+
+All baseline/enabled `make test`, supplemental and C/C++ linkage gates passed
+before the benchmark. Additional GCC 13 tests and 72 C/C++ linkage combinations
+passed; all 18 differential executions matched 5279b5f6dcd5e7e5 (4,838,400 checks).
+GCC .text was identical for baseline/disabled/enabled; no GCC speed claim.
+Seven interleaved rounds per host, with a second seven-round CPU8 confirmation
+on both x86 hosts: Linux float gains +6.58..+33.62%. AMD double random repeats
+~-0.45%; Intel double mesh -0.46% then -0.82%; M6 -1.61% remains unresolved.
+Intel fast_float float-mesh control +8.69/+7.63% and AMD double-mesh +2.69/+3.97%
+are not neutral. Wrapper sizes unchanged but addresses moved: layout remains a
+hypothesis, not an isolated cause.
+
+Profiles ran on every host/build/precision. Baseline float hot symbol
+`ffc_from_chars_float_options`: Intel 87.40%, AMD 90.80%, ARM 74.97%, module
+`ffc-profile-float`. Enabled hot symbol `profile_ffc(...)`: 99.70%, 99.90%, 99.90%,
+same module. Float instructions/value fell 26–31%; double profiles stayed in
+`profile_ffc(...)` (99.74–99.92%, module `ffc-profile-double`). No unexpected
+out-of-line bottleneck; inline scanner/conversion separation needs finer attribution.
+
+[Full MB/s and Mfloat/s tables, raw logs, counters, profile lines and limitations](EXP-070/lab/LINUX-VALIDATION.md).
+Harness fixes: explicit PERF_BIN for installed Linux tools, noninteractive sudo,
+and benchmark CPU metadata. The initial extra-GCC helper had the wrong fixture
+working directory; its failed baseline attempt is retained, corrected run passed.
+No parser source change, no upstream PR. Experiment/status counts unchanged.
+
 
 ## EXP-071 — 2026-09-29 — [fast_float] Apple M6 exponent peeling — PARKED
 

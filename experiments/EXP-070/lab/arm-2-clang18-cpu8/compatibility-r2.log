@@ -1,0 +1,5 @@
+baseline compatibility PASS
+patched-off compatibility PASS
+patched-on compatibility PASS
+All fingerprints match; GCC .text identical across all variants; 24 C/C++ linkage cases passed.
+COMPATIBILITY COMPLETE

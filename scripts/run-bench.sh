@@ -38,6 +38,7 @@ run() {
 {
   echo "# RACE benchmark $TIMESTAMP; host: $(uname -n); arch: $(uname -m); cpu: $CPU"
   echo "# build-dir: $BUILD_DIR"
+  echo "# pin-cpu: ${PIN_CPU-3} (Linux taskset; empty disables pinning)"
   echo "# runtime compiler (build provenance below): $(${COMPILER:-cc} --version | head -1)"
   echo "# canonical row: first fastfloat per dataset (ASCII), paired with ffc"
   echo "# units: harness MB/s uses MiB (bytes / 1024^2); preserve its labels"

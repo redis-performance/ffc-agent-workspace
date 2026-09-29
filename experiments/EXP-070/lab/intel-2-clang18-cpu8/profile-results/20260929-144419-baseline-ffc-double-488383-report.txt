@@ -1,0 +1,109 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 5K of event 'cpu/cycles/P'
+# Event count (approx.): 18927969400
+#
+# Overhead  Command          Shared Object         Symbol                                                                                                                                                                                                                                                              
+# ........  ...............  ....................  ....................................................................................................................................................................................................................................................................
+#
+    99.75%  ffc-profile-dou  ffc-profile-double    [.] profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--47.19%--ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--12.66%--ffc_is_integer(char) (inlined)
+            |          ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--10.94%--ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--7.04%--ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long*) (inlined)
+            |          ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--5.92%--ffc_parse_eight_digits_unrolled_swar(unsigned long) (inlined)
+            |          ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long*) (inlined)
+            |          ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--3.58%--std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::size() const (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--3.02%--profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--2.72%--ffc_clinger_fast_path_impl(unsigned long, long, bool, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--2.64%--ffc_is_made_of_eight_digits_fast(unsigned long) (inlined)
+            |          ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long*) (inlined)
+            |          ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--2.14%--ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+            |--1.04%--ffc_parse_four_digits_unrolled(unsigned int) (inlined)
+            |          ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long*) (inlined)
+            |          ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_double_options (inlined)
+            |          ffc_from_chars_double (inlined)
+            |          profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+            |          
+             --0.86%--ffc_is_made_of_four_digits_fast(unsigned int) (inlined)
+                       ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long*) (inlined)
+                       ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+                       ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+                       ffc_from_chars_double_options (inlined)
+                       ffc_from_chars_double (inlined)
+                       profile_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&)
+
+     0.03%  ffc-profile-dou  [kernel.kallsyms]     [k] native_irq_return_iret
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] __cgroup_account_cputime_field
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] __raw_spin_lock_irqsave
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] ktime_get_update_offsets_now
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] acct_account_cputime
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] native_write_msr
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] native_apic_msr_eoi
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] sync_regs
+     0.02%  ffc-profile-dou  libstdc++.so.6.0.33   [.] std::basic_istream<char, std::char_traits<char> >& std::getline<char, std::char_traits<char>, std::allocator<char> >(std::basic_istream<char, std::char_traits<char> >&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, char)
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] update_curr
+     0.02%  ffc-profile-dou  [kernel.kallsyms]     [k] vm_normal_page
+     0.01%  ffc-profile-dou  libc.so.6             [.] 0x00000000001a16ca
+     0.01%  ffc-profile-dou  ffc-profile-double    [.] main
+     0.00%  ffc-profile-dou  ld-linux-x86-64.so.2  [.] 0x000000000000b146
+     0.00%  ffc-profile-dou  [kernel.kallsyms]     [k] copy_mc_enhanced_fast_string
+     0.00%  ffc-profile-dou  [kernel.kallsyms]     [k] fpregs_assert_state_consistent
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

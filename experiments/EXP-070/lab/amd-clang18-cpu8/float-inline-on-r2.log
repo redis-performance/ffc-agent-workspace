@@ -1,0 +1,87 @@
+# RACE benchmark 20260929-144142; host: ip-172-31-49-177; arch: x86_64; cpu: AMD EPYC 9R45 96-Core Processor
+# build-dir: /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/amd-clang18-cpu8/float-inline-on
+# pin-cpu: 3 (Linux taskset; empty disables pinning)
+# runtime compiler (build provenance below): Ubuntu clang version 18.1.3 (1ubuntu1)
+# canonical row: first fastfloat per dataset (ASCII), paired with ffc
+# units: harness MB/s uses MiB (bytes / 1024^2); preserve its labels
+# compiler: clang
+# arch-flags: -march=native -DFFC_ENABLE_FLOAT_INLINING
+# rounding: FFC_ROUNDS_TO_NEAREST
+# ffc: 965d4db45d03365b4c852ab34f4d5b08b53bc7b3
+# ffc-worktree-diff: 27770c1d5f9bfba51db93cd9579285440bb5409756849194780336fd6f57bce9
+# fast_float: 9498cc361e081f46c85c936a0677e271c1930a45
+# fast_float-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# simple_fastfloat_benchmark: a856c090a6284f2a52d081471d266767b3856e82
+# simple_fastfloat_benchmark-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# binary-sha256: 9b22983a526df223c4135a7b4b9cef2a75dfb6aaa76966b84ceac1dfe84301f3  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/amd-clang18-cpu8/float-inline-on/benchmarks/benchmark
+===== double / random [0,1] =====
+# parsing random numbers
+available models (-m): uniform one_over_rand32 simple_uniform32 simple_int32 int_e_int simple_int64 bigint_int_dot_int big_ints 
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+ASCII volume = 2.09808 MB 
+netlib                                  :   468.83 MB/s (+/- 0.3 %)    22.35 Mfloat/s      31.38 i/B   690.31 i/f (+/- 0.0 %)      9.23 c/B   203.03 c/f (+/- 0.3 %)      3.40 i/c     96.38 b/f    284.83 bm/f      4.54 GHz 
+strtod                                  :   405.62 MB/s (+/- 0.6 %)    19.33 Mfloat/s      49.65 i/B  1092.37 i/f (+/- 0.0 %)     10.68 c/B   235.00 c/f (+/- 0.6 %)      4.65 i/c    236.75 b/f     71.45 bm/f      4.54 GHz 
+abseil                                  :  1065.70 MB/s (+/- 0.3 %)    50.79 Mfloat/s      23.86 i/B   524.86 i/f (+/- 0.0 %)      4.06 c/B    89.31 c/f (+/- 0.4 %)      5.88 i/c    101.71 b/f     30.72 bm/f      4.54 GHz 
+fastfloat                               :  2120.63 MB/s (+/- 0.3 %)   101.07 Mfloat/s      12.09 i/B   266.04 i/f (+/- 0.0 %)      2.04 c/B    44.89 c/f (+/- 0.3 %)      5.93 i/c     48.00 b/f      0.65 bm/f      4.54 GHz 
+ffc                                     :  1629.66 MB/s (+/- 0.1 %)    77.67 Mfloat/s      13.55 i/B   298.04 i/f (+/- 0.0 %)      2.66 c/B    58.44 c/f (+/- 0.1 %)      5.10 i/c     44.00 b/f      0.65 bm/f      4.54 GHz 
+UTF-16 volume = 4.19617 MB 
+fastfloat                               :  4381.85 MB/s (+/- 0.4 %)   104.43 Mfloat/s       6.09 i/B   268.04 i/f (+/- 0.0 %)      0.99 c/B    43.45 c/f (+/- 0.3 %)      6.17 i/c     46.00 b/f      0.65 bm/f      4.54 GHz 
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+# dataset-sha256: 157834558e841b454a507d76f1744136afb192db4006a532205bb5defcbe93a0  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/canada.txt
+===== double / canada.txt =====
+# read 111126 lines 
+ASCII volume = 1.93374 MB 
+netlib                                  :   464.46 MB/s (+/- 0.3 %)    26.69 Mfloat/s      33.26 i/B   606.97 i/f (+/- 0.0 %)      9.31 c/B   169.87 c/f (+/- 0.3 %)      3.57 i/c     83.47 b/f    205.21 bm/f      4.53 GHz 
+strtod                                  :   296.39 MB/s (+/- 0.4 %)    17.03 Mfloat/s      70.72 i/B  1290.33 i/f (+/- 0.0 %)     14.60 c/B   266.45 c/f (+/- 0.4 %)      4.84 i/c    274.45 b/f     98.01 bm/f      4.54 GHz 
+abseil                                  :   947.70 MB/s (+/- 0.6 %)    54.46 Mfloat/s      24.19 i/B   441.47 i/f (+/- 0.0 %)      4.56 c/B    83.29 c/f (+/- 0.6 %)      5.30 i/c     82.23 b/f     39.07 bm/f      4.54 GHz 
+fastfloat                               :  1856.38 MB/s (+/- 0.4 %)   106.68 Mfloat/s      12.86 i/B   234.60 i/f (+/- 0.0 %)      2.33 c/B    42.54 c/f (+/- 0.4 %)      5.52 i/c     41.02 b/f     10.56 bm/f      4.54 GHz 
+ffc                                     :  1522.11 MB/s (+/- 0.2 %)    87.47 Mfloat/s      14.35 i/B   261.91 i/f (+/- 0.0 %)      2.84 c/B    51.90 c/f (+/- 0.2 %)      5.05 i/c     37.02 b/f     10.52 bm/f      4.54 GHz 
+UTF-16 volume = 3.86749 MB 
+fastfloat                               :  3294.88 MB/s (+/- 0.4 %)    94.67 Mfloat/s       7.53 i/B   274.98 i/f (+/- 0.0 %)      1.31 c/B    47.92 c/f (+/- 0.4 %)      5.74 i/c     46.99 b/f     10.59 bm/f      4.54 GHz 
+# dataset-sha256: 8d2adfc655583b7259c18de73f9b0833cdec9fa60b369208e4e0fd034797d341  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt
+===== double / mesh.txt =====
+# read 73019 lines 
+ASCII volume = 0.536009 MB 
+netlib                                  :   577.23 MB/s (+/- 0.7 %)    78.63 Mfloat/s      35.31 i/B   271.77 i/f (+/- 0.0 %)      7.50 c/B    57.76 c/f (+/- 0.5 %)      4.70 i/c     41.17 b/f     47.16 bm/f      4.54 GHz 
+strtod                                  :   266.74 MB/s (+/- 0.3 %)    36.34 Mfloat/s      87.58 i/B   674.15 i/f (+/- 0.0 %)     16.23 c/B   124.89 c/f (+/- 0.3 %)      5.40 i/c    142.56 b/f     33.57 bm/f      4.54 GHz 
+abseil                                  :   591.34 MB/s (+/- 0.4 %)    80.56 Mfloat/s      43.16 i/B   332.21 i/f (+/- 0.0 %)      7.33 c/B    56.40 c/f (+/- 0.4 %)      5.89 i/c     62.72 b/f     17.33 bm/f      4.54 GHz 
+fastfloat                               :  1560.15 MB/s (+/- 0.5 %)   212.54 Mfloat/s      17.20 i/B   132.36 i/f (+/- 0.0 %)      2.78 c/B    21.39 c/f (+/- 0.4 %)      6.19 i/c     27.46 b/f      5.35 bm/f      4.55 GHz 
+ffc                                     :  1643.33 MB/s (+/- 0.9 %)   223.87 Mfloat/s      16.84 i/B   129.63 i/f (+/- 0.0 %)      2.64 c/B    20.29 c/f (+/- 0.8 %)      6.39 i/c     24.52 b/f      4.34 bm/f      4.54 GHz 
+UTF-16 volume = 1.07202 MB 
+fastfloat                               :  2810.66 MB/s (+/- 1.9 %)   191.44 Mfloat/s       9.28 i/B   142.81 i/f (+/- 0.0 %)      1.54 c/B    23.75 c/f (+/- 1.8 %)      6.01 i/c     29.43 b/f      5.57 bm/f      4.55 GHz 
+# binary-sha256: 99b41ece4be914e6f0caddb428da49280e0bb07eb6821eb9308e5d9f5f800476  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/amd-clang18-cpu8/float-inline-on/benchmarks/benchmark32
+===== float / random [0,1] =====
+# parsing random numbers
+available models (-m): uniform one_over_rand32 simple_uniform32 simple_int32 int_e_int simple_int64 bigint_int_dot_int big_ints 
+model: generate random numbers uniformly in the interval [0.0,1.0]
+volume: 100000 floats
+volume = 2.09808 MB 
+strtof                                  :   422.75 MB/s (+/- 0.5 %)    20.15 Mfloat/s      49.42 i/B  1087.21 i/f (+/- 0.0 %)     10.25 c/B   225.43 c/f (+/- 0.5 %)      4.82 i/c  23671.38 b/f      4.54 GHz 
+abseil                                  :  1069.60 MB/s (+/- 0.3 %)    50.98 Mfloat/s      23.86 i/B   524.84 i/f (+/- 0.0 %)      4.05 c/B    89.01 c/f (+/- 0.2 %)      5.90 i/c  10170.85 b/f      4.54 GHz 
+fastfloat                               :  2079.36 MB/s (+/- 0.1 %)    99.11 Mfloat/s      12.14 i/B   267.00 i/f (+/- 0.0 %)      2.08 c/B    45.80 c/f (+/- 0.1 %)      5.83 i/c   5000.05 b/f      4.54 GHz 
+ffc                                     :  1701.35 MB/s (+/- 0.1 %)    81.09 Mfloat/s      13.09 i/B   288.00 i/f (+/- 0.0 %)      2.54 c/B    55.99 c/f (+/- 0.0 %)      5.14 i/c   4700.05 b/f      4.54 GHz 
+UTF-16 volume = 4.19617 MB 
+fastfloat                               :  4376.04 MB/s (+/- 0.3 %)   104.29 Mfloat/s       6.11 i/B   269.00 i/f (+/- 0.0 %)      0.99 c/B    43.54 c/f (+/- 0.2 %)      6.18 i/c   4800.05 b/f      4.54 GHz 
+# You can also provide a filename (with the -f flag): it should contain one string per line corresponding to a number
+# dataset-sha256: 157834558e841b454a507d76f1744136afb192db4006a532205bb5defcbe93a0  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/canada.txt
+===== float / canada.txt =====
+# read 111126 lines 
+volume = 1.93374 MB 
+strtof                                  :   309.42 MB/s (+/- 0.7 %)    17.78 Mfloat/s      70.44 i/B  1285.38 i/f (+/- 0.0 %)     13.99 c/B   255.26 c/f (+/- 0.7 %)      5.04 i/c  27447.59 b/f      4.54 GHz 
+abseil                                  :   964.98 MB/s (+/- 0.3 %)    55.45 Mfloat/s      24.19 i/B   441.47 i/f (+/- 0.0 %)      4.49 c/B    81.86 c/f (+/- 0.2 %)      5.39 i/c   8223.29 b/f      4.54 GHz 
+fastfloat                               :  1833.44 MB/s (+/- 0.3 %)   105.36 Mfloat/s      13.08 i/B   238.70 i/f (+/- 0.0 %)      2.36 c/B    43.07 c/f (+/- 0.3 %)      5.54 i/c   4323.34 b/f      4.54 GHz 
+ffc                                     :  1537.48 MB/s (+/- 0.3 %)    88.35 Mfloat/s      14.16 i/B   258.45 i/f (+/- 0.0 %)      2.82 c/B    51.39 c/f (+/- 0.2 %)      5.03 i/c   4023.30 b/f      4.54 GHz 
+UTF-16 volume = 3.86749 MB 
+fastfloat                               :  3292.30 MB/s (+/- 0.2 %)    94.60 Mfloat/s       7.65 i/B   279.16 i/f (+/- 0.0 %)      1.31 c/B    47.99 c/f (+/- 0.1 %)      5.82 i/c   4920.55 b/f      4.54 GHz 
+# dataset-sha256: 8d2adfc655583b7259c18de73f9b0833cdec9fa60b369208e4e0fd034797d341  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt
+===== float / mesh.txt =====
+# read 73019 lines 
+volume = 0.536009 MB 
+strtof                                  :   276.88 MB/s (+/- 1.0 %)    37.72 Mfloat/s      86.84 i/B   668.43 i/f (+/- 0.0 %)     15.64 c/B   120.35 c/f (+/- 0.9 %)      5.55 i/c  14237.40 b/f      4.54 GHz 
+abseil                                  :   599.09 MB/s (+/- 0.4 %)    81.61 Mfloat/s      43.16 i/B   332.21 i/f (+/- 0.0 %)      7.24 c/B    55.70 c/f (+/- 0.3 %)      5.96 i/c   6272.48 b/f      4.55 GHz 
+fastfloat                               :  1299.50 MB/s (+/- 0.5 %)   177.03 Mfloat/s      19.30 i/B   148.58 i/f (+/- 0.0 %)      3.34 c/B    25.68 c/f (+/- 0.3 %)      5.79 i/c   2955.93 b/f      4.55 GHz 
+ffc                                     :  1245.72 MB/s (+/- 0.5 %)   169.70 Mfloat/s      19.28 i/B   148.42 i/f (+/- 0.0 %)      3.48 c/B    26.77 c/f (+/- 0.4 %)      5.54 i/c   2639.00 b/f      4.54 GHz 
+UTF-16 volume = 1.07202 MB 
+fastfloat                               :  2466.44 MB/s (+/- 0.8 %)   168.00 Mfloat/s      10.36 i/B   159.46 i/f (+/- 0.0 %)      1.76 c/B    27.06 c/f (+/- 0.6 %)      5.89 i/c   3152.69 b/f      4.55 GHz 
+==> Saved to /tmp/ffc-exp070-20260929/workspace/experiments/EXP-070/lab/amd-clang18-cpu8/bench-results/20260929-144142-float-inline-on-r2-both-3976262.txt

@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/tmp/ffc-exp070-20260929/ffc-exp070-extra.py", line 48, in <module>
+    run([str(out/'gcc-test')],f'{variant}-{test}-gcc.log')
+  File "/tmp/ffc-exp070-20260929/ffc-exp070-extra.py", line 14, in run
+    with (out/log).open('w') as f:subprocess.run(a,check=True,stdout=f,stderr=subprocess.STDOUT)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/tmp/ffc-exp070-20260929/workspace/experiments/EXP-070/lab/amd-clang18-cpu8/compatibility/gcc-test']' died with <Signals.SIGABRT: 6>.
+Traceback (most recent call last):
+  File "/tmp/ffc-exp070-20260929/ffc-exp070-followon.py", line 10, in <module>
+    subprocess.run(['taskset','-c','8','python3',str(b/'ffc-exp070-extra.py')],check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['taskset', '-c', '8', 'python3', '/tmp/ffc-exp070-20260929/ffc-exp070-extra.py']' returned non-zero exit status 1.

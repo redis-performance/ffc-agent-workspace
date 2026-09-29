@@ -1,0 +1,13 @@
+# compiler: clang
+# arch-flags: -march=native -DFFC_ENABLE_FLOAT_INLINING
+# rounding: FFC_ROUNDS_TO_NEAREST
+# ffc: 965d4db45d03365b4c852ab34f4d5b08b53bc7b3
+# ffc-worktree-diff: 27770c1d5f9bfba51db93cd9579285440bb5409756849194780336fd6f57bce9
+# fast_float: 9498cc361e081f46c85c936a0677e271c1930a45
+# fast_float-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# simple_fastfloat_benchmark: a856c090a6284f2a52d081471d266767b3856e82
+# simple_fastfloat_benchmark-worktree-diff: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# profile-driver-sha256: f7723f8b4bbdb7b411e239179b164522888ebf5d862168c9c662fee0248ff615  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/amd-clang18-cpu8/float-inline-on/benchmarks/ffc-profile-float
+# profile-source-sha256: f50107a77570d24761831fe3d5b2fdcc4d40e5109796ac23ed8d297b5e41a7a4  /tmp/ffc-exp070-20260929/workspace/scripts/ffc_profile_driver.cpp
+# data-sha256: 8d2adfc655583b7259c18de73f9b0833cdec9fa60b369208e4e0fd034797d341  /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt
+# parser: ffc; precision: float; duration: 5s

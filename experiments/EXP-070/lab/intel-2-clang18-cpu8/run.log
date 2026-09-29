@@ -1,0 +1,28 @@
+Clang; ARCH_FLAGS=-march=native; JOBS=2; 7 interleaved rounds
+Baseline and enabled option; float + double; random + canada + mesh
+Profiles: float mesh and double mesh, both builds. Linux perf uses sudo.
+Results: /tmp/ffc-exp070-20260929/workspace/experiments/EXP-070/lab/intel-2-clang18-cpu8
+baseline: correctness, linkage, build and supplemental PASS
+float-inline-on: correctness, linkage, build and supplemental PASS
+Benchmark round 1/7 PASS
+Benchmark round 2/7 PASS
+Benchmark round 3/7 PASS
+Benchmark round 4/7 PASS
+Benchmark round 5/7 PASS
+Benchmark round 6/7 PASS
+Benchmark round 7/7 PASS
+float-inline-on: float/double mesh profiles PASS
+baseline: float/double mesh profiles PASS
+baseline               double / canada.txt        1333.60 MB/s   76.64 Mfloat/s  +0.00% (7 runs)
+float-inline-on        double / canada.txt        1338.75 MB/s   76.93 Mfloat/s  +0.39% (7 runs)
+baseline               double / mesh.txt          1400.90 MB/s  190.84 Mfloat/s  +0.00% (7 runs)
+float-inline-on        double / mesh.txt          1394.48 MB/s  189.97 Mfloat/s  -0.46% (7 runs)
+baseline               double / random [0,1]      1418.42 MB/s   67.61 Mfloat/s  +0.00% (7 runs)
+float-inline-on        double / random [0,1]      1418.96 MB/s   67.63 Mfloat/s  +0.04% (7 runs)
+baseline               float / canada.txt         1207.73 MB/s   69.40 Mfloat/s  +0.00% (7 runs)
+float-inline-on        float / canada.txt         1352.48 MB/s   77.72 Mfloat/s +11.99% (7 runs)
+baseline               float / mesh.txt            812.06 MB/s  110.63 Mfloat/s  +0.00% (7 runs)
+float-inline-on        float / mesh.txt           1085.09 MB/s  147.82 Mfloat/s +33.62% (7 runs)
+baseline               float / random [0,1]       1346.30 MB/s   64.17 Mfloat/s  +0.00% (7 runs)
+float-inline-on        float / random [0,1]       1435.36 MB/s   68.41 Mfloat/s  +6.62% (7 runs)
+Complete. Parser source restored. Results: /tmp/ffc-exp070-20260929/workspace/experiments/EXP-070/lab/intel-2-clang18-cpu8

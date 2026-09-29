@@ -111,9 +111,11 @@ See [setup and commands](experiments/APPLE-M6-SETUP.md) and the
 
 EXP-065 through EXP-071 investigate compiler targeting, accumulator sites,
 exponent peeling, and float API inlining. The strongest result is
-[EXP-070](experiments/EXP-070/README.md): ffc float +14–35%, with an unresolved
--1.61% double mesh decrease. The safe opt-in patch and an x86 lab runner are
-saved for review. No parser optimization was accepted; sources remain upstream.
+[EXP-070](experiments/EXP-070/README.md): ffc float +14–35% on M6 and
++6.6–33.6% on Linux Intel/AMD/ARM. [Linux validation](experiments/EXP-070/lab/LINUX-VALIDATION.md)
+passed correctness, linkage and GCC compatibility, but small x86 double losses
+reproduced and the M6 double-mesh decrease remains unresolved. The opt-in patch
+stays parked; no parser optimization was accepted and sources remain upstream.
 [fast_float's separate trial](experiments/EXP-071/README.md) gained about 2.3–2.5%
 on scientific input with a small float mesh decrease.
 

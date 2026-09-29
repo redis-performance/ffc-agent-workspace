@@ -1,0 +1,38 @@
+[
+  {
+    "variant": "baseline",
+    "compiler": "clang",
+    "differential": "checks=268800 fingerprint=5279b5f6dcd5e7e5",
+    "text_sha256": "a818730829a27167c30fba55128fe754039c012b483772aa863c0514dfd66084"
+  },
+  {
+    "variant": "baseline",
+    "compiler": "gcc",
+    "differential": "checks=268800 fingerprint=5279b5f6dcd5e7e5",
+    "text_sha256": "6f5bfd25da94009b3acb9028609f91063b1c7a52c8468c7e80ee6bbaa724779e"
+  },
+  {
+    "variant": "patched-off",
+    "compiler": "clang",
+    "differential": "checks=268800 fingerprint=5279b5f6dcd5e7e5",
+    "text_sha256": "a818730829a27167c30fba55128fe754039c012b483772aa863c0514dfd66084"
+  },
+  {
+    "variant": "patched-off",
+    "compiler": "gcc",
+    "differential": "checks=268800 fingerprint=5279b5f6dcd5e7e5",
+    "text_sha256": "6f5bfd25da94009b3acb9028609f91063b1c7a52c8468c7e80ee6bbaa724779e"
+  },
+  {
+    "variant": "patched-on",
+    "compiler": "clang",
+    "differential": "checks=268800 fingerprint=5279b5f6dcd5e7e5",
+    "text_sha256": "9b62a09df165803933cafc4a585793e5548e37fadbf1916e9eab0625675b3418"
+  },
+  {
+    "variant": "patched-on",
+    "compiler": "gcc",
+    "differential": "checks=268800 fingerprint=5279b5f6dcd5e7e5",
+    "text_sha256": "6f5bfd25da94009b3acb9028609f91063b1c7a52c8468c7e80ee6bbaa724779e"
+  }
+]

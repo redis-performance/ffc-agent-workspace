@@ -1,0 +1,4 @@
+inline=off: c implementation / c caller PASS
+inline=off: c implementation / c++ caller PASS
+inline=off: c++ implementation / c caller PASS
+inline=off: c++ implementation / c++ caller PASS

@@ -1,0 +1,38 @@
+[
+  {
+    "target": "baseline",
+    "precision": "double",
+    "symbols": [
+      "00000000000127f0 0000000000000cc9 T findmax_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, bool)",
+      "000000000001af90 00000000000000e1 W double findmax_fastfloat<char16_t>(std::vector<std::__cxx11::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >, std::allocator<std::__cxx11::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >&, bool)",
+      "000000000001ab50 00000000000000e0 W double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, bool)"
+    ]
+  },
+  {
+    "target": "baseline",
+    "precision": "float",
+    "symbols": [
+      "000000000000bcd0 00000000000000c3 T findmax_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)",
+      "00000000000127d0 00000000000000bc W double findmax_fastfloat<char16_t>(std::vector<std::__cxx11::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >, std::allocator<std::__cxx11::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >&)",
+      "00000000000123c0 00000000000000bb W double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)"
+    ]
+  },
+  {
+    "target": "float-inline-on",
+    "precision": "double",
+    "symbols": [
+      "0000000000013fe0 0000000000000cc9 T findmax_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, bool)",
+      "000000000001c780 00000000000000e1 W double findmax_fastfloat<char16_t>(std::vector<std::__cxx11::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >, std::allocator<std::__cxx11::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >&, bool)",
+      "000000000001c340 00000000000000e0 W double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, bool)"
+    ]
+  },
+  {
+    "target": "float-inline-on",
+    "precision": "float",
+    "symbols": [
+      "000000000000d4c0 0000000000000c2c T findmax_ffc(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)",
+      "0000000000014b20 00000000000000bc W double findmax_fastfloat<char16_t>(std::vector<std::__cxx11::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >, std::allocator<std::__cxx11::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >&)",
+      "0000000000014710 00000000000000bb W double findmax_fastfloat<char>(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&)"
+    ]
+  }
+]

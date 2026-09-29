@@ -1,0 +1,80 @@
+ffc max=4.27819e+09 lines=73019 repetitions=7377
+
+ Performance counter stats for '/tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/intel-2-clang18-cpu8/baseline/benchmarks/ffc-profile-float /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt 5':
+
+      112787356101      instructions                                                          
+       18882910317      cycles                                                                
+       20978149505      branches                                                              
+          32788317      branch-misses                                                         
+         167542343      cache-references                                                      
+            177184      cache-misses                                                          
+
+       5.002111703 seconds time elapsed
+
+       5.000117000 seconds user
+       0.003998000 seconds sys
+
+
+ffc max=4.27819e+09 lines=73019 repetitions=7277
+[ perf record: Woken up 2 times to write data ]
+[ perf record: Captured and wrote 0.360 MB /tmp/ffc-exp070-20260929/workspace/experiments/EXP-070/lab/intel-2-clang18-cpu8/profile-results/20260929-144406-baseline-ffc-float-488274.data (5005 samples) ]
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 5K of event 'cpu/cycles/P'
+# Event count (approx.): 18936466620
+#
+# Overhead  Command          Shared Object                                 Symbol                                                                                                                                                                                                                                                              
+# ........  ...............  ............................................  ....................................................................................................................................................................................................................................................................
+#
+    87.40%  ffc-profile-flo  ffc-profile-float                             [.] ffc_from_chars_float_options
+            |          
+            |--34.46%--ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options
+            |          |          
+            |          |--12.38%--0
+            |          |          
+            |          |--3.98%--0x4
+            |          |          0
+            |          |          
+            |          |--2.40%--0x3038
+            |          |          
+            |           --0.92%--0x2000000000000000
+            |          
+            |--11.65%--ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options
+            |          |          
+            |           --4.78%--0x2000000000000000
+            |          
+            |--8.74%--ffc_from_chars_float_options
+            |          |          
+            |          |--3.95%--0x2000000000000000
+            |          |          
+            |           --3.73%--0x4
+            |                     0
+            |          
+            |--8.45%--ffc_compute_float(long, unsigned long, unsigned char) (inlined)
+            |          ffc_from_chars_advanced(ffc_parsed, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options
+            |          
+            |--7.05%--ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options
+            |          |          
+            |          |--2.70%--0
+            |          |          
+            |          |--1.72%--0x4
+            |          |          0
+            |          |          
+            |           --0.92%--0x3038
+            |          
+            |--5.66%--ffc_loop_parse_if_eight_digits(char const**, char const*, unsigned long*) (inlined)
+            |          ffc_parse_number_string(char const*, char const*, ffc_parse_options, bool) (inlined)
+            |          ffc_from_chars(char*, char*, ffc_parse_options, ffc_value*, unsigned char) (inlined)
+            |          ffc_from_chars_float_options
+            |          
+            |--2.34%--ffc_compute_product_approximation(long, unsigned long, unsigned char) (inlined)

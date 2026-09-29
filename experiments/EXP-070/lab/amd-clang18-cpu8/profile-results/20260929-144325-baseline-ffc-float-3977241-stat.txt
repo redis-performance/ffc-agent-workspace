@@ -1,0 +1,17 @@
+ffc max=4.27819e+09 lines=73019 repetitions=8834
+
+ Performance counter stats for '/tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/build/exp070-lab/amd-clang18-cpu8/baseline/benchmarks/ffc-profile-float /tmp/ffc-exp070-20260929/workspace/simple_fastfloat_benchmark/data/mesh.txt 5':
+
+      136409217212      instructions                                                            (83.33%)
+       22562638059      cycles                                                                  (83.33%)
+       25119025624      branches                                                                (83.33%)
+          42462736      branch-misses                                                           (83.33%)
+         691483964      cache-references                                                        (83.34%)
+           6198027      cache-misses                                                            (83.34%)
+
+       5.000069004 seconds time elapsed
+
+       5.000181000 seconds user
+       0.002999000 seconds sys
+
+

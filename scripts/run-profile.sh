@@ -59,10 +59,11 @@ if [[ "$(uname -s)" == Darwin ]]; then
   python3 "$WORKSPACE/scripts/summarize-xctrace.py" "$PREFIX-samples.xml" "$PREFIX-toc.xml" "$PARSER-profile-" | tee "$PREFIX-report.txt"
   echo "==> Saved Instruments trace: $PREFIX.trace"
 else
-  command -v perf >/dev/null || { echo "Install Linux perf" >&2; exit 1; }
-  sudo perf stat -e instructions,cycles,branches,branch-misses,cache-references,cache-misses \
+  PERF_BIN="${PERF_BIN:-perf}"
+  command -v "$PERF_BIN" >/dev/null || { echo "Install Linux perf or set PERF_BIN" >&2; exit 1; }
+  sudo -n "$PERF_BIN" stat -e instructions,cycles,branches,branch-misses,cache-references,cache-misses \
     -- "$DRIVER" "$DATA" "${PROFILE_SECONDS:-5}" 2>&1 | tee "$PREFIX-stat.txt"
-  sudo perf record -g -F 999 -o "$PREFIX.data" -- "$DRIVER" "$DATA" "${PROFILE_SECONDS:-5}"
-  sudo perf report --stdio -i "$PREFIX.data" --no-children > "$PREFIX-report.txt"
+  sudo -n "$PERF_BIN" record -g -F 999 -o "$PREFIX.data" -- "$DRIVER" "$DATA" "${PROFILE_SECONDS:-5}"
+  sudo -n "$PERF_BIN" report --stdio -i "$PREFIX.data" --no-children > "$PREFIX-report.txt"
   head -60 "$PREFIX-report.txt"
 fi

@@ -1,5 +1,7 @@
 # EXP-070 — ffc float API inlining on Apple M6
 
+**Linux validation completed 2026-09-29:** correctness/linkage passed on Intel, AMD and ARM; float improved on every dataset. Small x86 double decreases reproduced, and the M6 decrease remains unresolved. **Still parked.** See [full Linux evidence](lab/LINUX-VALIDATION.md).
+
 For an x86 lab run, use a fresh checkout of branch
 `exp/apple-m6-float-inlining-20260929`, initialize its pinned submodules, then:
 
@@ -64,8 +66,9 @@ The final patch is [variants/float-inline-clang-on.patch](variants/float-inline-
 It adds `FFC_ENABLE_FLOAT_INLINING`, disabled by default, and applies Clang's
 `always_inline` attribute without the C++ `inline` keyword when both it and
 `FFC_IMPL` are defined. Float APIs retain external symbols. Other compilers and
-non-implementation translation units retain ordinary declarations. This is
-tested on Apple Clang 21/M6 only, with no cross-platform performance claim.
+non-implementation translation units retain ordinary declarations. This was initially
+tested on Apple Clang 21/M6; the Linux follow-up above extends validation to
+Clang 18 on Intel/AMD/ARM and GCC 13 compatibility, with the stated regression limits.
 
 ## Correctness
 
