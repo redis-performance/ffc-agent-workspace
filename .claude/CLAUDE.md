@@ -10,6 +10,12 @@ portable become upstream PRs.
 The benchmark harness is the **immutable** referee. Both parsers are mutable
 submodules whose tips reflect their best accepted state.
 
+Every investigation or optimization work session must use the `cpu-perf` MCP from
+[CPU Performance Engineering](https://github.com/usamahz/cpu-performance-engineering),
+as required by AGENTS.md and [the shared workflow](../docs/PERFORMANCE-MCP.md).
+Check availability/library coverage, consult it on the actual investigation, and
+log calls, findings and limits. This requirement also applies to Codex sessions.
+
 ---
 
 ## Codebase Map

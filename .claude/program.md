@@ -6,6 +6,9 @@ organized by tier and expected throughput gain. Inspired by AutoKernel's program
 Read this before each experiment to choose the next technique to try.
 After profiling, use the **Bottleneck Classification** section to pick the right tier.
 
+Use the mandatory [per-session performance MCP workflow](../docs/PERFORMANCE-MCP.md)
+before choosing a technique or interpreting a profile.
+
 > **Two competitors.** These tiers are parser-agnostic — apply them to whichever
 > of `ffc` or `fast_float` you are targeting this experiment (see `experiments/RACE.md`
 > for who's behind). The symbol names below are ffc's; fast_float's equivalents live in

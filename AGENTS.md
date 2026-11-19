@@ -12,6 +12,26 @@ Primary target: `ffc_from_chars_double` / `ffc_from_chars_float` hot path in `ff
 
 ---
 
+## Mandatory performance MCP use — every session
+
+Every investigation or optimization work session, whether run by Codex or Claude,
+must use the `cpu-perf` performance MCP from
+[usamahz/cpu-performance-engineering](https://github.com/usamahz/cpu-performance-engineering).
+This is a required part of the investigation, not an optional reference.
+
+At session start, discover the server/tools and check `library_status`; before
+proposing changes or interpreting performance, call `ask` with the actual question
+and relevant measured counters, assembly or compiler output. Use its source lookup
+and evidence-checking tools as needed. Record the calls, source/version information,
+findings, limitations and resulting decisions in the experiment record.
+Follow [docs/PERFORMANCE-MCP.md](docs/PERFORMANCE-MCP.md) for the shared workflow.
+If unavailable, record the attempted connection and concrete blocker, use the linked
+primary sources as a disclosed fallback, and restore MCP use when possible. Never
+claim a consultation happened when it did not. Keep indexing and retrieval off the
+benchmark runner; the immutable referee and existing acceptance gates remain.
+
+---
+
 ## Two-Step Validation (mandatory)
 
 Every code change must pass both steps before being accepted:
