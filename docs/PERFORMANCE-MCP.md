@@ -1,5 +1,9 @@
 # Required performance MCP workflow
 
+Also required: use **topdown-profiler** for experiment assessment and include the
+four-category TMA classification in every experiment report.
+[TMA reporting and provenance](TMA-REPORTING.md) defines the required format.
+
 The maintainer requires the performance MCP from
 [CPU Performance Engineering](https://github.com/usamahz/cpu-performance-engineering)
 in **every investigation or optimization work session**, for **both Codex and Claude**.
