@@ -16,6 +16,10 @@ as required by AGENTS.md and [the shared workflow](../docs/PERFORMANCE-MCP.md).
 Check availability/library coverage, consult it on the actual investigation, and
 log calls, findings and limits. This requirement also applies to Codex sessions.
 
+Every experiment report must also include the measured TMA pipeline classification
+using topdown-profiler, or explicit unavailable categories and the blocker.
+Follow [TMA reporting](../docs/TMA-REPORTING.md); AGENTS.md applies to both backends.
+
 ---
 
 ## Codebase Map

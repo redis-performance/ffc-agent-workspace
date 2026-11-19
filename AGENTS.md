@@ -32,6 +32,22 @@ benchmark runner; the immutable referee and existing acceptance gates remain.
 
 ---
 
+## Required TMA classification — every experiment
+
+Codex and Claude must use [topdown-profiler](https://github.com/redis-performance/topdown-profiler)
+to assess further experiments. Every experiment's Markdown report must contain a
+**TMA classification**: Frontend_Bound, Bad_Speculation, Backend_Bound and Retiring,
+with their measured shares of total pipeline slots, plus measured child categories.
+The four L1 categories sum to 100% within reported rounding/measurement error.
+Show baseline and candidate separately; link raw captures, tool revision, binary,
+CPU/collector scope, workload, run IDs and collection quality. Follow
+[docs/TMA-REPORTING.md](docs/TMA-REPORTING.md). Never substitute hotspot sample
+shares, IPC, instruction counts, another machine, or illustrative numbers for TMA.
+If unsupported or uncollected, show all four as unavailable and state the blocker.
+Reports written before this rule are not rewritten.
+
+---
+
 ## Two-Step Validation (mandatory)
 
 Every code change must pass both steps before being accepted:
